@@ -23,6 +23,7 @@ import { LandingPageComponent } from "./hub/component/landing-page/landing-page.
 import { DASHBOARD_USER_WORKFLOW } from "./app-routing.constant";
 import { HubSearchResultComponent } from "./hub/component/hub-search-result/hub-search-result.component";
 import { FileDirectoryComponent } from "./dashboard/component/user/file-directory/file-directory.component"
+import { MetadataDirectoryComponent } from "./dashboard/component/user/metadata-directory/metadata-directory.component"
 
 const routes: Routes = [];
 
@@ -97,6 +98,10 @@ if (environment.userSystemEnabled) {
           {
             path: "directory",
             component: FileDirectoryComponent,
+          },
+          {
+            path: "metadata",
+            component: MetadataDirectoryComponent,
           },
           {
             path: "dataset/:did",
