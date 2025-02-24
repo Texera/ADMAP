@@ -1,0 +1,37 @@
+.texera-user-metadata-creator-form {
+  width: 100%;
+  margin: auto;
+  padding: 1em;
+}
+
+.create-btn {
+  background-color: #ffffff;
+  color: #007bff;
+  border: 1px solid lightgray;
+  padding: 5px 20px;
+  cursor: pointer;
+  margin-left: 15%;
+  margin-right: 5%;
+  width: 30%;
+  text-align: center;
+  &:hover {
+    background-color: darken(#007bff, 10%);
+    color: #ffffff;
+  }
+}
+
+.cancel-btn {
+  background-color: #ffffff;
+  color: #ff0000;
+  border: 1px solid lightgray;
+  padding: 5px 20px;
+  cursor: pointer;
+  margin-right: 15%;
+  margin-left: 5%;
+  width: 30%;
+  text-align: center;
+  &:hover {
+    background-color: darken(#ff0000, 10%);
+    color: #ffffff;
+  }
+}

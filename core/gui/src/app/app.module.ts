@@ -145,6 +145,9 @@ import { lastValueFrom } from "rxjs";
 import { HubSearchResultComponent } from "./hub/component/hub-search-result/hub-search-result.component";
 import { FileDirectoryComponent } from "./dashboard/component/user/file-directory/file-directory.component";
 import { MetadataDirectoryComponent } from "./dashboard/component/user/metadata-directory/metadata-directory.component";
+import { MetadataDetailComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-detail.component";
+import { MetadataCreatorComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-creator/metadata-creator.component";
+import { ContributorsFormComponent } from "./dashboard/component/user/metadata-directory/metadata-components/contributors-form/contributors-form.component";
 
 registerLocaleData(en);
 
@@ -236,6 +239,9 @@ registerLocaleData(en);
     HubSearchResultComponent,
     FileDirectoryComponent,
     MetadataDirectoryComponent,
+    MetadataDetailComponent,
+    MetadataCreatorComponent,
+    ContributorsFormComponent
   ],
   imports: [
     BrowserModule,

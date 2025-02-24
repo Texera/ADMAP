@@ -24,6 +24,7 @@ import { DASHBOARD_USER_WORKFLOW } from "./app-routing.constant";
 import { HubSearchResultComponent } from "./hub/component/hub-search-result/hub-search-result.component";
 import { FileDirectoryComponent } from "./dashboard/component/user/file-directory/file-directory.component"
 import { MetadataDirectoryComponent } from "./dashboard/component/user/metadata-directory/metadata-directory.component"
+import { MetadataDetailComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-detail.component"
 
 const routes: Routes = [];
 
@@ -96,6 +97,14 @@ if (environment.userSystemEnabled) {
             component: UserDatasetComponent,
           },
           {
+            path: "dataset/:did",
+            component: DatasetDetailComponent,
+          },
+          {
+            path: "dataset/create",
+            component: DatasetDetailComponent,
+          },
+          {
             path: "directory",
             component: FileDirectoryComponent,
           },
@@ -104,12 +113,8 @@ if (environment.userSystemEnabled) {
             component: MetadataDirectoryComponent,
           },
           {
-            path: "dataset/:did",
-            component: DatasetDetailComponent,
-          },
-          {
-            path: "dataset/create",
-            component: DatasetDetailComponent,
+            path: "metadata/create",
+            component: MetadataDetailComponent,
           },
           {
             path: "quota",

@@ -1,0 +1,37 @@
+<div>
+  <nz-spin
+    [nzSpinning]="isUploading"
+    nzSize="large"
+    nzTip="Uploading...">
+    <div
+      class="texera-user-metadata-creator-form"
+      [ngClass]="{'disabled-backdrop': isUploading}">
+      <formly-form
+        [form]="form"
+        [fields]="fields"
+        [model]="model"></formly-form>
+
+      <texera-user-contributors-form>
+      </texera-user-contributors-form>
+
+    </div>
+
+    <button
+      nz-button
+      nzType="primary"
+      (click)="onClickCreate()"
+      [disabled]="isCreateButtonDisabled || isUploading"
+      class="create-btn">
+      Create
+    </button>
+
+    <button
+      nz-button
+      nzType="default"
+      (click)="onClickCancel()"
+      class="cancel-btn"
+      [disabled]="isUploading">
+      Cancel
+    </button>
+  </nz-spin>
+</div>
