@@ -8,6 +8,7 @@ import { HubComponent } from "../../hub/component/hub.component";
 import { SocialAuthService } from "@abacritt/angularx-social-login";
 
 import {
+  DASHBOARD_ABOUT,
   DASHBOARD_ADMIN_EXECUTION,
   DASHBOARD_ADMIN_GMAIL,
   DASHBOARD_ADMIN_USER,
@@ -19,6 +20,8 @@ import {
   DASHBOARD_USER_WORKFLOW,
 } from "../../app-routing.constant";
 import {switchMap} from "rxjs/operators";
+import { environment } from "../../../environments/environment";
+import { Version } from "../../../environments/version";
 
 @Component({
   selector: "texera-dashboard",
@@ -32,6 +35,7 @@ export class DashboardComponent implements OnInit {
   isAdmin: boolean = this.userService.isAdmin();
   isLogin = this.userService.isLogin();
   googleLogin: boolean = environment.googleLogin;
+  public gitCommitHash: string = Version.raw;
   displayForum: boolean = true;
   displayNavbar: boolean = true;
   isCollpased: boolean = false;
@@ -148,4 +152,6 @@ export class DashboardComponent implements OnInit {
       }, 175);
     }
   }
+
+  protected readonly DASHBOARD_ABOUT = DASHBOARD_ABOUT;
 }
