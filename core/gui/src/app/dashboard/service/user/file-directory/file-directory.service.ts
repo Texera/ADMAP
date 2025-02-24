@@ -14,9 +14,6 @@ export const DIRECTORY_BASE_URL = "directory";
 })
 export class FileDirectoryService {
     constructor(private http: HttpClient) {}
-
-
-
     public fetchDirectories(): Observable<string> {
         return this.http.get(`${AppSettings.getApiEndpoint()}/${DIRECTORY_BASE_URL}`, { responseType: "text" });
     }

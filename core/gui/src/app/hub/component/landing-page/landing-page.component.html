@@ -10,5 +10,11 @@
   <!-- Search Bar -->
   <div class="search-bar-wrapper">
     <texera-search-bar></texera-search-bar>
+  <div>
+    <texera-browse-section
+      [entities]="topLovedDatasets"
+      sectionTitle="Top Loved Datasets"
+      [currentUid]="currentUid">
+    </texera-browse-section>
   </div>
 </div>

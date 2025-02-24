@@ -28,8 +28,6 @@ export class FileDirectoryComponent implements OnInit {
     }
   }
 
-
-
 ngOnInit(): void {
     this.fileDirectoryService.fetchDirectories().subscribe(
         (data: string) => {

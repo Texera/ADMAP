@@ -97,6 +97,10 @@ if (environment.userSystemEnabled) {
             component: UserDatasetComponent,
           },
           {
+            path: "directory",
+            component: FileDirectoryComponent,
+          },
+          {
             path: "dataset/:did",
             component: DatasetDetailComponent,
           },
