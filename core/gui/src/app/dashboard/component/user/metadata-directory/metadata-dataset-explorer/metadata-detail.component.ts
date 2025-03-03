@@ -1,15 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
-import { DatasetService } from "../../../../service/user/dataset/dataset.service";
 import { NzResizeEvent } from "ng-zorro-antd/resizable";
-// import { DatasetFileNode, getFullPathFromDatasetFileNode } from "../../../../../common/type/datasetVersionFileTree";
-// import { DatasetVersion } from "../../../../../common/type/dataset";
-import { switchMap } from "rxjs/operators";
-import { NotificationService } from "../../../../../common/service/notification/notification.service";
 import { DownloadService } from "../../../../service/user/download/download.service";
 import { formatSize } from "src/app/common/util/size-formatter.util";
-import { DASHBOARD_USER_METADATA_DIRECTORY } from "../../../../../app-routing.constant";
 import { UserService } from "../../../../../common/service/user/user.service";
 
 
@@ -18,7 +12,7 @@ import { UserService } from "../../../../../common/service/user/user.service";
   templateUrl: "./metadata-detail.component.html",
   styleUrls: ["./metadata-detail.component.scss"]
 })
-export class MetadataDetailComponent implements OnInit {
+export class MetadataDetailComponent {
   public mid: number | undefined;
   public metadataName: string = "";
   public metadataDescription: string = "";
@@ -60,25 +54,6 @@ export class MetadataDetailComponent implements OnInit {
     this.id = requestAnimationFrame(() => {
       this.siderWidth = width!;
     });
-  }
-
-  ngOnInit(): void {
-    this.route.params
-      .pipe(
-        switchMap(params => {
-          const param = params["mid"];
-          if (param !== "create") {
-            this.mid = param;
-            this.renderMetadataViewSider();
-            this.retrieveMetadataInfo();
-          } else {
-            this.renderMetadataCreatorSider();
-          }
-          return this.route.data; // or some other observable
-        }),
-        untilDestroyed(this)
-      )
-      .subscribe();
   }
 
   renderMetadataViewSider() {

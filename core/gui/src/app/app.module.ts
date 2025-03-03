@@ -147,7 +147,6 @@ import { FileDirectoryComponent } from "./dashboard/component/user/file-director
 import { MetadataDirectoryComponent } from "./dashboard/component/user/metadata-directory/metadata-directory.component";
 import { MetadataDetailComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-detail.component";
 import { MetadataCreatorComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-creator/metadata-creator.component";
-import { ContributorsFormComponent } from "./dashboard/component/user/metadata-directory/metadata-components/contributors-form/contributors-form.component";
 
 registerLocaleData(en);
 
@@ -241,7 +240,6 @@ registerLocaleData(en);
     MetadataDirectoryComponent,
     MetadataDetailComponent,
     MetadataCreatorComponent,
-    ContributorsFormComponent
   ],
   imports: [
     BrowserModule,

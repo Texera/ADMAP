@@ -1,15 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, FormArray, Validators } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { MetadataService } from "../../../../../service/user/metadata/metadata.service";
 import { FileUploadItem } from "../../../../../type/dashboard-file.interface";
-import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
+import { UntilDestroy } from "@ngneat/until-destroy";
 import { NotificationService } from "../../../../../../common/service/notification/notification.service";
 import sanitize from "sanitize-filename";
-import { HttpErrorResponse } from "@angular/common/http";
 import { Router } from "@angular/router";
-import {DASHBOARD_USER_METADATA_DIRECTORY} from "../../../../../../app-routing.constant";
-
+import { DASHBOARD_USER_METADATA_DIRECTORY } from "../../../../../../app-routing.constant";
 
 @UntilDestroy()
 @Component({
@@ -21,26 +19,33 @@ export class MetadataCreatorComponent implements OnInit {
   @Input()
   isCreatingMetadata: boolean = false;
 
-  // this emits the ID of the newly created metadata, will emit 0 if creation is failed.
   @Output()
   metadataCreationID: EventEmitter<number> = new EventEmitter<number>();
 
   isCreateButtonDisabled: boolean = false;
-
   newUploadFiles: FileUploadItem[] = [];
-
   removedFilePaths: string[] = [];
 
   public form: FormGroup = new FormGroup({});
   model: any = {};
   fields: FormlyFieldConfig[] = [];
   isMetadataPublic: boolean = false;
-
-  // used when creating the metadata
   isMetadataNameSanitized: boolean = false;
-
-  // boolean to control if is uploading
   isUploading: boolean = false;
+
+
+  contributorRoles = [
+    "Contact Person",
+    "Data Collector",
+    "Data Curator",
+    "Project Leader",
+    "Project Manager",
+    "Project Member",
+    "Related Person",
+    "Researcher",
+    "Research Group",
+    "Other"
+  ];
 
   constructor(
     private router: Router,
@@ -50,38 +55,84 @@ export class MetadataCreatorComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.setFormFields();
+    this.form = this.formBuilder.group({
+      name: ["", Validators.required],
+      contributors: this.formBuilder.array([]),
+      funders: this.formBuilder.array([]),
+      specimens: this.formBuilder.array([]),
+    });
+
+    console.log("FORM:", this.form);
+
+
     this.isMetadataNameSanitized = false;
   }
 
-  private setFormFields() {
-    this.fields = [
-      {
-        key: "name",
-        type: "input",
-        templateOptions: {
-          label: "Name",
-          required: true,
-        },
-      },
-      {
-        key: "description",
-        type: "input",
-        defaultValue: "",
-        templateOptions: {
-          label: "Description",
-        },
-      },
-    ];
+  // Getters for form arrays
+  get contributors() {
+    return this.form.get("contributors") as FormArray;
   }
 
-  get formControlNames(): string[] {
-    return Object.keys(this.form.controls);
+  get funders() {
+    return this.form.get("funders") as FormArray;
+  }
+
+  get specimens() {
+    return this.form.get("specimens") as FormArray;
+  }
+
+  // Add a new contributor
+  addContributor() {
+    const contributorGroup = this.formBuilder.group({
+      name: ["", Validators.required],
+      creator: [false], // Checkbox for creator
+      role: ["", Validators.required],
+      affiliation: ["", Validators.required],
+    });
+
+    this.contributors.push(contributorGroup);
+  }
+
+  // Remove a contributor
+  removeContributor(index: number) {
+    this.contributors.removeAt(index);
+  }
+
+  // Add a new funder
+  addFunder() {
+    const funderGroup = this.formBuilder.group({
+      name: ["", Validators.required],
+      awardTitle: ["", Validators.required],
+    });
+
+    this.funders.push(funderGroup);
+  }
+
+  // Remove a funder
+  removeFunder(index: number) {
+    this.funders.removeAt(index);
+  }
+
+  // Add a new specimen
+  addSpecimen() {
+    const specimenGroup = this.formBuilder.group({
+      id: ["", Validators.required],
+      specimen: ["", Validators.required],
+      age: ["", [Validators.required, Validators.min(0)]],
+      sex: ["", Validators.required], // Male, Female, Unknown
+    });
+
+    this.specimens.push(specimenGroup);
+  }
+
+  // Remove a specimen
+  removeSpecimen(index: number) {
+    this.specimens.removeAt(index);
   }
 
   metadataNameSanitization(metadataName: string): string {
     const sanitizedMetadataName = sanitize(metadataName);
-    if (sanitizedMetadataName != metadataName) {
+    if (sanitizedMetadataName !== metadataName) {
       this.isMetadataNameSanitized = true;
     }
     return sanitizedMetadataName;
@@ -100,36 +151,48 @@ export class MetadataCreatorComponent implements OnInit {
   }
 
   onClickCreate() {
-    // check if the form is valid
+    // Check if the form is valid
     this.triggerValidation();
 
     if (!this.form.valid) {
       return; // Stop further execution if the form is not valid
     }
+    console.log("Form Data:", this.form.value);
 
     this.isUploading = true;
-
-    const metadata = {
-      name: this.metadataNameSanitization(this.form.get("name")?.value),
-      description: this.form.get("description")?.value,
+    const metadataPayload = {
+      metadataName: this.metadataNameSanitization(this.form.get("name")?.value), // Metadata Name
+      contributors: this.contributors.value.map((contributor: any) => ({
+        name: contributor.name,
+        creator: contributor.creator,
+        contributorType: contributor.role,
+        affiliation: contributor.affiliation
+      })),
+      funders: this.funders.value.map((funder: any) => ({
+        name: funder.name,
+        awardTitle: funder.awardTitle
+      })),
+      specimens: this.specimens.value.map((specimen: any) => ({
+        name: specimen.specimen,
+        age: specimen.age,
+        sex: specimen.sex
+      })),
     };
 
-    this.metadataService
-      .createMetadata(metadata)
-      .pipe(untilDestroyed(this))
-      .subscribe({
-        next: res => {
-          this.notificationService.success(
-            `Metadata '${metadata.name}' Created. ${this.isMetadataNameSanitized ? "We have sanitized your provided metadata name for compatibility reasons" : ""}`
-          );
-          // this.metadataCreationID.emit(res.metadata.id);
-          this.isUploading = false;
-        },
-        error: (res: unknown) => {
-          const err = res as HttpErrorResponse;
-          this.notificationService.error(`Metadata ${metadata.name} creation failed: ${err.error.message}`);
-          this.isUploading = false;
-        },
-      });
+    console.log("Sending Metadata Payload:", metadataPayload);
+
+    this.metadataService.createMetadata(metadataPayload).subscribe({
+      next: (res) => {
+        this.notificationService.success(
+          `Metadata '${metadataPayload.metadataName}' created successfully!`
+        );
+        this.isUploading = false;
+      },
+      error: (err) => {
+        console.error("Metadata creation failed:", err);
+        this.notificationService.error(`Metadata creation failed: ${err.message}`);
+        this.isUploading = false;
+      },
+    });
   }
 }

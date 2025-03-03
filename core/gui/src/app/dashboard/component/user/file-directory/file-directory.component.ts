@@ -23,8 +23,8 @@ export class FileDirectoryComponent implements OnInit {
 
     if (this.user) {
       // this.scpUsername = this.userService.getSCPUsername();
-      this.scpUsername = this.userService.getSCPUsername();
-      this.scpPassword = this.userService.getSCPPassword();
+      // this.scpUsername = this.userService.getSCPUsername();
+      // this.scpPassword = this.userService.getSCPPassword();
     }
   }
 
