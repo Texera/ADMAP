@@ -12,7 +12,6 @@ import {
   DASHBOARD_ADMIN_EXECUTION,
   DASHBOARD_ADMIN_GMAIL,
   DASHBOARD_ADMIN_USER,
-  DASHBOARD_HOME,
   DASHBOARD_USER_DATASET,
   DASHBOARD_USER_DISCUSSION,
   DASHBOARD_USER_PROJECT,
@@ -21,7 +20,6 @@ import {
   DASHBOARD_USER_FILE_DIRECTORY,
   DASHBOARD_USER_METADATA_DIRECTORY
 } from "../../app-routing.constant";
-import {switchMap} from "rxjs/operators";
 import { environment } from "../../../environments/environment";
 import { Version } from "../../../environments/version";
 
@@ -49,7 +47,6 @@ export class DashboardComponent implements OnInit {
 
   protected readonly DASHBOARD_USER_FILE_DIRECTORY = DASHBOARD_USER_FILE_DIRECTORY
   protected readonly DASHBOARD_USER_METADATA_DIRECTORY = DASHBOARD_USER_METADATA_DIRECTORY
-  protected readonly DASHBOARD_USER_FILE_DIRECTORY = DASHBOARD_USER_FILE_DIRECTORY
 
 protected readonly DASHBOARD_USER_QUOTA = DASHBOARD_USER_QUOTA;
   protected readonly DASHBOARD_USER_DISCUSSION = DASHBOARD_USER_DISCUSSION;
@@ -94,19 +91,12 @@ protected readonly DASHBOARD_USER_QUOTA = DASHBOARD_USER_QUOTA;
       });
 
     this.socialAuthService.authState.pipe(untilDestroyed(this)).subscribe(user => {
-
       this.userService
         .googleLogin(user.idToken)
-        .pipe(
-          switchMap(() => {
-            return this.userService.addLdapUser(this.userService.getSCPUsername(), this.userService.getSCPPassword());
-            // return this.userService.addLdapUser(this.scpUsername, this.scpPassword);
-          }),
-          untilDestroyed(this)
-        )
+        .pipe(untilDestroyed(this))
         .subscribe(() => {
           this.ngZone.run(() => {
-            this.router.navigateByUrl(this.route.snapshot.queryParams["returnUrl"] || DASHBOARD_HOME);
+            this.router.navigateByUrl(this.route.snapshot.queryParams["returnUrl"] || DASHBOARD_USER_WORKFLOW);
           });
         });
     });

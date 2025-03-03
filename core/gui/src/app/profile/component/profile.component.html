@@ -10,19 +10,19 @@
     <br />
 
     <p><b>To SCP your data, enter the following in the terminal:</b></p>
-    <p>scp [local file] {{ scpUsername }}@3.129.210.205:/home/users/{{ scpUsername }}</p>
+    <p>scp [local file] {{ this.scpUsername }}@{{ this.host_ip}}:/home/users/{{ this.scpUsername }}</p>
     <br />
 
     <p><b>Use the below credentials to SCP your raw data.</b></p>
-    <p><strong>Username: </strong>{{ scpUsername }}</p>
+    <p><strong>Username: </strong>{{ this.scpUsername }}</p>
     <p>
       <strong>Password: </strong>
-      <span *ngIf="!showPassword">****</span>
-      <span *ngIf="showPassword">{{ scpPassword }}</span>
+      <span *ngIf="!showPassword">********</span>
+<!--      <span *ngIf="showPassword">{{ scpPassword }}</span>-->
       <button (click)="togglePasswordVisibility()">
         {{ showPassword ? "Hide" : "Show" }}
       </button>
-      <button (click)="regeneratePassword()">Regenerate Password</button>
+<!--      <button (click)="regeneratePassword()">Regenerate Password</button>-->
     </p>
 
     </div>

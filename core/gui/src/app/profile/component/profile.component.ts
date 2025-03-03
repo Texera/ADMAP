@@ -12,24 +12,22 @@ export class ProfileComponent {
   public scpUsername : string | undefined;
   public scpPassword: string | undefined;
   public showPassword: boolean = false;
+  public host_ip: string;
 
   constructor(
     private userService: UserService,
   ) {
+    this.host_ip = "3.145.57.82";
     this.user = this.userService.getCurrentUser();
 
     if (this.user) {
-      // this.scpUsername = this.userService.getSCPUsername();
-      this.scpUsername = this.userService.getSCPUsername();
-      this.scpPassword = this.userService.getSCPPassword();
+      this.scpUsername = `${this.user.email.split("@")[0]}_${this.user.uid}`;
+      // TODO get password
+      // this.scpPassword = this.user.email
     }
   }
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
-  }
-
-  regeneratePassword(): void {
-    this.scpPassword = this.userService.regenerateSCPPassword();
   }
 }

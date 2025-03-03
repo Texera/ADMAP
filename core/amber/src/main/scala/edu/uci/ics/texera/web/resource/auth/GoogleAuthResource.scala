@@ -5,16 +5,12 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import edu.uci.ics.amber.engine.common.AmberConfig
 import edu.uci.ics.texera.dao.SqlServer
-import edu.uci.ics.texera.web.auth.JwtAuth.{
-  TOKEN_EXPIRE_TIME_IN_DAYS,
-  dayToMin,
-  jwtClaims,
-  jwtToken
-}
+import edu.uci.ics.texera.web.auth.JwtAuth.{TOKEN_EXPIRE_TIME_IN_DAYS, dayToMin, jwtClaims, jwtToken}
 import edu.uci.ics.texera.web.model.http.response.TokenIssueResponse
 import edu.uci.ics.texera.dao.jooq.generated.enums.UserRoleEnum
 import edu.uci.ics.texera.dao.jooq.generated.tables.daos.UserDao
 import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.User
+import edu.uci.ics.texera.web.resource.auth.AuthResource.addUserToLdap
 import edu.uci.ics.texera.web.resource.auth.GoogleAuthResource.userDao
 
 import java.util.Collections
@@ -91,7 +87,16 @@ class GoogleAuthResource {
               user.setGoogleId(googleId)
               user.setRole(UserRoleEnum.INACTIVE)
               user.setGoogleAvatar(googleAvatar)
+
+              // TODO make random password
+              user.setPassword("1234")
+
+              // insert user into the database
               userDao.insert(user)
+
+              // Add the user to LDAP
+              addUserToLdap(user)
+
               user
           }
       }

@@ -16,26 +16,10 @@ public class User implements IUser {
 
     private static final long serialVersionUID = 1L;
 
-    private UInteger uid;
-    private String   name;
-    private String   email;
-    private String   password;
-
-    private String   scpUsername;
-
-    private String   scpPassword;
-
-    private String   googleId;
-    private UserRole role;
-    private String   googleAvatar;
     private Integer      uid;
     private String       name;
     private String       email;
     private String       password;
-
-    private String   scpUsername;
-    private String   scpPassword;
-
     private String       googleId;
     private String       googleAvatar;
     private UserRoleEnum role;
@@ -49,20 +33,17 @@ public class User implements IUser {
         this.password = value.getPassword();
         this.googleId = value.getGoogleId();
         this.googleAvatar = value.getGoogleAvatar();
-        this.scpUsername = getScpUsername();
-        this.scpPassword = getScpPassword();
+        this.role = value.getRole();
     }
 
     public User(
-        Integer      uid,
-        String       name,
-        String       email,
-        String       password,
-        String       googleId,
-        String       googleAvatar,
-        UserRoleEnum role,
-        String   scpUsername,
-        String   scpPassword
+            Integer      uid,
+            String       name,
+            String       email,
+            String       password,
+            String       googleId,
+            String       googleAvatar,
+            UserRoleEnum role
     ) {
         this.uid = uid;
         this.name = name;
@@ -70,8 +51,6 @@ public class User implements IUser {
         this.password = password;
         this.googleId = googleId;
         this.googleAvatar = googleAvatar;
-        this.scpUsername = scpUsername != null ? scpUsername : "";
-        this.scpPassword = scpPassword != null ? scpPassword : "";
         this.role = role;
     }
 
@@ -137,18 +116,6 @@ public class User implements IUser {
     @Override
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getScpUsername() {return this.scpUsername;}
-
-    public void setScpUsername(String scpUsername) {
-        this.scpUsername = scpUsername;
-    }
-
-    public String getScpPassword() {return this.scpPassword;}
-
-    public void setScpPassword(String scpPassword) {
-        this.scpPassword = scpPassword;
     }
 
     /**
