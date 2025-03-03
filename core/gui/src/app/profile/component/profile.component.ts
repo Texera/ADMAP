@@ -12,7 +12,7 @@ export class ProfileComponent {
   public scpUsername : string | undefined;
   public scpPassword: string | undefined;
   public showPassword: boolean = false;
-  private host_ip: string;
+  public host_ip: string;
 
   constructor(
     private userService: UserService,
