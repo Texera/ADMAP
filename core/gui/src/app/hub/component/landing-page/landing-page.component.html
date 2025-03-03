@@ -4,12 +4,20 @@
       <h1>ADMAP</h1>
       <p>
         UC Irvine Alzheimer's Disease Multimodal Atlasing Project
+        <a
+          href="javascript:void(0)"
+          (click)="navigateToSearch('dataset')">
+          {{datasetCount}} datasets
+        </a>
       </p>
     </div>
+
+    <img
+      class="section-intro-img"
+      src="../../../../../assets/svg/hub_icon.svg"
+      alt="hub icon" />
   </div>
-  <!-- Search Bar -->
-  <div class="search-bar-wrapper">
-    <texera-search-bar></texera-search-bar>
+
   <div>
     <texera-browse-section
       [entities]="topLovedDatasets"
