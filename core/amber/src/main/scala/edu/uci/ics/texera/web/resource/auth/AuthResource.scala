@@ -105,6 +105,11 @@ object AuthResource {
     }
   }
 
+  /**
+   * Creates a home directory for user's home directory.
+   * The directory will be created at: /home/users/$username
+   * where $username is derived from the user's email and UID.
+   */
   def createHomeDirectory(ldapUser: User): Boolean = {
     val emailPrefix = ldapUser.getEmail.split("@")(0)
     val uid = ldapUser.getUid
@@ -126,20 +131,14 @@ object AuthResource {
       val jsch = new JSch()
       jsch.setKnownHosts("/Users/lanaramadan/.ssh/known_hosts")
       jsch.addIdentity(privateKeyPath, "12345")
-
       session = jsch.getSession(sshUser, sshHost, 22)
       session.setConfig("StrictHostKeyChecking", "no")
-
       session.connect()
-
       val channel = session.openChannel("exec").asInstanceOf[ChannelExec]
       channel.setCommand(command)
       channel.setErrStream(System.err)
       channel.connect()
-
       true
-
-
     } catch {
       case e: Exception =>
         println(s"Error: ${e.getMessage}")
@@ -197,37 +196,11 @@ class AuthResource {
         // hash the plain text password
         user.setPassword(new StrongPasswordEncryptor().encryptPassword(request.password))
         userDao.insert(user)
-
-
         addUserToLdap(user)
-
-
-
         TokenIssueResponse(jwtToken(jwtClaims(user, dayToMin(TOKEN_EXPIRE_TIME_IN_DAYS))))
       case _ =>
         // the username exists already
         throw new NotAcceptableException("Username exists already.")
     }
   }
-
-
-//  @POST
-//  @Path("/add-ldap-user")
-//  def addLdapUser(request: LdapUserRegistrationRequest): TokenIssueResponse = {
-//    val scpUsername = request.scpUsername
-//    val scpPassword = request.scpPassword
-//
-//    val ldapUser = new User
-////    ldapUser.setScpUsername(scpUsername)
-////    ldapUser.setScpPassword(scpPassword)
-//    ldapUser.setName(scpUsername)
-//    ldapUser.setPassword(scpPassword)
-//
-//    addUserToLdap(ldapUser)
-//    createHomeDirectory(ldapUser)
-//
-//    TokenIssueResponse(jwtToken(jwtClaims(ldapUser, dayToMin(TOKEN_EXPIRE_TIME_IN_DAYS))))
-//  }
-
-
 }
