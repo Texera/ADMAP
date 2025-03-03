@@ -24,6 +24,8 @@ import com.jcraft.jsch._
 
 object AuthResource {
 
+  final private val HOST_IP: String = "3.145.57.82"
+
   final private lazy val userDao = new UserDao(
     SqlServer
       .getInstance()
@@ -53,17 +55,19 @@ object AuthResource {
   }
 
 
-  def addUserToLdap(ldapUser: User) = {
-    val ldapHost = "3.129.210.205"
+  def addUserToLdap(ldapUser: User): LDAPResult = {
+    val ldapHost = HOST_IP
     val ldapPort = 389
     val ldapBindDN = "cn=admin,dc=admap,dc=com"
     val ldapBindPassword = "23627"
     val baseDN = "dc=admap,dc=com"
 
-    // user attributes
-    val username = ldapUser.getScpUsername()
-    val uid = username.split("_")(1)
-    val password = ldapUser.getScpPassword()
+    val emailPrefix = ldapUser.getEmail.split("@")(0)
+    val uid = ldapUser.getUid
+    val name = ldapUser.getName
+
+    val username = s"${emailPrefix}_${uid}"
+    val password = ldapUser.getPassword
 
     var connection: LDAPConnection = null
     try {
@@ -73,17 +77,21 @@ object AuthResource {
 
       entry.addAttribute("objectClass", "inetOrgPerson", "posixAccount", "shadowAccount")
       entry.addAttribute("uid", username)
-      entry.addAttribute("cn", username)
-      entry.addAttribute("sn", username)
+      entry.addAttribute("cn", name)
+      entry.addAttribute("sn", name)
       entry.addAttribute("userPassword", password)
       entry.addAttribute("loginShell", "/bin/bash")
-      entry.addAttribute("uidNumber", uid)
+      entry.addAttribute("uidNumber", uid.toString)
       entry.addAttribute("gidNumber", "5000")
       entry.addAttribute("homeDirectory", s"/home/users/$username")
 
       // Use AddRequest explicitly
       val addRequest = new AddRequest(entry)
-      connection.add(addRequest)
+      val result = connection.add(addRequest)
+
+      createHomeDirectory(ldapUser)
+
+      result
 
     } catch {
       case e: LDAPException =>
@@ -98,12 +106,14 @@ object AuthResource {
   }
 
   def createHomeDirectory(ldapUser: User): Boolean = {
-    val username = ldapUser.getScpUsername()
+    val emailPrefix = ldapUser.getEmail.split("@")(0)
+    val uid = ldapUser.getUid
+    val username = s"${emailPrefix}_${uid}"
+
     val path = s"/home/users/$username/"
 
-    val sshHost = "3.129.210.205"
+    val sshHost = HOST_IP
     val sshUser = "ubuntu"
-//    val privateKeyPath = "/Users/lanaramadan/Desktop/012624.pem"
     val privateKeyPath = "/Users/lanaramadan/Desktop/012624-2.pem"
 
     // make directory and change ownership to the user
@@ -187,6 +197,12 @@ class AuthResource {
         // hash the plain text password
         user.setPassword(new StrongPasswordEncryptor().encryptPassword(request.password))
         userDao.insert(user)
+
+
+        addUserToLdap(user)
+
+
+
         TokenIssueResponse(jwtToken(jwtClaims(user, dayToMin(TOKEN_EXPIRE_TIME_IN_DAYS))))
       case _ =>
         // the username exists already
@@ -195,20 +211,23 @@ class AuthResource {
   }
 
 
-  @POST
-  @Path("/add-ldap-user")
-  def addLdapUser(request: LdapUserRegistrationRequest): TokenIssueResponse = {
-    val scpUsername = request.scpUsername
-    val scpPassword = request.scpPassword
-
-    val ldapUser = new User
-    ldapUser.setScpUsername(scpUsername)
-    ldapUser.setScpPassword(scpPassword)
-    addUserToLdap(ldapUser)
-    createHomeDirectory(ldapUser)
-
-    TokenIssueResponse(jwtToken(jwtClaims(ldapUser, dayToMin(TOKEN_EXPIRE_TIME_IN_DAYS))))
-  }
+//  @POST
+//  @Path("/add-ldap-user")
+//  def addLdapUser(request: LdapUserRegistrationRequest): TokenIssueResponse = {
+//    val scpUsername = request.scpUsername
+//    val scpPassword = request.scpPassword
+//
+//    val ldapUser = new User
+////    ldapUser.setScpUsername(scpUsername)
+////    ldapUser.setScpPassword(scpPassword)
+//    ldapUser.setName(scpUsername)
+//    ldapUser.setPassword(scpPassword)
+//
+//    addUserToLdap(ldapUser)
+//    createHomeDirectory(ldapUser)
+//
+//    TokenIssueResponse(jwtToken(jwtClaims(ldapUser, dayToMin(TOKEN_EXPIRE_TIME_IN_DAYS))))
+//  }
 
 
 }
