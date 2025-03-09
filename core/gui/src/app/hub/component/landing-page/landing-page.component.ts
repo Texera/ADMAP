@@ -9,6 +9,8 @@ import {
   DASHBOARD_HOME,
   DASHBOARD_HUB_DATASET_RESULT,
   DASHBOARD_HUB_WORKFLOW_RESULT,
+  DASHBOARD_USER_FILE_DIRECTORY,
+  DASHBOARD_USER_METADATA_DIRECTORY,
 } from "../../../app-routing.constant";
 import { UserService } from "../../../common/service/user/user.service";
 
@@ -121,6 +123,23 @@ export class LandingPageComponent implements OnInit {
 
       return entry;
     });
+  }
+
+  navigateToData(type: string): void {
+    let path: string;
+
+    switch (type) {
+      case "meta":
+        path = DASHBOARD_USER_METADATA_DIRECTORY;
+        break;
+      case "raw":
+        path = DASHBOARD_USER_FILE_DIRECTORY;
+        break;
+      default:
+        path = DASHBOARD_HOME;
+    }
+
+    this.router.navigate([path]);
   }
 
   navigateToSearch(type: string): void {
