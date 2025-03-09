@@ -17,14 +17,24 @@ export class ProfileComponent {
   constructor(
     private userService: UserService,
   ) {
-    this.host_ip = "3.145.57.82";
+    this.host_ip = "3.142.252.209";
     this.user = this.userService.getCurrentUser();
 
     if (this.user) {
       this.scpUsername = `${this.user.email.split("@")[0]}_${this.user.uid}`;
-      // TODO get password
-      // this.scpPassword = this.user.email
+
+      this.userService.getCurrentUserPassword().subscribe(
+        password => {
+          console.log('Password fetched:', password); // Log the password
+          this.scpPassword = password;
+        },
+        error => {
+          console.error('Error fetching password:', error);
+        }
+      );
     }
+
+
   }
 
   togglePasswordVisibility(): void {

@@ -18,7 +18,7 @@
     <p>
       <strong>Password: </strong>
       <span *ngIf="!showPassword">********</span>
-<!--      <span *ngIf="showPassword">{{ scpPassword }}</span>-->
+      <span *ngIf="showPassword">{{ this.scpPassword }}</span>
       <button (click)="togglePasswordVisibility()">
         {{ showPassword ? "Hide" : "Show" }}
       </button>

@@ -20,7 +20,7 @@ import { DatasetDetailComponent } from "./dashboard/component/user/user-dataset/
 import { UserDatasetComponent } from "./dashboard/component/user/user-dataset/user-dataset.component";
 import { HubWorkflowDetailComponent } from "./hub/component/workflow/detail/hub-workflow-detail.component";
 import { LandingPageComponent } from "./hub/component/landing-page/landing-page.component";
-import { DASHBOARD_USER_WORKFLOW } from "./app-routing.constant";
+import {DASHBOARD_HOME, DASHBOARD_USER_WORKFLOW} from "./app-routing.constant";
 import { HubSearchResultComponent } from "./hub/component/hub-search-result/hub-search-result.component";
 import { FileDirectoryComponent } from "./dashboard/component/user/file-directory/file-directory.component"
 import { MetadataDirectoryComponent } from "./dashboard/component/user/metadata-directory/metadata-directory.component"
@@ -44,19 +44,6 @@ if (environment.userSystemEnabled) {
       {
         path: "hub",
         children: [
-          {
-            path: "workflow",
-            children: [
-              {
-                path: "result",
-                component: HubSearchResultComponent,
-              },
-              {
-                path: "result/detail/:id",
-                component: HubWorkflowDetailComponent,
-              },
-            ],
-          },
           {
             path: "dataset",
             children: [
@@ -83,14 +70,6 @@ if (environment.userSystemEnabled) {
           {
             path: "project/:pid",
             component: UserProjectSectionComponent,
-          },
-          {
-            path: "workspace/:id",
-            component: WorkspaceComponent,
-          },
-          {
-            path: "workflow",
-            component: UserWorkflowComponent,
           },
           {
             path: "dataset",
@@ -161,7 +140,7 @@ if (environment.userSystemEnabled) {
 
   routes.push({
     path: "",
-    redirectTo: DASHBOARD_USER_WORKFLOW,
+    redirectTo: DASHBOARD_HOME,
     pathMatch: "full",
   });
 } else {
@@ -171,10 +150,10 @@ if (environment.userSystemEnabled) {
   });
 }
 
-// redirect all other paths to index.
+// redirect all other paths to dashboard home.
 routes.push({
   path: "**",
-  redirectTo: DASHBOARD_USER_WORKFLOW,
+  redirectTo: DASHBOARD_HOME,
 });
 
 @NgModule({
