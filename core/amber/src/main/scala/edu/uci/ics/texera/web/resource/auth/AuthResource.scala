@@ -3,12 +3,7 @@ package edu.uci.ics.texera.web.resource.auth
 import edu.uci.ics.amber.engine.common.AmberConfig
 import edu.uci.ics.texera.dao.SqlServer
 import edu.uci.ics.texera.web.auth.JwtAuth._
-import edu.uci.ics.texera.web.model.http.request.auth.{
-  RefreshTokenRequest,
-  UserLoginRequest,
-  UserRegistrationRequest,
-  LdapUserRegistrationRequest
-}
+import edu.uci.ics.texera.web.model.http.request.auth.{LdapUserRegistrationRequest, RefreshTokenRequest, UserLoginRequest, UserRegistrationRequest}
 import edu.uci.ics.texera.web.model.http.response.TokenIssueResponse
 import edu.uci.ics.texera.dao.jooq.generated.Tables.USER
 import edu.uci.ics.texera.dao.jooq.generated.enums.UserRoleEnum
@@ -17,14 +12,19 @@ import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.User
 import edu.uci.ics.texera.web.resource.auth.AuthResource._
 import org.jasypt.util.password.StrongPasswordEncryptor
 import javax.ws.rs._
-import javax.ws.rs.core.MediaType
-import com.unboundid.ldap.sdk.{LDAPConnection, Entry, AddRequest}
+import javax.ws.rs.core.{MediaType, Response}
+import com.unboundid.ldap.sdk.{AddRequest, Entry, LDAPConnection}
 import com.unboundid.ldap.sdk._
 import com.jcraft.jsch._
+import edu.uci.ics.texera.web.auth.SessionUser
+import io.dropwizard.auth.Auth
+import play.api.libs.json.Json
+import java.security.SecureRandom
+import java.util.Base64
 
 object AuthResource {
 
-  final private val HOST_IP: String = "3.145.57.82"
+  final private val HOST_IP: String = "3.142.252.209"
 
   final private lazy val userDao = new UserDao(
     SqlServer
@@ -54,6 +54,13 @@ object AuthResource {
     ).filter(user => new StrongPasswordEncryptor().checkPassword(password, user.getPassword))
   }
 
+
+  def generateSecurePassword(length: Int = 8): String = {
+    val random = new SecureRandom()
+    val bytes = new Array[Byte](length)
+    random.nextBytes(bytes)
+    Base64.getUrlEncoder.withoutPadding.encodeToString(bytes).take(length)
+  }
 
   def addUserToLdap(ldapUser: User): LDAPResult = {
     val ldapHost = HOST_IP
@@ -158,6 +165,17 @@ object AuthResource {
 @Produces(Array(MediaType.APPLICATION_JSON))
 class AuthResource {
 
+  @GET
+  @Path("/password")
+  def password(@Auth user: SessionUser): String = {
+    val userFromDb = userDao.fetchOneByEmail(user.getEmail)
+    val password = userFromDb.getPassword
+    if (password == null) {
+      throw new Exception("Password is null")
+    }
+    password
+  }
+
   @POST
   @Path("/login")
   def login(request: UserLoginRequest): TokenIssueResponse = {
@@ -193,8 +211,7 @@ class AuthResource {
         user.setName(username)
         user.setEmail(username)
         user.setRole(UserRoleEnum.ADMIN)
-        // hash the plain text password
-        user.setPassword(new StrongPasswordEncryptor().encryptPassword(request.password))
+        user.setPassword(generateSecurePassword())
         userDao.insert(user)
         addUserToLdap(user)
         TokenIssueResponse(jwtToken(jwtClaims(user, dayToMin(TOKEN_EXPIRE_TIME_IN_DAYS))))
