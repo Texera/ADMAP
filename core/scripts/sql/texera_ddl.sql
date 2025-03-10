@@ -53,7 +53,7 @@ DROP TABLE IF EXISTS metadata_specimen CASCADE;
 DROP TYPE IF EXISTS user_role_enum CASCADE;
 DROP TYPE IF EXISTS privilege_enum CASCADE;
 DROP TYPE IF EXISTS contributor_role_enum CASCADE;
-DROP TYPE IF EXISTS sex_enum CASCADE;
+DROP TYPE IF EXISTS specimen_sex_enum CASCADE;
 
 CREATE TYPE user_role_enum AS ENUM ('INACTIVE', 'RESTRICTED', 'REGULAR', 'ADMIN');
 CREATE TYPE privilege_enum AS ENUM ('NONE', 'READ', 'WRITE');
@@ -69,7 +69,7 @@ CREATE TYPE contributor_role_enum AS ENUM (
     'Research Group',
     'Other'
 );
-CREATE TYPE sex_enum AS ENUM ('Male', 'Female', 'Unknown');
+CREATE TYPE specimen_sex_enum AS ENUM ('Male', 'Female', 'Unknown');
 
 
 -- ============================================
@@ -363,7 +363,7 @@ CREATE TABLE IF NOT EXISTS metadata_specimen
     metadata_id   INT NOT NULL,
     name          VARCHAR(256) NOT NULL,
     age           INT NOT NULL,
-    sex           sex_enum,
+    sex           specimen_sex_enum,
     FOREIGN KEY (metadata_id) REFERENCES metadata(mid) ON DELETE CASCADE
     );
 

@@ -5,13 +5,45 @@ import javax.ws.rs.core.{MediaType, Response}
 import javax.annotation.security.RolesAllowed
 import edu.uci.ics.texera.web.auth.SessionUser
 import io.dropwizard.auth.Auth
-import com.unboundid.ldap.sdk.{LDAPConnection, Entry, AddRequest}
+import edu.uci.ics.texera.dao.jooq.generated.tables.Metadata.METADATA
+import edu.uci.ics.texera.dao.jooq.generated.tables.User.USER
+import edu.uci.ics.texera.dao.jooq.generated.tables.daos.{
+  MetadataDao,
+  MetadataContributorDao,
+  MetadataFunderDao,
+  MetadataSpecimenDao
+}
+import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.{
+  Metadata,
+  MetadataContributor,
+  MetadataFunder,
+  MetadataSpecimen,
+  User,
+}
+import edu.uci.ics.texera.dao.jooq.generated.enums.ContributorRoleEnum
+import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSexEnum
+
+//import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataContributor.METADATA_CONTRIBUTOR
+//import edu.uci.ics.texera.dao.jooq.generated.tables.daos.MetadataContributorDao
+//import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataContributor
+//import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataFunder.METADATA_FUNDER
+//import edu.uci.ics.texera.dao.jooq.generated.tables.daos.MetadataFunderDao
+//import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataFunder
+//import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataSpecimen.METADATA_SPECIMEN
+//import edu.uci.ics.texera.dao.jooq.generated.tables.daos.MetadataSpecimenDao
+//import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen
+import edu.uci.ics.amber.engine.common.Utils.withTransaction
+import play.api.libs.json.Json
+
+import scala.jdk.CollectionConverters._
+import com.unboundid.ldap.sdk.{AddRequest, Entry, LDAPConnection}
 import com.unboundid.ldap.sdk._
 import com.jcraft.jsch._
+import edu.uci.ics.texera.dao.SqlServer
 import play.api.libs.json.{Json, OFormat}
-object MetadataResource {
-  // Define all payload case classes in the companion object
 
+
+object MetadataResource {
   case class ContributorPayload(
                                  name: String,
                                  creator: Boolean,
@@ -63,7 +95,10 @@ object MetadataResource {
 @Produces(Array(MediaType.APPLICATION_JSON))
 @Consumes(Array(MediaType.APPLICATION_JSON))
 class MetadataResource {
-  final private val HOST_IP: String = "3.145.57.82"
+  private val context = SqlServer
+    .getInstance()
+    .createDSLContext()
+  final private val HOST_IP: String = "3.142.252.209"
 
   /**
    * Creates a subdirectory under the user's home directory.
@@ -115,8 +150,64 @@ class MetadataResource {
     @Auth user: SessionUser,
     payload: MetadataResource.MetadataCreationPayload): Response = {
 
+    // insert in database
+    withTransaction(context) { ctx =>
+      val uid = user.getUid
+      val metadataDao = new MetadataDao(ctx.configuration())
+      val metadataContributorDao = new MetadataContributorDao(ctx.configuration())
+      val metadataFunderDao = new MetadataFunderDao(ctx.configuration())
+      val metadataSpecimenDao = new MetadataSpecimenDao(ctx.configuration())
 
+      // Check if metadata with the same name exists for the user
+      val existingMetadataNames = metadataDao.fetchByOwnerUid(uid).asScala.map(_.getName)
+      if (existingMetadataNames.contains(payload.metadataName)) {
+        throw new BadRequestException("Metadata with the same name already exists")
+      }
 
+      // Create metadata
+      val metadata = new Metadata()
+      metadata.setName(payload.metadataName)
+      metadata.setOwnerUid(uid)
+
+      // Insert metadata
+      val createdMetadata = ctx
+        .insertInto(METADATA)
+        .set(ctx.newRecord(METADATA, metadata))
+        .returning()
+        .fetchOne()
+
+      val mid = createdMetadata.getMid
+
+      // Insert contributors
+      payload.contributors.foreach { contributor =>
+        val metadataContributor = new MetadataContributor()
+        metadataContributor.setMetadataId(mid)
+        metadataContributor.setName(contributor.name)
+        metadataContributor.setCreator(contributor.creator)
+        metadataContributor.setType(ContributorRoleEnum.lookupLiteral(contributor.contributorType))
+        metadataContributor.setAffiliation(contributor.affiliation)
+        metadataContributorDao.insert(metadataContributor)
+      }
+
+      // Insert funders
+      payload.funders.foreach { funder =>
+        val metadataFunder = new MetadataFunder()
+        metadataFunder.setMetadataId(mid)
+        metadataFunder.setName(funder.name)
+        metadataFunder.setAwardTitle(funder.awardTitle)
+        metadataFunderDao.insert(metadataFunder)
+      }
+
+      // Insert specimens
+      payload.specimens.foreach { specimen =>
+        val metadataSpecimen = new MetadataSpecimen()
+        metadataSpecimen.setMetadataId(mid)
+        metadataSpecimen.setName(specimen.name)
+        metadataSpecimen.setAge(specimen.age)
+        metadataSpecimen.setSex(SpecimenSexEnum.lookupLiteral(specimen.sex))
+        metadataSpecimenDao.insert(metadataSpecimen)
+      }
+    }
 
     // Create the metadata subdirectory in the user's home directory
     createMetadataSubdirectory(user, payload.metadataName)
