@@ -7,8 +7,21 @@
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  height: 45em;
+  height: 35em;
   overflow: auto;
+}
+
+.sub-metadata-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+
+.sub-metadata-card {
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  width: 200px;
 }
 
 .metadata-card {
@@ -16,9 +29,10 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  width: 300px;
   padding: 16px;
   transition: transform 0.2s ease;
+  width: 20em;
+  height: 10em;
 
   &:hover {
     transform: translateY(-3px);
