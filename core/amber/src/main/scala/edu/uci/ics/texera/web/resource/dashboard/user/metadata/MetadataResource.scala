@@ -51,6 +51,13 @@ object MetadataResource {
                                  affiliation: String
                                )
 
+  case class MetadataWithDetails(
+                                  metadata: Metadata,
+                                  contributors: List[MetadataContributor],
+                                  funders: List[MetadataFunder],
+                                  specimens: List[MetadataSpecimen]
+                                )
+
   object ContributorPayload {
     implicit val format: OFormat[ContributorPayload] = Json.format[ContributorPayload]
   }
@@ -213,5 +220,40 @@ class MetadataResource {
     createMetadataSubdirectory(user, payload.metadataName)
 
     Response.ok(Json.obj("message" -> "Metadata created successfully")).build()
+  }
+
+  @GET
+  @RolesAllowed(Array("REGULAR", "ADMIN"))
+  @Path("")
+  def listMetadata(
+                    @Auth user: SessionUser
+                  ): List[MetadataResource.MetadataWithDetails] = {
+
+    withTransaction(context)(ctx => {
+      val uid = user.getUid
+      val metadataDao = new MetadataDao(ctx.configuration())
+      val metadataContributorDao = new MetadataContributorDao(ctx.configuration())
+      val metadataFunderDao = new MetadataFunderDao(ctx.configuration())
+      val metadataSpecimenDao = new MetadataSpecimenDao(ctx.configuration())
+
+      // Fetch all metadata that belongs to the user
+      val metadataList = metadataDao.fetchByOwnerUid(uid).asScala.toList
+
+      // For each metadata item, fetch the related contributors, funders, and specimens
+      metadataList.map { metadata =>
+        val metadataId = metadata.getMid
+        val contributors = metadataContributorDao.fetchByMetadataId(metadataId).asScala.toList
+        val funders = metadataFunderDao.fetchByMetadataId(metadataId).asScala.toList
+        val specimens = metadataSpecimenDao.fetchByMetadataId(metadataId).asScala.toList
+
+        // Return full metadata
+        MetadataResource.MetadataWithDetails(
+          metadata = metadata,
+          contributors = contributors,
+          funders = funders,
+          specimens = specimens
+        )
+      }
+    })
   }
 }
