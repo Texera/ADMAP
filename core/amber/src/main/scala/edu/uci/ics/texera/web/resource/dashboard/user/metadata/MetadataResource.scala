@@ -18,75 +18,61 @@ import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.{
   MetadataContributor,
   MetadataFunder,
   MetadataSpecimen,
-  User,
 }
 import edu.uci.ics.texera.dao.jooq.generated.enums.ContributorRoleEnum
 import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSexEnum
-
-//import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataContributor.METADATA_CONTRIBUTOR
-//import edu.uci.ics.texera.dao.jooq.generated.tables.daos.MetadataContributorDao
-//import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataContributor
-//import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataFunder.METADATA_FUNDER
-//import edu.uci.ics.texera.dao.jooq.generated.tables.daos.MetadataFunderDao
-//import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataFunder
-//import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataSpecimen.METADATA_SPECIMEN
-//import edu.uci.ics.texera.dao.jooq.generated.tables.daos.MetadataSpecimenDao
-//import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen
 import edu.uci.ics.amber.engine.common.Utils.withTransaction
 import play.api.libs.json.Json
 
 import scala.jdk.CollectionConverters._
-import com.unboundid.ldap.sdk.{AddRequest, Entry, LDAPConnection}
-import com.unboundid.ldap.sdk._
 import com.jcraft.jsch._
 import edu.uci.ics.texera.dao.SqlServer
 import play.api.libs.json.{Json, OFormat}
 
-
 object MetadataResource {
   case class ContributorPayload(
-                                 name: String,
-                                 creator: Boolean,
-                                 contributorType: String,
-                                 affiliation: String
-                               )
+      name: String,
+      creator: Boolean,
+      contributorType: String,
+      affiliation: String
+  )
 
   case class MetadataWithDetails(
-                                  metadata: Metadata,
-                                  contributors: List[MetadataContributor],
-                                  funders: List[MetadataFunder],
-                                  specimens: List[MetadataSpecimen]
-                                )
+      metadata: Metadata,
+      contributors: List[MetadataContributor],
+      funders: List[MetadataFunder],
+      specimens: List[MetadataSpecimen]
+  )
 
   object ContributorPayload {
     implicit val format: OFormat[ContributorPayload] = Json.format[ContributorPayload]
   }
 
   case class FunderPayload(
-                            name: String,
-                            awardTitle: String
-                          )
+      name: String,
+      awardTitle: String
+  )
 
   object FunderPayload {
     implicit val format: OFormat[FunderPayload] = Json.format[FunderPayload]
   }
 
   case class SpecimenPayload(
-                              name: String,
-                              age: Int,
-                              sex: String
-                            )
+      name: String,
+      age: Int,
+      sex: String
+  )
 
   object SpecimenPayload {
     implicit val format: OFormat[SpecimenPayload] = Json.format[SpecimenPayload]
   }
 
   case class MetadataCreationPayload(
-                                      metadataName: String,
-                                      contributors: List[ContributorPayload],
-                                      funders: List[FunderPayload],
-                                      specimens: List[SpecimenPayload]
-                                    )
+      metadataName: String,
+      contributors: List[ContributorPayload],
+      funders: List[FunderPayload],
+      specimens: List[SpecimenPayload]
+  )
 
   object MetadataCreationPayload {
     implicit val format: OFormat[MetadataCreationPayload] = Json.format[MetadataCreationPayload]
@@ -95,8 +81,6 @@ object MetadataResource {
   // Other constants or helper methods if needed
 
 }
-
-
 
 @Path("/metadata")
 @Produces(Array(MediaType.APPLICATION_JSON))
@@ -108,10 +92,10 @@ class MetadataResource {
   final private val HOST_IP: String = "3.142.252.209"
 
   /**
-   * Creates a subdirectory under the user's home directory.
-   * The directory will be created at: /home/users/$username/$metadataName
-   * where $username is derived from the user's email and UID.
-   */
+    * Creates a subdirectory under the user's home directory.
+    * The directory will be created at: /home/users/$username/$metadataName
+    * where $username is derived from the user's email and UID.
+    */
   def createMetadataSubdirectory(ldapUser: SessionUser, metadataName: String): Boolean = {
     val emailPrefix = ldapUser.getEmail.split("@")(0)
     val uid = ldapUser.getUid
@@ -154,8 +138,9 @@ class MetadataResource {
   @RolesAllowed(Array("REGULAR", "ADMIN"))
   @Path("/create")
   def createMetadata(
-    @Auth user: SessionUser,
-    payload: MetadataResource.MetadataCreationPayload): Response = {
+      @Auth user: SessionUser,
+      payload: MetadataResource.MetadataCreationPayload
+  ): Response = {
 
     // insert in database
     withTransaction(context) { ctx =>
@@ -226,8 +211,8 @@ class MetadataResource {
   @RolesAllowed(Array("REGULAR", "ADMIN"))
   @Path("")
   def listMetadata(
-                    @Auth user: SessionUser
-                  ): List[MetadataResource.MetadataWithDetails] = {
+      @Auth user: SessionUser
+  ): List[MetadataResource.MetadataWithDetails] = {
 
     withTransaction(context)(ctx => {
       val uid = user.getUid

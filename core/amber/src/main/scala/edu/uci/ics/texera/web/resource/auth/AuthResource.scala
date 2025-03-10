@@ -3,7 +3,12 @@ package edu.uci.ics.texera.web.resource.auth
 import edu.uci.ics.amber.engine.common.AmberConfig
 import edu.uci.ics.texera.dao.SqlServer
 import edu.uci.ics.texera.web.auth.JwtAuth._
-import edu.uci.ics.texera.web.model.http.request.auth.{LdapUserRegistrationRequest, RefreshTokenRequest, UserLoginRequest, UserRegistrationRequest}
+import edu.uci.ics.texera.web.model.http.request.auth.{
+  LdapUserRegistrationRequest,
+  RefreshTokenRequest,
+  UserLoginRequest,
+  UserRegistrationRequest
+}
 import edu.uci.ics.texera.web.model.http.response.TokenIssueResponse
 import edu.uci.ics.texera.dao.jooq.generated.Tables.USER
 import edu.uci.ics.texera.dao.jooq.generated.enums.UserRoleEnum
@@ -38,7 +43,7 @@ object AuthResource {
     * The password is used to validate against the hashed password stored in the db.
     *
     * @param name     String
-
+    *
     * @param password String, plain text password
     * @return
     */
@@ -53,7 +58,6 @@ object AuthResource {
         .fetchOneInto(classOf[User])
     ).filter(user => new StrongPasswordEncryptor().checkPassword(password, user.getPassword))
   }
-
 
   def generateSecurePassword(length: Int = 8): String = {
     val random = new SecureRandom()
@@ -80,7 +84,6 @@ object AuthResource {
     try {
       connection = new LDAPConnection(ldapHost, ldapPort, ldapBindDN, ldapBindPassword)
       val entry = new Entry(s"uid=$username,ou=users,$baseDN")
-
 
       entry.addAttribute("objectClass", "inetOrgPerson", "posixAccount", "shadowAccount")
       entry.addAttribute("uid", username)
@@ -113,10 +116,10 @@ object AuthResource {
   }
 
   /**
-   * Creates a home directory for user's home directory.
-   * The directory will be created at: /home/users/$username
-   * where $username is derived from the user's email and UID.
-   */
+    * Creates a home directory for user's home directory.
+    * The directory will be created at: /home/users/$username
+    * where $username is derived from the user's email and UID.
+    */
   def createHomeDirectory(ldapUser: User): Boolean = {
     val emailPrefix = ldapUser.getEmail.split("@")(0)
     val uid = ldapUser.getUid
@@ -130,7 +133,6 @@ object AuthResource {
 
     // make directory and change ownership to the user
     val command = s"sudo mkdir -p $path && sudo chown -R $username:5000 $path"
-
 
     var session: Session = null
 
