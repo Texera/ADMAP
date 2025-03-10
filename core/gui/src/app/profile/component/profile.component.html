@@ -19,11 +19,8 @@
       <strong>Password: </strong>
       <span *ngIf="!showPassword">********</span>
       <span *ngIf="showPassword">{{ this.scpPassword }}</span>
-      <button (click)="togglePasswordVisibility()">
-        {{ showPassword ? "Hide" : "Show" }}
-      </button>
-<!--      <button (click)="regeneratePassword()">Regenerate Password</button>-->
+      <button (click)="togglePasswordVisibility()">{{ showPassword ? "Hide" : "Show" }}</button>
+      <!--      <button (click)="regeneratePassword()">Regenerate Password</button>-->
     </p>
-
-    </div>
+  </div>
 </div>

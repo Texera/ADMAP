@@ -2,21 +2,15 @@ import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { AfterViewInit, Component, ViewChild } from "@angular/core";
 import { UserService } from "../../../../common/service/user/user.service";
 import { Router } from "@angular/router";
-import { SearchService } from "../../../service/user/search.service";
-import { DatasetService } from "../../../service/user/dataset/dataset.service";
 import { SortMethod } from "../../../type/sort-method";
-import { DashboardEntry, UserInfo } from "../../../type/dashboard-entry";
-import { SearchResultsComponent } from "../search-results/search-results.component";
 import { FiltersComponent } from "../filters/filters.component";
-import { firstValueFrom } from "rxjs";
-import {DASHBOARD_USER_METADATA_CREATE} from "../../../../app-routing.constant";
-
+import { DASHBOARD_USER_METADATA_CREATE } from "../../../../app-routing.constant";
 
 @UntilDestroy()
 @Component({
   selector: "texera-metadata-directory",
   templateUrl: "./metadata-directory.component.html",
-  styleUrls: ["./metadata-directory.component.scss"]
+  styleUrls: ["./metadata-directory.component.scss"],
 })
 export class MetadataDirectoryComponent implements AfterViewInit {
   public sortMethod = SortMethod.EditTimeDesc;
@@ -34,7 +28,7 @@ export class MetadataDirectoryComponent implements AfterViewInit {
 
   constructor(
     private userService: UserService,
-    private router: Router,
+    private router: Router
   ) {
     this.userService
       .userChanged()
@@ -46,10 +40,7 @@ export class MetadataDirectoryComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.userService
-      .userChanged()
-      .pipe(untilDestroyed(this))
-      .subscribe();
+    this.userService.userChanged().pipe(untilDestroyed(this)).subscribe();
   }
 
   public onClickOpenMetadataAddComponent(): void {

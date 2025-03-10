@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { NzResizeEvent } from "ng-zorro-antd/resizable";
@@ -6,11 +6,10 @@ import { DownloadService } from "../../../../service/user/download/download.serv
 import { formatSize } from "src/app/common/util/size-formatter.util";
 import { UserService } from "../../../../../common/service/user/user.service";
 
-
 @UntilDestroy()
 @Component({
   templateUrl: "./metadata-detail.component.html",
-  styleUrls: ["./metadata-detail.component.scss"]
+  styleUrls: ["./metadata-detail.component.scss"],
 })
 export class MetadataDetailComponent {
   public mid: number | undefined;
@@ -66,7 +65,7 @@ export class MetadataDetailComponent {
   }
 
   public onCreationFinished(creationID: number) {
-    console.log("CREATED A METADATA: ", creationID)
+    console.log("CREATED A METADATA: ", creationID);
     // if (creationID != 0) {
     //   // creation succeed
     //   this.router.navigate([`${DASHBOARD_USER_METADATA_DIRECTORY}/${creationID}`]);
@@ -75,7 +74,6 @@ export class MetadataDetailComponent {
     //   this.router.navigate([DASHBOARD_USER_METADATA_DIRECTORY]);
     // }
   }
-
 
   retrieveMetadataInfo() {
     // if (this.mid) {
@@ -96,7 +94,6 @@ export class MetadataDetailComponent {
     // }
   }
 
-
   // loadFileContent(node: MetadataFileNode) {
   //   this.currentDisplayedFileName = getFullPathFromMetadataFileNode(node);
   //   this.currentFileSize = node.size;
@@ -116,7 +113,6 @@ export class MetadataDetailComponent {
   //     .pipe(untilDestroyed(this))
   //     .subscribe();
   // };
-
 
   isDisplayingMetadata(): boolean {
     return !this.isCreatingMetadata;

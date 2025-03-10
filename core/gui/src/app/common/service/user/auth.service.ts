@@ -77,10 +77,10 @@ export class AuthService {
    */
   public getPassword() {
     console.log("Fetching password from:", `${AppSettings.getApiEndpoint()}/${AuthService.GET_PASSWORD_ENDPOINT}`);
-    return this.http.get(`${AppSettings.getApiEndpoint()}/${AuthService.GET_PASSWORD_ENDPOINT}`, { responseType: "text" });
+    return this.http.get(`${AppSettings.getApiEndpoint()}/${AuthService.GET_PASSWORD_ENDPOINT}`, {
+      responseType: "text",
+    });
   }
-
-
 
   /**
    * This method will handle the request for user login.

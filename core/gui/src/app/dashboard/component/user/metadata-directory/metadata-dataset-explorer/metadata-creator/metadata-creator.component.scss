@@ -5,7 +5,7 @@
 }
 
 .action-buttons {
-  display:flex;
+  display: flex;
   justify-content: center;
 }
 .create-btn {
@@ -50,7 +50,8 @@ label {
   margin-right: 5px;
 }
 
-input, select {
+input,
+select {
   width: 100%;
   padding: 10px;
   border: 1px solid lightgray;
@@ -58,7 +59,8 @@ input, select {
   background-color: #fff;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
   border-color: #007bff;
   outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
@@ -88,7 +90,7 @@ button.add-btn {
   background-color: #007bff;
   color: white;
   padding: 10px 20px;
-  margin-top: .5em;
+  margin-top: 0.5em;
   margin-bottom: 3em;
 }
 
@@ -100,16 +102,21 @@ button.add-btn:hover {
   margin-bottom: 3em;
 }
 
-.contributor-group, .funder-group, .specimen-group {
+.contributor-group,
+.funder-group,
+.specimen-group {
   display: flex;
   align-items: center;
   border-bottom: 1px solid #ddd;
   width: 100%;
 }
 
-.contributor-group input, .contributor-group select,
-.funder-group input, .funder-group select,
-.specimen-group input, .specimen-group select {
+.contributor-group input,
+.contributor-group select,
+.funder-group input,
+.funder-group select,
+.specimen-group input,
+.specimen-group select {
   flex: 1;
   margin-right: 5px;
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { MetadataService } from "../../../../../service/user/metadata/metadata.service";
 import { UntilDestroy } from "@ngneat/until-destroy";
 import { NotificationService } from "../../../../../../common/service/notification/notification.service";
@@ -17,7 +17,6 @@ export class MetadataBrowserComponent implements OnInit {
   constructor(
     private metadataService: MetadataService,
     private notificationService: NotificationService,
-    private router: Router
   ) {}
 
   ngOnInit() {

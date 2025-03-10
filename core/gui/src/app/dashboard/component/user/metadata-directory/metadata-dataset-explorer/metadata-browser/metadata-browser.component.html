@@ -1,7 +1,12 @@
 <div class="metadata-browser">
   <h2>User Metadata</h2>
-  <div *ngIf="metadataList && metadataList.length; else noData" class="cards-container">
-    <div class="metadata-card" *ngFor="let metadata of metadataList" (click)="openMetadataDetail(metadata)">
+  <div
+    *ngIf="metadataList && metadataList.length; else noData"
+    class="cards-container">
+    <div
+      class="metadata-card"
+      *ngFor="let metadata of metadataList"
+      (click)="openMetadataDetail(metadata)">
       <div class="card-header">
         <h3>{{ metadata.metadata.name }}</h3>
       </div>
@@ -21,9 +26,15 @@
 </div>
 
 <!-- Modal for displaying detailed metadata info -->
-<div class="modal-overlay" *ngIf="selectedMetadata">
+<div
+  class="modal-overlay"
+  *ngIf="selectedMetadata">
   <div class="modal">
-    <button class="close-btn" (click)="closeModal()">x</button>
+    <button
+      class="close-btn"
+      (click)="closeModal()">
+      x
+    </button>
     <h2>{{ selectedMetadata.metadata.name }}</h2>
     <p><strong>ID:</strong> {{ selectedMetadata.metadata.mid }}</p>
     <p><strong>Owner UID:</strong> {{ selectedMetadata.metadata.ownerUid }}</p>
