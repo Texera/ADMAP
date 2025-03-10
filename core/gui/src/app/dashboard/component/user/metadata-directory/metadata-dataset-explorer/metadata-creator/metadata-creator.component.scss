@@ -92,21 +92,18 @@ button.add-btn {
   margin-bottom: 3em;
 }
 
-input {
-  margin-bottom: 3em;
-}
-
 button.add-btn:hover {
   opacity: 0.8;
+}
+
+#metadata-name {
+  margin-bottom: 3em;
 }
 
 .contributor-group, .funder-group, .specimen-group {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 5px;
   border-bottom: 1px solid #ddd;
-  padding-bottom: 5px;
   width: 100%;
 }
 

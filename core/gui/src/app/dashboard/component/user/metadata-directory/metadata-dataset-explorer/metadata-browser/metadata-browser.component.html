@@ -1,0 +1,71 @@
+<div class="metadata-browser">
+  <h2>User Metadata</h2>
+  <div *ngIf="metadataList && metadataList.length; else noData" class="cards-container">
+    <div class="metadata-card" *ngFor="let metadata of metadataList" (click)="openMetadataDetail(metadata)">
+      <div class="card-header">
+        <h3>{{ metadata.metadata.name }}</h3>
+      </div>
+      <div class="card-body">
+        <p><strong>ID:</strong> {{ metadata.metadata.mid }}</p>
+        <p><strong>Owner UID:</strong> {{ metadata.metadata.ownerUid }}</p>
+        <p>
+          <strong>Created:</strong>
+          {{ metadata.metadata.creationTime | date: 'medium' }}
+        </p>
+      </div>
+    </div>
+  </div>
+  <ng-template #noData>
+    <p>No metadata available.</p>
+  </ng-template>
+</div>
+
+<!-- Modal for displaying detailed metadata info -->
+<div class="modal-overlay" *ngIf="selectedMetadata">
+  <div class="modal">
+    <button class="close-btn" (click)="closeModal()">x</button>
+    <h2>{{ selectedMetadata.metadata.name }}</h2>
+    <p><strong>ID:</strong> {{ selectedMetadata.metadata.mid }}</p>
+    <p><strong>Owner UID:</strong> {{ selectedMetadata.metadata.ownerUid }}</p>
+    <p>
+      <strong>Created:</strong>
+      {{ selectedMetadata.metadata.creationTime | date: 'medium' }}
+    </p>
+
+    <!-- Contributors Section -->
+    <div *ngIf="selectedMetadata.contributors && selectedMetadata.contributors.length">
+      <h3>Contributors</h3>
+      <ul>
+        <li *ngFor="let contributor of selectedMetadata.contributors">
+          <p>ID: {{ contributor.cid }}</p>
+          <p>Name: {{ contributor.name }}</p>
+          <p>Type: {{ contributor.type }}</p>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Funders Section -->
+    <div *ngIf="selectedMetadata.funders && selectedMetadata.funders.length">
+      <h3>Funders</h3>
+      <ul>
+        <li *ngFor="let funder of selectedMetadata.funders">
+          <p>Name: {{ funder.name }}</p>
+          <p>Award Title: {{ funder.awardTitle }}</p>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Specimens Section -->
+    <div *ngIf="selectedMetadata.specimens && selectedMetadata.specimens.length">
+      <h3>Specimens</h3>
+      <ul>
+        <li *ngFor="let specimen of selectedMetadata.specimens">
+          <p>ID: {{ specimen.sid }}</p>
+          <p>Name: {{ specimen.name }}</p>
+          <p>Age: {{ specimen.age }}</p>
+          <p>Sex: {{ specimen.sex }}</p>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

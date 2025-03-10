@@ -194,5 +194,7 @@ export class MetadataCreatorComponent implements OnInit {
         this.isUploading = false;
       },
     });
+
+    this.router.navigate([DASHBOARD_USER_METADATA_DIRECTORY]);
   }
 }
