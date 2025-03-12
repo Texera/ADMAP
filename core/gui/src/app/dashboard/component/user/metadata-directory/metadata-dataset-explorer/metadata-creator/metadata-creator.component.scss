@@ -1,0 +1,122 @@
+.texera-user-metadata-creator-form {
+  width: 100%;
+  margin: auto;
+  padding: 1em;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+}
+.create-btn {
+  background-color: #ffffff;
+  color: #007bff;
+  border: 1px solid lightgray;
+  padding: 5px 20px;
+  cursor: pointer;
+  margin-left: 2%;
+  margin-right: 5%;
+  width: 30%;
+  text-align: center;
+  &:hover {
+    background-color: darken(#007bff, 10%);
+    color: #ffffff;
+  }
+}
+
+.cancel-btn {
+  background-color: #ffffff;
+  color: #ff0000;
+  border: 1px solid lightgray;
+  padding: 5px 20px;
+  cursor: pointer;
+  margin-right: 2%;
+  margin-left: 5%;
+  width: 30%;
+  text-align: center;
+  &:hover {
+    background-color: darken(#ff0000, 10%);
+    color: #ffffff;
+  }
+}
+
+h3 {
+  font-size: 1.5em;
+  margin-bottom: 0;
+}
+label {
+  display: block;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+input:focus,
+select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Button styles */
+button {
+  font-size: 1em;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button.remove-btn {
+  background-color: #ff0000;
+  color: white;
+  padding: 5px 10px;
+  margin-left: 10px;
+}
+
+button.remove-btn:hover {
+  opacity: 0.8;
+}
+
+button.add-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  margin-top: 0.5em;
+  margin-bottom: 3em;
+}
+
+button.add-btn:hover {
+  opacity: 0.8;
+}
+
+#metadata-name {
+  margin-bottom: 3em;
+}
+
+.contributor-group,
+.funder-group,
+.specimen-group {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  width: 100%;
+}
+
+.contributor-group input,
+.contributor-group select,
+.funder-group input,
+.funder-group select,
+.specimen-group input,
+.specimen-group select {
+  flex: 1;
+  margin-right: 5px;
+}

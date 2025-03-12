@@ -4,10 +4,10 @@ import edu.uci.ics.amber.engine.common.AmberConfig
 import edu.uci.ics.texera.dao.SqlServer
 import edu.uci.ics.texera.web.auth.JwtAuth._
 import edu.uci.ics.texera.web.model.http.request.auth.{
+  LdapUserRegistrationRequest,
   RefreshTokenRequest,
   UserLoginRequest,
-  UserRegistrationRequest,
-  LdapUserRegistrationRequest
+  UserRegistrationRequest
 }
 import edu.uci.ics.texera.web.model.http.response.TokenIssueResponse
 import edu.uci.ics.texera.dao.jooq.generated.Tables.USER
@@ -17,14 +17,19 @@ import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.User
 import edu.uci.ics.texera.web.resource.auth.AuthResource._
 import org.jasypt.util.password.StrongPasswordEncryptor
 import javax.ws.rs._
-import javax.ws.rs.core.MediaType
-import com.unboundid.ldap.sdk.{LDAPConnection, Entry, AddRequest}
+import javax.ws.rs.core.{MediaType, Response}
+import com.unboundid.ldap.sdk.{AddRequest, Entry, LDAPConnection}
 import com.unboundid.ldap.sdk._
 import com.jcraft.jsch._
+import edu.uci.ics.texera.web.auth.SessionUser
+import io.dropwizard.auth.Auth
+import play.api.libs.json.Json
+import java.security.SecureRandom
+import java.util.Base64
 
 object AuthResource {
 
-  final private val HOST_IP: String = "3.145.57.82"
+  final private val HOST_IP: String = "3.142.252.209"
 
   final private lazy val userDao = new UserDao(
     SqlServer
@@ -38,7 +43,7 @@ object AuthResource {
     * The password is used to validate against the hashed password stored in the db.
     *
     * @param name     String
-
+    *
     * @param password String, plain text password
     * @return
     */
@@ -54,6 +59,12 @@ object AuthResource {
     ).filter(user => new StrongPasswordEncryptor().checkPassword(password, user.getPassword))
   }
 
+  def generateSecurePassword(length: Int = 8): String = {
+    val random = new SecureRandom()
+    val bytes = new Array[Byte](length)
+    random.nextBytes(bytes)
+    Base64.getUrlEncoder.withoutPadding.encodeToString(bytes).take(length)
+  }
 
   def addUserToLdap(ldapUser: User): LDAPResult = {
     val ldapHost = HOST_IP
@@ -73,7 +84,6 @@ object AuthResource {
     try {
       connection = new LDAPConnection(ldapHost, ldapPort, ldapBindDN, ldapBindPassword)
       val entry = new Entry(s"uid=$username,ou=users,$baseDN")
-
 
       entry.addAttribute("objectClass", "inetOrgPerson", "posixAccount", "shadowAccount")
       entry.addAttribute("uid", username)
@@ -105,6 +115,11 @@ object AuthResource {
     }
   }
 
+  /**
+    * Creates a home directory for user's home directory.
+    * The directory will be created at: /home/users/$username
+    * where $username is derived from the user's email and UID.
+    */
   def createHomeDirectory(ldapUser: User): Boolean = {
     val emailPrefix = ldapUser.getEmail.split("@")(0)
     val uid = ldapUser.getUid
@@ -119,27 +134,20 @@ object AuthResource {
     // make directory and change ownership to the user
     val command = s"sudo mkdir -p $path && sudo chown -R $username:5000 $path"
 
-
     var session: Session = null
 
     try {
       val jsch = new JSch()
       jsch.setKnownHosts("/Users/lanaramadan/.ssh/known_hosts")
       jsch.addIdentity(privateKeyPath, "12345")
-
       session = jsch.getSession(sshUser, sshHost, 22)
       session.setConfig("StrictHostKeyChecking", "no")
-
       session.connect()
-
       val channel = session.openChannel("exec").asInstanceOf[ChannelExec]
       channel.setCommand(command)
       channel.setErrStream(System.err)
       channel.connect()
-
       true
-
-
     } catch {
       case e: Exception =>
         println(s"Error: ${e.getMessage}")
@@ -158,6 +166,17 @@ object AuthResource {
 @Consumes(Array(MediaType.APPLICATION_JSON))
 @Produces(Array(MediaType.APPLICATION_JSON))
 class AuthResource {
+
+  @GET
+  @Path("/password")
+  def password(@Auth user: SessionUser): String = {
+    val userFromDb = userDao.fetchOneByEmail(user.getEmail)
+    val password = userFromDb.getPassword
+    if (password == null) {
+      throw new Exception("Password is null")
+    }
+    password
+  }
 
   @POST
   @Path("/login")
@@ -194,40 +213,13 @@ class AuthResource {
         user.setName(username)
         user.setEmail(username)
         user.setRole(UserRoleEnum.ADMIN)
-        // hash the plain text password
-        user.setPassword(new StrongPasswordEncryptor().encryptPassword(request.password))
+        user.setPassword(generateSecurePassword())
         userDao.insert(user)
-
-
         addUserToLdap(user)
-
-
-
         TokenIssueResponse(jwtToken(jwtClaims(user, dayToMin(TOKEN_EXPIRE_TIME_IN_DAYS))))
       case _ =>
         // the username exists already
         throw new NotAcceptableException("Username exists already.")
     }
   }
-
-
-//  @POST
-//  @Path("/add-ldap-user")
-//  def addLdapUser(request: LdapUserRegistrationRequest): TokenIssueResponse = {
-//    val scpUsername = request.scpUsername
-//    val scpPassword = request.scpPassword
-//
-//    val ldapUser = new User
-////    ldapUser.setScpUsername(scpUsername)
-////    ldapUser.setScpPassword(scpPassword)
-//    ldapUser.setName(scpUsername)
-//    ldapUser.setPassword(scpPassword)
-//
-//    addUserToLdap(ldapUser)
-//    createHomeDirectory(ldapUser)
-//
-//    TokenIssueResponse(jwtToken(jwtClaims(ldapUser, dayToMin(TOKEN_EXPIRE_TIME_IN_DAYS))))
-//  }
-
-
 }

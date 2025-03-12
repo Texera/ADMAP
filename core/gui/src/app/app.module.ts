@@ -144,6 +144,10 @@ import { GoogleLoginProvider } from "@abacritt/angularx-social-login";
 import { lastValueFrom } from "rxjs";
 import { HubSearchResultComponent } from "./hub/component/hub-search-result/hub-search-result.component";
 import { FileDirectoryComponent } from "./dashboard/component/user/file-directory/file-directory.component";
+import { MetadataDirectoryComponent } from "./dashboard/component/user/metadata-directory/metadata-directory.component";
+import { MetadataDetailComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-detail.component";
+import { MetadataCreatorComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-creator/metadata-creator.component";
+import { MetadataBrowserComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-browser/metadata-browser.component";
 
 registerLocaleData(en);
 
@@ -234,6 +238,10 @@ registerLocaleData(en);
     ProfileComponent,
     HubSearchResultComponent,
     FileDirectoryComponent,
+    MetadataDirectoryComponent,
+    MetadataDetailComponent,
+    MetadataCreatorComponent,
+    MetadataBrowserComponent,
   ],
   imports: [
     BrowserModule,

@@ -9,6 +9,10 @@ import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetUserAccess;
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetUserLikes;
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetVersion;
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetViewCount;
+import edu.uci.ics.texera.dao.jooq.generated.tables.Metadata;
+import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataContributor;
+import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataFunder;
+import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataSpecimen;
 import edu.uci.ics.texera.dao.jooq.generated.tables.OperatorExecutions;
 import edu.uci.ics.texera.dao.jooq.generated.tables.OperatorPortExecutions;
 import edu.uci.ics.texera.dao.jooq.generated.tables.Project;
@@ -72,6 +76,26 @@ public class TexeraDb extends SchemaImpl {
      * The table <code>texera_db.dataset_view_count</code>.
      */
     public final DatasetViewCount DATASET_VIEW_COUNT = DatasetViewCount.DATASET_VIEW_COUNT;
+
+    /**
+     * The table <code>texera_db.metadata</code>.
+     */
+    public final Metadata METADATA = Metadata.METADATA;
+
+    /**
+     * The table <code>texera_db.metadata_contributor</code>.
+     */
+    public final MetadataContributor METADATA_CONTRIBUTOR = MetadataContributor.METADATA_CONTRIBUTOR;
+
+    /**
+     * The table <code>texera_db.metadata_funder</code>.
+     */
+    public final MetadataFunder METADATA_FUNDER = MetadataFunder.METADATA_FUNDER;
+
+    /**
+     * The table <code>texera_db.metadata_specimen</code>.
+     */
+    public final MetadataSpecimen METADATA_SPECIMEN = MetadataSpecimen.METADATA_SPECIMEN;
 
     /**
      * The table <code>texera_db.operator_executions</code>.
@@ -179,6 +203,10 @@ public class TexeraDb extends SchemaImpl {
             DatasetUserLikes.DATASET_USER_LIKES,
             DatasetVersion.DATASET_VERSION,
             DatasetViewCount.DATASET_VIEW_COUNT,
+            Metadata.METADATA,
+            MetadataContributor.METADATA_CONTRIBUTOR,
+            MetadataFunder.METADATA_FUNDER,
+            MetadataSpecimen.METADATA_SPECIMEN,
             OperatorExecutions.OPERATOR_EXECUTIONS,
             OperatorPortExecutions.OPERATOR_PORT_EXECUTIONS,
             Project.PROJECT,

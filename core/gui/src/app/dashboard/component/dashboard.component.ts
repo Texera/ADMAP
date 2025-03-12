@@ -8,7 +8,6 @@ import { HubComponent } from "../../hub/component/hub.component";
 import { SocialAuthService } from "@abacritt/angularx-social-login";
 
 import {
-  DASHBOARD_USER_FILE_DIRECTORY,
   DASHBOARD_ABOUT,
   DASHBOARD_ADMIN_EXECUTION,
   DASHBOARD_ADMIN_GMAIL,
@@ -18,6 +17,8 @@ import {
   DASHBOARD_USER_PROJECT,
   DASHBOARD_USER_QUOTA,
   DASHBOARD_USER_WORKFLOW,
+  DASHBOARD_USER_FILE_DIRECTORY,
+  DASHBOARD_USER_METADATA_DIRECTORY,
 } from "../../app-routing.constant";
 import { environment } from "../../../environments/environment";
 import { Version } from "../../../environments/version";
@@ -40,10 +41,13 @@ export class DashboardComponent implements OnInit {
   isCollpased: boolean = false;
   routesWithoutNavbar: string[] = ["/workspace"];
   showLinks: boolean = false;
-  protected readonly DASHBOARD_USER_FILE_DIRECTORY = DASHBOARD_USER_FILE_DIRECTORY;
   protected readonly DASHBOARD_USER_PROJECT = DASHBOARD_USER_PROJECT;
   protected readonly DASHBOARD_USER_WORKFLOW = DASHBOARD_USER_WORKFLOW;
   protected readonly DASHBOARD_USER_DATASET = DASHBOARD_USER_DATASET;
+
+  protected readonly DASHBOARD_USER_FILE_DIRECTORY = DASHBOARD_USER_FILE_DIRECTORY;
+  protected readonly DASHBOARD_USER_METADATA_DIRECTORY = DASHBOARD_USER_METADATA_DIRECTORY;
+
   protected readonly DASHBOARD_USER_QUOTA = DASHBOARD_USER_QUOTA;
   protected readonly DASHBOARD_USER_DISCUSSION = DASHBOARD_USER_DISCUSSION;
   protected readonly DASHBOARD_ADMIN_USER = DASHBOARD_ADMIN_USER;

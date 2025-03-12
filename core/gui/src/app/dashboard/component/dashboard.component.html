@@ -12,7 +12,7 @@
         <img
           *ngIf="isCollpased"
           alt="mini-logo"
-          src="../../../../assets/logos/favicon-32x32.png" />
+          src="../../../../assets/logos/favicon.png" />
         <img
           *ngIf="!isCollpased"
           alt="logo"
@@ -35,16 +35,27 @@
         nzIcon="user"
         nzOpen="true">
         <ul>
+          <!--          <li-->
+          <!--            nz-menu-item-->
+          <!--            nz-tooltip="Look up for datasets"-->
+          <!--            nzMatchRouter="true"-->
+          <!--            nzTooltipPlacement="right"-->
+          <!--            [routerLink]="DASHBOARD_USER_DATASET">-->
+          <!--            <span-->
+          <!--              nz-icon-->
+          <!--              nzType="database"></span>-->
+          <!--            <span>Datasets</span>-->
+          <!--          </li>-->
           <li
             nz-menu-item
-            nz-tooltip="Look up for datasets"
+            nz-tooltip="Look through your metadata"
             nzMatchRouter="true"
             nzTooltipPlacement="right"
-            [routerLink]="DASHBOARD_USER_DATASET">
+            [routerLink]="DASHBOARD_USER_METADATA_DIRECTORY">
             <span
               nz-icon
               nzType="database"></span>
-            <span>Datasets</span>
+            <span>Metadata Directory</span>
           </li>
           <li
             nz-menu-item
@@ -140,7 +151,7 @@
           *ngIf="!isLogin && googleLogin"
           type="standard"
           size="large"
-          [width]="'200'"></asl-google-signin-button>
+          [width]="200"></asl-google-signin-button>
       </div>
 
       <nz-content>

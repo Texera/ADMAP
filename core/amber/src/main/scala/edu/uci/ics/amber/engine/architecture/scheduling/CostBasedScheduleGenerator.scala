@@ -17,22 +17,22 @@ import scala.util.control.Breaks.{break, breakable}
 import scala.util.{Failure, Success, Try}
 
 class CostBasedScheduleGenerator(
-                                  workflowContext: WorkflowContext,
-                                  initialPhysicalPlan: PhysicalPlan,
-                                  val actorId: ActorVirtualIdentity
-                                ) extends ScheduleGenerator(
-  workflowContext,
-  initialPhysicalPlan
-)
-  with AmberLogging {
+    workflowContext: WorkflowContext,
+    initialPhysicalPlan: PhysicalPlan,
+    val actorId: ActorVirtualIdentity
+) extends ScheduleGenerator(
+      workflowContext,
+      initialPhysicalPlan
+    )
+    with AmberLogging {
 
   case class SearchResult(
-                           state: Set[PhysicalLink],
-                           regionDAG: DirectedAcyclicGraph[Region, RegionLink],
-                           cost: Double,
-                           searchTimeNanoSeconds: Long = 0,
-                           numStatesExplored: Int = 0
-                         )
+      state: Set[PhysicalLink],
+      regionDAG: DirectedAcyclicGraph[Region, RegionLink],
+      cost: Double,
+      searchTimeNanoSeconds: Long = 0,
+      numStatesExplored: Int = 0
+  )
 
   private val costEstimator =
     new DefaultCostEstimator(workflowContext = workflowContext, actorId = actorId)
@@ -57,16 +57,16 @@ class CostBasedScheduleGenerator(
   }
 
   /**
-   * Create regions based on only pipelined edges. This does not add the region links.
-   *
-   * @param physicalPlan The original physical plan without materializations added yet.
-   * @param matEdges     Set of edges to materialize (including the original blocking edges).
-   * @return A set of regions.
-   */
+    * Create regions based on only pipelined edges. This does not add the region links.
+    *
+    * @param physicalPlan The original physical plan without materializations added yet.
+    * @param matEdges     Set of edges to materialize (including the original blocking edges).
+    * @return A set of regions.
+    */
   private def createRegions(
-                             physicalPlan: PhysicalPlan,
-                             matEdges: Set[PhysicalLink]
-                           ): Set[Region] = {
+      physicalPlan: PhysicalPlan,
+      matEdges: Set[PhysicalLink]
+  ): Set[Region] = {
     val matEdgesRemovedDAG = matEdges.foldLeft(physicalPlan) { (currentPlan, linkToRemove) =>
       currentPlan.removeLink(linkToRemove)
     }
@@ -98,15 +98,15 @@ class CostBasedScheduleGenerator(
   }
 
   /**
-   * Checks a plan for schedulability, and returns a region DAG if the plan is schedulable.
-   *
-   * @param matEdges Set of edges to materialize (including the original blocking edges).
-   * @return If the plan is schedulable, a region DAG will be returned. Otherwise a DirectedPseudograph (with directed
-   *         cycles) will be returned to indicate that the plan is unschedulable.
-   */
+    * Checks a plan for schedulability, and returns a region DAG if the plan is schedulable.
+    *
+    * @param matEdges Set of edges to materialize (including the original blocking edges).
+    * @return If the plan is schedulable, a region DAG will be returned. Otherwise a DirectedPseudograph (with directed
+    *         cycles) will be returned to indicate that the plan is unschedulable.
+    */
   private def tryConnectRegionDAG(
-                                   matEdges: Set[PhysicalLink]
-                                 ): Either[DirectedAcyclicGraph[Region, RegionLink], DirectedPseudograph[Region, RegionLink]] = {
+      matEdges: Set[PhysicalLink]
+  ): Either[DirectedAcyclicGraph[Region, RegionLink], DirectedPseudograph[Region, RegionLink]] = {
     val regionDAG = new DirectedAcyclicGraph[Region, RegionLink](classOf[RegionLink])
     val regionGraph = new DirectedPseudograph[Region, RegionLink](classOf[RegionLink])
     val opToRegionMap = new mutable.HashMap[PhysicalOpIdentity, Region]
@@ -132,11 +132,11 @@ class CostBasedScheduleGenerator(
   }
 
   /**
-   * Performs a search to generate a region DAG.
-   * Materializations are added only after the plan is determined to be schedulable.
-   *
-   * @return A region DAG.
-   */
+    * Performs a search to generate a region DAG.
+    * Materializations are added only after the plan is determined to be schedulable.
+    *
+    * @return A region DAG.
+    */
   private def createRegionDAG(): DirectedAcyclicGraph[Region, RegionLink] = {
     val searchResultFuture: Future[SearchResult] = Future {
       if (AmberConfig.useTopDownSearch)
@@ -169,9 +169,9 @@ class CostBasedScheduleGenerator(
     // Only a non-dependee blocking link that has not already been materialized should be replaced
     // with a materialization write op + materialization read op.
     val linksToMaterialize =
-    (searchResult.state ++ physicalPlan.getNonMaterializedBlockingAndDependeeLinks).diff(
-      physicalPlan.getDependeeLinks
-    )
+      (searchResult.state ++ physicalPlan.getNonMaterializedBlockingAndDependeeLinks).diff(
+        physicalPlan.getDependeeLinks
+      )
     if (linksToMaterialize.nonEmpty) {
       val matReaderWriterPairs = new mutable.HashMap[PhysicalOpIdentity, PhysicalOpIdentity]()
       linksToMaterialize.foreach(link =>
@@ -190,18 +190,18 @@ class CostBasedScheduleGenerator(
   }
 
   /**
-   * Adds materialization links as region links within the given region DAG.
-   * This method processes each physical link in the input set, identifying the source and destination
-   * regions for each link. It then adds an edge between these regions in the DAG to represent
-   * the materialization relationship.
-   *
-   * @param linksToMaterialize The set of physical links to be materialized as region links in the DAG.
-   * @param regionDAG The DAG of regions to be modified
-   */
+    * Adds materialization links as region links within the given region DAG.
+    * This method processes each physical link in the input set, identifying the source and destination
+    * regions for each link. It then adds an edge between these regions in the DAG to represent
+    * the materialization relationship.
+    *
+    * @param linksToMaterialize The set of physical links to be materialized as region links in the DAG.
+    * @param regionDAG The DAG of regions to be modified
+    */
   private def addMaterializationsAsRegionLinks(
-                                                linksToMaterialize: Set[PhysicalLink],
-                                                regionDAG: DirectedAcyclicGraph[Region, RegionLink]
-                                              ): Unit = {
+      linksToMaterialize: Set[PhysicalLink],
+      regionDAG: DirectedAcyclicGraph[Region, RegionLink]
+  ): Unit = {
     linksToMaterialize.foreach(link => {
       val fromOpRegions = getRegions(link.fromOpId, regionDAG)
       val toOpRegions = getRegions(link.toOpId, regionDAG)
@@ -214,21 +214,21 @@ class CostBasedScheduleGenerator(
   }
 
   /**
-   * The core of the search algorithm. If the input physical plan is already schedulable, no search will be executed.
-   * Otherwise, depending on the configuration, either a global search or a greedy search will be performed to find
-   * an optimal plan. The search starts from a plan where all non-blocking edges are pipelined, and leads to a low-cost
-   * schedulable plan by changing pipelined non-blocking edges to materialized. By default all pruning techniques
-   * are enabled (chains, clean edges, and early stopping on schedulable states).
-   *
-   * @return A SearchResult containing the plan, the region DAG (without materializations added yet), the cost, the
-   *         time to finish search, and the number of states explored.
-   */
+    * The core of the search algorithm. If the input physical plan is already schedulable, no search will be executed.
+    * Otherwise, depending on the configuration, either a global search or a greedy search will be performed to find
+    * an optimal plan. The search starts from a plan where all non-blocking edges are pipelined, and leads to a low-cost
+    * schedulable plan by changing pipelined non-blocking edges to materialized. By default all pruning techniques
+    * are enabled (chains, clean edges, and early stopping on schedulable states).
+    *
+    * @return A SearchResult containing the plan, the region DAG (without materializations added yet), the cost, the
+    *         time to finish search, and the number of states explored.
+    */
   def bottomUpSearch(
-                      globalSearch: Boolean = false,
-                      oChains: Boolean = true,
-                      oCleanEdges: Boolean = true,
-                      oEarlyStop: Boolean = true
-                    ): SearchResult = {
+      globalSearch: Boolean = false,
+      oChains: Boolean = true,
+      oCleanEdges: Boolean = true,
+      oEarlyStop: Boolean = true
+  ): SearchResult = {
     val startTime = System.nanoTime()
     val originalNonBlockingEdges =
       if (oCleanEdges) {
@@ -277,9 +277,9 @@ class CostBasedScheduleGenerator(
       }
 
       /**
-       * An internal method of bottom-up search that updates the current optimum if the examined state is schedulable
-       * and has a lower cost.
-       */
+        * An internal method of bottom-up search that updates the current optimum if the examined state is schedulable
+        * and has a lower cost.
+        */
       def updateOptimumIfApplicable(regionDAG: DirectedAcyclicGraph[Region, RegionLink]): Unit = {
         if (oEarlyStop) schedulableStates.add(currentState)
         // Calculate the current state's cost and update the bestResult if it's lower
@@ -293,11 +293,11 @@ class CostBasedScheduleGenerator(
       }
 
       /**
-       * An internal method of bottom-up search that performs state transitions (changing an pipelined edge to
-       * materialized) to include the unvisited neighbor(s) of the current state in the frontier (i.e., the queue).
-       * If using global search, all unvisited neighbors will be included. Otherwise in a greedy search, only the
-       * neighbor with the lowest cost will be included.
-       */
+        * An internal method of bottom-up search that performs state transitions (changing an pipelined edge to
+        * materialized) to include the unvisited neighbor(s) of the current state in the frontier (i.e., the queue).
+        * If using global search, all unvisited neighbors will be included. Otherwise in a greedy search, only the
+        * neighbor with the lowest cost will be included.
+        */
       def addNeighborStatesToFrontier(): Unit = {
         val allCurrentMaterializedEdges =
           currentState ++ physicalPlan.getNonMaterializedBlockingAndDependeeLinks
@@ -363,19 +363,19 @@ class CostBasedScheduleGenerator(
   }
 
   /**
-   * Another direction to perform the search. Depending on the configuration, either a global search or a greedy search
-   * will be performed to find an optimal plan. The search starts from a plan where all edges are materialized, and
-   * leads to a low-cost schedulable plan by changing materialized non-blocking edges to pipelined.
-   * By default, all pruning techniques are enabled (chains, clean edges).
-   *
-   * @return A SearchResult containing the plan, the region DAG (without materializations added yet), the cost, the
-   *         time to finish search, and the number of states explored.
-   */
+    * Another direction to perform the search. Depending on the configuration, either a global search or a greedy search
+    * will be performed to find an optimal plan. The search starts from a plan where all edges are materialized, and
+    * leads to a low-cost schedulable plan by changing materialized non-blocking edges to pipelined.
+    * By default, all pruning techniques are enabled (chains, clean edges).
+    *
+    * @return A SearchResult containing the plan, the region DAG (without materializations added yet), the cost, the
+    *         time to finish search, and the number of states explored.
+    */
   def topDownSearch(
-                     globalSearch: Boolean = false,
-                     oChains: Boolean = true,
-                     oCleanEdges: Boolean = true
-                   ): SearchResult = {
+      globalSearch: Boolean = false,
+      oChains: Boolean = true,
+      oCleanEdges: Boolean = true
+  ): SearchResult = {
     val startTime = System.nanoTime()
     // Starting from a state where all non-blocking edges are materialized
     val originalSeedState = physicalPlan.links.diff(
@@ -427,9 +427,9 @@ class CostBasedScheduleGenerator(
       }
 
       /**
-       * An internal method of top-down search that updates the current optimum if the examined state is schedulable
-       * and has a lower cost.
-       */
+        * An internal method of top-down search that updates the current optimum if the examined state is schedulable
+        * and has a lower cost.
+        */
       def updateOptimumIfApplicable(regionDAG: DirectedAcyclicGraph[Region, RegionLink]): Unit = {
         // Calculate the current state's cost and update the bestResult if it's lower
         val cost =
@@ -442,11 +442,11 @@ class CostBasedScheduleGenerator(
       }
 
       /**
-       * An internal method of top-down search that performs state transitions (changing an materialized edge to
-       * pipelined) to include the unvisited neighbor(s) of the current state in the frontier (i.e., the queue).
-       * If using global search, all unvisited neighbors will be included. Otherwise in a greedy search, only the
-       * neighbor with the lowest cost will be included.
-       */
+        * An internal method of top-down search that performs state transitions (changing an materialized edge to
+        * pipelined) to include the unvisited neighbor(s) of the current state in the frontier (i.e., the queue).
+        * If using global search, all unvisited neighbors will be included. Otherwise in a greedy search, only the
+        * neighbor with the lowest cost will be included.
+        */
       def addNeighborStatesToFrontier(): Unit = {
         val unvisitedNeighborStates = currentState
           .map(edge => currentState - edge)
@@ -489,12 +489,12 @@ class CostBasedScheduleGenerator(
   }
 
   /**
-   * The cost function used by the search. Takes a region plan, generates one or more (to be done in the future)
-   * schedules based on the region plan, and calculates the cost of the schedule(s) using Cost Estimator. Uses the cost
-   * of the best schedule (currently only considers one schedule) as the cost of the region plan.
-   *
-   * @return A cost determined by the cost estimator.
-   */
+    * The cost function used by the search. Takes a region plan, generates one or more (to be done in the future)
+    * schedules based on the region plan, and calculates the cost of the schedule(s) using Cost Estimator. Uses the cost
+    * of the best schedule (currently only considers one schedule) as the cost of the region plan.
+    *
+    * @return A cost determined by the cost estimator.
+    */
   private def evaluate(regionPlan: RegionPlan): Double = {
     val schedule = generateScheduleFromRegionPlan(regionPlan)
     // In the future we may allow multiple regions in a level and split the resources.

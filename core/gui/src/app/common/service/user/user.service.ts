@@ -29,6 +29,10 @@ export class UserService {
     return this.currentUser;
   }
 
+  public getCurrentUserPassword(): Observable<string> {
+    return this.authService.getPassword().pipe();
+  }
+
   public login(username: string, password: string): Observable<void> {
     // validate the credentials with backend
     return this.authService
