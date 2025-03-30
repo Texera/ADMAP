@@ -48,7 +48,6 @@
             <span>Datasets</span>
           </li>
           <li
-            *ngIf="environment.projectEnabled"
             nz-menu-item
             nz-tooltip="Look through your metadata"
             nzMatchRouter="true"
@@ -82,7 +81,7 @@
 <!--            <span>Quota</span>-->
 <!--          </li>-->
           <li
-            *ngIf="environment.forumEnabled"
+            *ngIf="displayForum"
             nz-menu-item
             nz-tooltip="Open the discussion forum"
             nzMatchRouter="true"
