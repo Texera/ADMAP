@@ -87,7 +87,7 @@ export const defaultEnvironment = {
   /**
    * the file size limit for dataset upload
    */
-  singleFileUploadMaximumSizeMB: 20,
+  singleFileUploadMaximumSizeMB: 1000000, // 1 TB
 
   /**
    * the maximum number of file chunks that can be held in the memory;
