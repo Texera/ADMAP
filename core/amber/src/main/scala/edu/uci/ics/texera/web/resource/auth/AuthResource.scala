@@ -1,20 +1,10 @@
 package edu.uci.ics.texera.web.resource.auth
 
+import akka.actor.Address
 import edu.uci.ics.amber.engine.common.AmberConfig
-import edu.uci.ics.texera.auth.JwtAuth.{
-  TOKEN_EXPIRE_TIME_IN_DAYS,
-  dayToMin,
-  jwtClaims,
-  jwtConsumer,
-  jwtToken
-}
 import edu.uci.ics.texera.dao.SqlServer
-import edu.uci.ics.texera.web.model.http.request.auth.{
-  LdapUserRegistrationRequest,
-  RefreshTokenRequest,
-  UserLoginRequest,
-  UserRegistrationRequest
-}
+import edu.uci.ics.texera.web.auth.JwtAuth._
+import edu.uci.ics.texera.web.model.http.request.auth.{LdapUserRegistrationRequest, RefreshTokenRequest, UserLoginRequest, UserRegistrationRequest}
 import edu.uci.ics.texera.web.model.http.response.TokenIssueResponse
 import edu.uci.ics.texera.dao.jooq.generated.Tables.USER
 import edu.uci.ics.texera.dao.jooq.generated.enums.UserRoleEnum
@@ -22,20 +12,28 @@ import edu.uci.ics.texera.dao.jooq.generated.tables.daos.UserDao
 import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.User
 import edu.uci.ics.texera.web.resource.auth.AuthResource._
 import org.jasypt.util.password.StrongPasswordEncryptor
+
 import javax.ws.rs._
 import javax.ws.rs.core.{MediaType, Response}
 import com.unboundid.ldap.sdk.{AddRequest, Entry, LDAPConnection}
 import com.unboundid.ldap.sdk._
 import com.jcraft.jsch._
-import edu.uci.ics.texera.web.auth.SessionUser
+import edu.uci.ics.texera.auth.SessionUser
 import io.dropwizard.auth.Auth
 import play.api.libs.json.Json
+
 import java.security.SecureRandom
 import java.util.Base64
+import com.typesafe.config.{Config, ConfigFactory}
+import edu.uci.ics.amber.engine.common.AmberConfig.{conf, configFile, getConfSource, lastModifiedTime}
+import edu.uci.ics.texera.web.resource.dashboard.user.metadata.MetadataResource
+
+import java.io.File
 
 object AuthResource {
-
-  final private val HOST_IP: String = "3.142.252.209"
+  private val configFile: File = new File("src/main/resources/application.conf")
+  private var lastModifiedTime: Long = 0
+  private var conf: Config = ConfigFactory.load()
 
   final private lazy val userDao = new UserDao(
     SqlServer
@@ -43,6 +41,23 @@ object AuthResource {
       .createDSLContext()
       .configuration
   )
+
+  private def getConfSource: Config = {
+    if (lastModifiedTime == configFile.lastModified()) {
+      conf.resolve()
+    } else {
+      lastModifiedTime = configFile.lastModified()
+      conf = ConfigFactory.parseFile(configFile).withFallback(ConfigFactory.load())
+      conf.resolve()
+    }
+  }
+
+
+  // constants
+  final private val HOST_IP: String = getConfSource.getString("aws-service.public-ip")
+  final private val PRIVATE_KEY_PATH: String = getConfSource.getString("aws-service.private-key-path")
+  final private val KNOWN_HOSTS: String = getConfSource.getString("aws-service.known-hosts")
+
 
   /**
     * Retrieve exactly one User from databases with the given username and password.
@@ -135,7 +150,7 @@ object AuthResource {
 
     val sshHost = HOST_IP
     val sshUser = "ubuntu"
-    val privateKeyPath = "/Users/lanaramadan/Desktop/012624-2.pem"
+    val privateKeyPath = PRIVATE_KEY_PATH
 
     // make directory and change ownership to the user
     val command = s"sudo mkdir -p $path && sudo chown -R $username:5000 $path"
@@ -144,7 +159,7 @@ object AuthResource {
 
     try {
       val jsch = new JSch()
-      jsch.setKnownHosts("/Users/lanaramadan/.ssh/known_hosts")
+      jsch.setKnownHosts(KNOWN_HOSTS)
       jsch.addIdentity(privateKeyPath, "12345")
       session = jsch.getSession(sshUser, sshHost, 22)
       session.setConfig("StrictHostKeyChecking", "no")

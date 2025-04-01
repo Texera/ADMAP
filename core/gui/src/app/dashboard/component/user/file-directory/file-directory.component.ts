@@ -2,7 +2,6 @@ import {Component, OnInit} from "@angular/core";
 import { FileDirectoryService } from "../../../service/user/file-directory/file-directory.service";
 import {UserService} from "../../../../common/service/user/user.service";
 import {User} from "../../../../common/type/user";
-import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
 @Component({
   selector: "texera-file-directory",
@@ -15,20 +14,30 @@ export class FileDirectoryComponent implements OnInit {
     public scpUsername : string | undefined;
     public scpPassword: string | undefined;
     public showPassword: boolean = false;
-    public host_ip: SafeResourceUrl | undefined;
+    public host_ip: string;
 
   constructor(
-    private fileDirectoryService: FileDirectoryService,
-    private sanitizer: DomSanitizer
+    private userService: UserService,
+    private fileDirectoryService: FileDirectoryService
   ) {
+    this.host_ip = this.fileDirectoryService.host_ip;
+    this.user = this.userService.getCurrentUser();
+
+    if (this.user) {
+      // this.scpUsername = this.userService.getSCPUsername();
+      // this.scpUsername = this.userService.getSCPUsername();
+      // this.scpPassword = this.userService.getSCPPassword();
+    }
   }
 
 ngOnInit(): void {
-  const hostIp = this.fileDirectoryService.host_ip;
-  const hostIpWithPort = hostIp.startsWith("http") ? hostIp : `http://${hostIp}:80`;
-
-  if (hostIpWithPort) {
-    this.host_ip = this.sanitizer.bypassSecurityTrustResourceUrl(hostIpWithPort);
-  }
+    this.fileDirectoryService.fetchDirectories().subscribe(
+        (data: string) => {
+            this.directoryHtml = data;
+        },
+        (error) => {
+            console.error("Error fetching directory:", error);
+        }
+    );
 }
 }
