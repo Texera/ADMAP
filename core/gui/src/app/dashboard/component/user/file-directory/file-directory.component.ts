@@ -14,11 +14,13 @@ export class FileDirectoryComponent implements OnInit {
     public scpUsername : string | undefined;
     public scpPassword: string | undefined;
     public showPassword: boolean = false;
+    public host_ip: string;
 
   constructor(
     private userService: UserService,
     private fileDirectoryService: FileDirectoryService
   ) {
+    this.host_ip = this.fileDirectoryService.host_ip;
     this.user = this.userService.getCurrentUser();
 
     if (this.user) {

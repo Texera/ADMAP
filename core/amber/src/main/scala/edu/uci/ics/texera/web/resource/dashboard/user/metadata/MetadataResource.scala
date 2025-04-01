@@ -3,22 +3,12 @@ package edu.uci.ics.texera.web.resource.dashboard.user.metadata
 import javax.ws.rs._
 import javax.ws.rs.core.{MediaType, Response}
 import javax.annotation.security.RolesAllowed
-import edu.uci.ics.texera.web.auth.SessionUser
+import edu.uci.ics.texera.auth.SessionUser
 import io.dropwizard.auth.Auth
 import edu.uci.ics.texera.dao.jooq.generated.tables.Metadata.METADATA
 import edu.uci.ics.texera.dao.jooq.generated.tables.User.USER
-import edu.uci.ics.texera.dao.jooq.generated.tables.daos.{
-  MetadataDao,
-  MetadataContributorDao,
-  MetadataFunderDao,
-  MetadataSpecimenDao
-}
-import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.{
-  Metadata,
-  MetadataContributor,
-  MetadataFunder,
-  MetadataSpecimen,
-}
+import edu.uci.ics.texera.dao.jooq.generated.tables.daos.{MetadataContributorDao, MetadataDao, MetadataFunderDao, MetadataSpecimenDao}
+import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.{Metadata, MetadataContributor, MetadataFunder, MetadataSpecimen}
 import edu.uci.ics.texera.dao.jooq.generated.enums.ContributorRoleEnum
 import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSexEnum
 import edu.uci.ics.amber.engine.common.Utils.withTransaction
@@ -28,8 +18,26 @@ import scala.jdk.CollectionConverters._
 import com.jcraft.jsch._
 import edu.uci.ics.texera.dao.SqlServer
 import play.api.libs.json.{Json, OFormat}
+import com.typesafe.config.{Config, ConfigFactory}
+import edu.uci.ics.texera.web.resource.auth.AuthResource.{conf, configFile, getConfSource, lastModifiedTime}
+
+import java.io.File
 
 object MetadataResource {
+  private val configFile: File = new File("src/main/resources/application.conf")
+  private var lastModifiedTime: Long = 0
+  private var conf: Config = ConfigFactory.load()
+
+  private def getConfSource: Config = {
+    if (lastModifiedTime == configFile.lastModified()) {
+      conf.resolve()
+    } else {
+      lastModifiedTime = configFile.lastModified()
+      conf = ConfigFactory.parseFile(configFile).withFallback(ConfigFactory.load())
+      conf.resolve()
+    }
+  }
+
   case class ContributorPayload(
       name: String,
       creator: Boolean,
@@ -89,7 +97,9 @@ class MetadataResource {
   private val context = SqlServer
     .getInstance()
     .createDSLContext()
-  final private val HOST_IP: String = "3.142.252.209"
+  final private val HOST_IP: String = MetadataResource.getConfSource.getString("aws-service.public-ip")
+  final private val PRIVATE_KEY_PATH: String = MetadataResource.getConfSource.getString("aws-service.private-key-path")
+  final private val KNOWN_HOSTS: String = MetadataResource.getConfSource.getString("aws-service.known-hosts")
 
   /**
     * Creates a subdirectory under the user's home directory.
@@ -105,7 +115,7 @@ class MetadataResource {
 
     val sshHost = HOST_IP
     val sshUser = "ubuntu"
-    val privateKeyPath = "/Users/lanaramadan/Desktop/012624-2.pem"
+    val privateKeyPath = PRIVATE_KEY_PATH
 
     // Command to create the directory and change ownership accordingly
     val command = s"sudo mkdir -p $path && sudo chown -R $username:5000 $path"
@@ -113,7 +123,7 @@ class MetadataResource {
     var session: Session = null
     try {
       val jsch = new JSch()
-      jsch.setKnownHosts("/Users/lanaramadan/.ssh/known_hosts")
+      jsch.setKnownHosts(KNOWN_HOSTS)
       jsch.addIdentity(privateKeyPath, "12345")
       session = jsch.getSession(sshUser, sshHost, 22)
       session.setConfig("StrictHostKeyChecking", "no")

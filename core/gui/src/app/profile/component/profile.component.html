@@ -10,7 +10,11 @@
     <br />
 
     <p><b>To SCP your data, enter the following in the terminal:</b></p>
-    <p>scp [local file] {{ this.scpUsername }}@{{ this.host_ip}}:/home/users/{{ this.scpUsername }}</p>
+    <p><i>For a file:</i></p>
+    <p>scp [local file] {{ this.scpUsername }}@{{ this.host_ip}}:/home/users/{{ this.scpUsername }}/[project name]</p>
+    <br />
+    <p><i>For a folder/directory:</i></p>
+    <p>scp -r [local directory] {{ this.scpUsername }}@{{ this.host_ip}}:/home/users/{{ this.scpUsername }}/[project name]</p>
     <br />
 
     <p><b>Use the below credentials to SCP your raw data.</b></p>
