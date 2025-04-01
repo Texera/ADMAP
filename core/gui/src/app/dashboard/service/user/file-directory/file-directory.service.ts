@@ -12,7 +12,4 @@ export class FileDirectoryService {
   constructor(private http: HttpClient) {}
 
   public readonly host_ip = '13.59.243.53';
-  public fetchDirectories(): Observable<string> {
-    return this.http.get(`${AppSettings.getApiEndpoint()}/${DIRECTORY_BASE_URL}`, { responseType: "text" });
-  }
 }
