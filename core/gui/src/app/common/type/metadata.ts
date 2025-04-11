@@ -10,8 +10,7 @@ export interface Metadata {
   contributors?: {
     name: string;
     creator?: boolean;
-    contributorType: string;
-    roleOther?: string;
+    role: string;
     affiliation: string;
     email: string;
   }[];
@@ -23,8 +22,8 @@ export interface Metadata {
 
   specimens?: {
     id: string;
-    type: string;
-    typeOther?: string;
+    species: string;
+    speciesOther?: string;
     age?: {
       value?: number;
       unit?: string;
