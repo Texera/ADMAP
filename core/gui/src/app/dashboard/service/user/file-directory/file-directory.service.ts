@@ -11,5 +11,5 @@ export const DIRECTORY_BASE_URL = "directory";
 export class FileDirectoryService {
   constructor(private http: HttpClient) {}
 
-  public readonly host_ip = '13.59.243.53';
+  public readonly host_ip = '13.59.245.114';
 }
