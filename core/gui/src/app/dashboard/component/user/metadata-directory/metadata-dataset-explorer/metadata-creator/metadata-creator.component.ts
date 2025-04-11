@@ -1,13 +1,14 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {Component, EventEmitter, inject, Input, OnInit, Output} from "@angular/core";
 import { FormBuilder, FormGroup, FormArray, Validators } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { MetadataService } from "../../../../../service/user/metadata/metadata.service";
+import { Metadata } from "../../../../../../common/type/Metadata";
+
 import { FileUploadItem } from "../../../../../type/dashboard-file.interface";
-import { UntilDestroy } from "@ngneat/until-destroy";
+import {UntilDestroy, untilDestroyed} from "@ngneat/until-destroy";
 import { NotificationService } from "../../../../../../common/service/notification/notification.service";
-import sanitize from "sanitize-filename";
-import { Router } from "@angular/router";
-import { DASHBOARD_USER_METADATA_DIRECTORY } from "../../../../../../app-routing.constant";
+import {NZ_MODAL_DATA, NzModalRef} from "ng-zorro-antd/modal";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @UntilDestroy()
 @Component({
@@ -16,8 +17,7 @@ import { DASHBOARD_USER_METADATA_DIRECTORY } from "../../../../../../app-routing
   styleUrls: ["./metadata-creator.component.scss"],
 })
 export class MetadataCreatorComponent implements OnInit {
-  @Input()
-  isCreatingMetadata: boolean = false;
+  readonly isCreatingMetadata: boolean = inject(NZ_MODAL_DATA).isCreatingMetadata;
 
   @Output()
   metadataCreationID: EventEmitter<number> = new EventEmitter<number>();
@@ -30,111 +30,249 @@ export class MetadataCreatorComponent implements OnInit {
   model: any = {};
   fields: FormlyFieldConfig[] = [];
   isMetadataPublic: boolean = false;
+
+  // used when creating the metadata
   isMetadataNameSanitized: boolean = false;
-  isUploading: boolean = false;
 
-
-  contributorRoles = [
-    "Contact Person",
-    "Data Collector",
-    "Data Curator",
-    "Project Leader",
-    "Project Manager",
-    "Project Member",
-    "Related Person",
-    "Researcher",
-    "Research Group",
-    "Other"
-  ];
+  // boolean to control if is uploading
+  isCreating: boolean = false;
 
   constructor(
-    private router: Router,
+    private modalRef: NzModalRef,
     private metadataService: MetadataService,
     private notificationService: NotificationService,
     private formBuilder: FormBuilder
   ) {}
 
   ngOnInit() {
-    this.form = this.formBuilder.group({
-      name: ["", Validators.required],
-      contributors: this.formBuilder.array([]),
-      funders: this.formBuilder.array([]),
-      specimens: this.formBuilder.array([]),
-    });
-
-    console.log("FORM:", this.form);
-
-
+    this.setFormFields();
     this.isMetadataNameSanitized = false;
   }
 
-  // Getters for form arrays
-  get contributors() {
-    return this.form.get("contributors") as FormArray;
-  }
+  private setFormFields() {
+    this.fields = [
+      {
+        key: "name",
+        type: "input",
+        templateOptions: {
+          label: "Name",
+          required: true,
+        },
+      },
+      {
+        key: "description",
+        type: "input",
+        defaultValue: "",
+        templateOptions: {
+          label: "Description",
+        },
+      },
+      {
+        key: 'contributors',
+        type: 'array',
+        templateOptions: {
+          label: 'Contributors',
+        },
+        fieldArray: {
+          fieldGroup: [
+            {
+              key: 'name',
+              type: 'input',
+              templateOptions: {
+                label: "Contributor's Name",
+                placeholder: "Contributor's Name",
+                required: true,
+              },
+            },
+            {
+              key: 'creator',
+              type: 'checkbox',
+              templateOptions: {
+                label: 'Creator',
+              },
+            },
+            {
+              key: 'role',
+              type: 'select',
+              templateOptions: {
+                label: 'Contributor Role',
+                required: true,
+                options: [
+                  { label: 'Researcher', value: 'Researcher' },
+                  { label: 'Principal Investigator (PI)', value: 'Principal Investigator' },
+                  { label: 'Project Member', value: 'Project Member' },
+                  { label: 'Other', value: 'Other' },
+                ],
+              },
+            },
+            {
+              key: 'typeOther',
+              type: 'input',
+              templateOptions: {
+                label: 'Specify other contributor tole',
+                placeholder: 'Other role',
+              },
+              hideExpression: (model: any) => model?.role !== 'Other',
+            },
+            {
+              key: 'affiliation',
+              type: 'input',
+              templateOptions: {
+                label: 'Department',
+                required: true,
+                placeholder: 'Department',
+              },
+            },
+            {
+              key: 'email',
+              type: 'input',
+              templateOptions: {
+                label: 'Email',
+                required: true,
+                placeholder: 'Email',
+                type: 'email',
+              },
+            },
+          ],
+        },
+      },
+      {
+        key: 'funders',
+        type: 'array',
+        templateOptions: {
+          label: 'Funders',
+        },
+        fieldArray: {
+          fieldGroup: [
+            {
+              key: 'name',
+              type: 'input',
+              templateOptions: {
+                label: "Funder's Name",
+                placeholder: "Funder's Name",
+              },
+            },
+            {
+              key: 'award',
+              type: 'input',
+              templateOptions: {
+                label: 'Award title',
+                placeholder: 'Award title',
+              },
+            },
+          ],
+        },
+      },
+      {
+        key: 'specimens',
+        type: 'array',
+        templateOptions: {
+          label: 'Specimens',
+        },
+        fieldArray: {
+          fieldGroup: [
+            {
+              key: 'id',
+              type: 'input',
+              templateOptions: {
+                label: "Specimen's ID",
+                required: true,
+                placeholder: "Specimen's ID",
+              },
+            },
+            {
+              key: 'type',
+              type: 'select',
+              templateOptions: {
+                label: 'Specimen Type',
+                required: true,
+                options: [
+                  { label: 'Human', value: 'Human' },
+                  { label: 'Mouse', value: 'Mouse' },
+                  { label: 'Rat', value: 'Rat' },
+                  { label: 'Degu', value: 'Degu' },
+                  { label: 'Monkey', value: 'Monkey' },
+                  { label: 'Other', value: 'Other' },
+                ],
+              },
+            },
+            {
+              key: 'typeOther',
+              type: 'input',
+              templateOptions: {
+                label: 'Specify other specimen type',
+                placeholder: 'Other specimen',
+              },
+              hideExpression: (model: any) => model?.type !== 'Other',
+            },
 
-  get funders() {
-    return this.form.get("funders") as FormArray;
-  }
+            {
+              key: 'age',
+              fieldGroup: [
+                {
+                  key: 'value',
+                  type: 'input',
+                  templateOptions: {
+                    type: 'number',
+                    label: 'Age',
+                    placeholder: 'Age',
+                    min: 0,
+                  },
+                },
+                {
+                  key: 'unit',
+                  type: 'select',
+                  defaultValue: 'Years',
+                  templateOptions: {
+                    label: 'Unit',
+                    options: [
+                      { label: 'Years', value: 'Years' },
+                      { label: 'Months', value: 'Months' },
+                    ],
+                  },
+                },
+              ],
+            },
 
-  get specimens() {
-    return this.form.get("specimens") as FormArray;
-  }
+            {
+              key: 'sex',
+              type: 'select',
+              templateOptions: {
+                label: 'Sex',
+                options: [
+                  { label: 'Male', value: 'Male' },
+                  { label: 'Female', value: 'Female' },
+                ],
+              },
+            },
+            {
+              key: 'notes',
+              type: 'input',
+              templateOptions: {
+                type: 'text',
+                label: 'Notes',
+                placeholder:
+                  'Any additional notes (e.g., Non-AD, AD, MAPT, under cage, inject 50um chemicals)',
+              },
+            },
+          ],
+        },
+      }
 
-  // Add a new contributor
-  addContributor() {
-    const contributorGroup = this.formBuilder.group({
-      name: ["", Validators.required],
-      creator: [false], // Checkbox for creator
-      role: ["", Validators.required],
-      affiliation: ["", Validators.required],
-    });
-
-    this.contributors.push(contributorGroup);
-  }
-
-  // Remove a contributor
-  removeContributor(index: number) {
-    this.contributors.removeAt(index);
-  }
-
-  // Add a new funder
-  addFunder() {
-    const funderGroup = this.formBuilder.group({
-      name: ["", Validators.required],
-      awardTitle: ["", Validators.required],
-    });
-
-    this.funders.push(funderGroup);
-  }
-
-  // Remove a funder
-  removeFunder(index: number) {
-    this.funders.removeAt(index);
-  }
-
-  // Add a new specimen
-  addSpecimen() {
-    const specimenGroup = this.formBuilder.group({
-      id: ["", Validators.required],
-      specimen: ["", Validators.required],
-      age: ["", [Validators.required, Validators.min(0)]],
-      sex: ["", Validators.required], // Male, Female, Unknown
-    });
-
-    this.specimens.push(specimenGroup);
-  }
-
-  // Remove a specimen
-  removeSpecimen(index: number) {
-    this.specimens.removeAt(index);
+    ]
   }
 
   metadataNameSanitization(metadataName: string): string {
-    const sanitizedMetadataName = sanitize(metadataName);
+    // Remove leading spaces
+    let sanitizedMetadataName = metadataName.trimStart();
+
+    // Replace all characters that are not letters (a-z, A-Z), numbers (0-9) with a short dash "-"
+    sanitizedMetadataName = sanitizedMetadataName.replace(/[^a-zA-Z0-9]+/g, "-");
+
     if (sanitizedMetadataName !== metadataName) {
       this.isMetadataNameSanitized = true;
     }
+
     return sanitizedMetadataName;
   }
 
@@ -146,8 +284,7 @@ export class MetadataCreatorComponent implements OnInit {
   }
 
   onClickCancel() {
-    this.metadataCreationID.emit(0);
-    this.router.navigate([DASHBOARD_USER_METADATA_DIRECTORY]);
+    this.modalRef.close(null);
   }
 
   onClickCreate() {
@@ -159,42 +296,68 @@ export class MetadataCreatorComponent implements OnInit {
     }
     console.log("Form Data:", this.form.value);
 
-    this.isUploading = true;
-    const metadataPayload = {
-      metadataName: this.metadataNameSanitization(this.form.get("name")?.value), // Metadata Name
-      contributors: this.contributors.value.map((contributor: any) => ({
+    this.isCreating = true;
+
+    const md: Metadata = {
+      name: this.metadataNameSanitization(this.form.get("name")?.value),
+      description: this.form.get("description")?.value,
+      contributors: this.form.get('contributors')?.value.map((contributor: any) => ({
         name: contributor.name,
         creator: contributor.creator,
         contributorType: contributor.role,
-        affiliation: contributor.affiliation
+        roleOther: contributor.typeOther,
+        affiliation: contributor.affiliation,
+        email: contributor.email,
       })),
-      funders: this.funders.value.map((funder: any) => ({
+
+      funders: this.form.get('funders')?.value.map((funder: any) => ({
         name: funder.name,
-        awardTitle: funder.awardTitle
+        awardTitle: funder.award,
       })),
-      specimens: this.specimens.value.map((specimen: any) => ({
-        name: specimen.specimen,
-        age: specimen.age,
-        sex: specimen.sex
+
+      specimens: this.form.get('specimens')?.value.map((specimen: any) => ({
+        id: specimen.id,
+        type: specimen.type,
+        typeOther: specimen.typeOther,
+        age: {
+          value: specimen.age?.value,
+          unit: specimen.age?.unit,
+        },
+        sex: specimen.sex,
+        notes: specimen.notes,
       })),
+
+      isPublic: this.isMetadataPublic,
+      mid: undefined,
+      ownerUid: undefined,
+      storagePath: undefined,
+      creationTime: undefined,
     };
 
-    console.log("Sending Metadata Payload:", metadataPayload);
+    this.metadataService
+      .createMetadata(md)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: res => {
+          this.notificationService.success(
+            `Dataset '${md.name}' Created. ${this.isMetadataNameSanitized ? "We have sanitized your provided dataset name for the compatibility reason" : ""}`
+          );
+          this.isCreating = false;
+          // if creation succeed, emit the created dashboard dataset
+          this.modalRef.close(res);
+        },
+        error: (res: unknown) => {
+          const err = res as HttpErrorResponse;
+          this.notificationService.error(`Dataset ${md.name} creation failed: ${err.error.message}`);
+          this.isCreating = false;
+          // if creation failed, emit null value
+          this.modalRef.close(null);
+        },
+      });
+  }
 
-    this.metadataService.createMetadata(metadataPayload).subscribe({
-      next: (res) => {
-        this.notificationService.success(
-          `Metadata '${metadataPayload.metadataName}' created successfully!`
-        );
-        this.isUploading = false;
-      },
-      error: (err) => {
-        console.error("Metadata creation failed:", err);
-        this.notificationService.error(`Metadata creation failed: ${err.message}`);
-        this.isUploading = false;
-      },
-    });
-
-    this.router.navigate([DASHBOARD_USER_METADATA_DIRECTORY]);
+  onPublicStatusChange(newValue: boolean): void {
+    // Handle the change in metadata public status
+    this.isMetadataPublic = newValue;
   }
 }

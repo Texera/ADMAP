@@ -1,177 +1,42 @@
 <div>
   <nz-spin
-    [nzSpinning]="isUploading"
+    [nzSpinning]="isCreating"
     nzSize="large"
-    nzTip="Uploading...">
+    nzTip="Creating...">
     <div
       class="texera-user-metadata-creator-form"
-      [ngClass]="{'disabled-backdrop': isUploading}">
-      <form [formGroup]="form">
-        <formly-form
-          [form]="form"
-          [fields]="fields"
-          [model]="model"></formly-form>
+      [ngClass]="{'disabled-backdrop': isCreating}">
+      <div>
+      <formly-form
+        [form]="form"
+        [fields]="fields"
+        [model]="model"></formly-form>
+      </div>
 
-        <h3>Metadata Name</h3>
-        <input
-          id="metadata-name"
-          formControlName="name"
-          placeholder="Enter Metadata Name"
-          required />
-
-        <!-- Contributors Section -->
-        <h3>Contributors</h3>
-        <div formArrayName="contributors">
-          <div *ngFor="let contributor of contributors?.controls; let i = index">
-            <div
-              [formGroupName]="i"
-              class="contributor-group">
-              <label for="name">Name:</label>
-              <input
-                id="name"
-                formControlName="name"
-                placeholder="Contributor's Name" />
-
-              <label for="creator">Creator:</label>
-              <input
-                type="checkbox"
-                id="creator"
-                formControlName="creator" />
-
-              <label for="role">Contributor Type:</label>
-              <select
-                id="role"
-                formControlName="role">
-                <option
-                  *ngFor="let role of contributorRoles"
-                  [value]="role">
-                  {{ role }}
-                </option>
-              </select>
-
-              <label for="affiliation">Affiliation:</label>
-              <input
-                id="affiliation"
-                formControlName="affiliation"
-                placeholder="Affiliation" />
-
-              <button
-                type="button"
-                (click)="removeContributor(i)"
-                class="remove-btn">
-                Remove
-              </button>
-            </div>
-          </div>
-        </div>
-        <button
-          type="button"
-          (click)="addContributor()"
-          class="add-btn">
-          Add Contributor
-        </button>
-
-        <!-- Funders Section -->
-        <h3>Funders</h3>
-        <div formArrayName="funders">
-          <div *ngFor="let funder of funders?.controls; let i = index">
-            <div
-              [formGroupName]="i"
-              class="funder-group">
-              <label for="funder-name">Name:</label>
-              <input
-                id="funder-name"
-                formControlName="name"
-                placeholder="Funder's Name" />
-
-              <label for="awardTitle">Award Title:</label>
-              <input
-                id="awardTitle"
-                formControlName="awardTitle"
-                placeholder="Award Title" />
-
-              <button
-                type="button"
-                (click)="removeFunder(i)"
-                class="remove-btn">
-                Remove
-              </button>
-            </div>
-          </div>
-        </div>
-        <button
-          type="button"
-          (click)="addFunder()"
-          class="add-btn">
-          Add Funder
-        </button>
-
-        <!-- Specimens Section -->
-        <h3>Specimen</h3>
-        <div formArrayName="specimens">
-          <div *ngFor="let specimen of specimens?.controls; let i = index">
-            <div
-              [formGroupName]="i"
-              class="specimen-group">
-              <label for="id">ID:</label>
-              <input
-                id="id"
-                formControlName="id"
-                placeholder="Specimen ID" />
-
-              <label for="specimen">Specimen:</label>
-              <input
-                id="specimen"
-                formControlName="specimen"
-                placeholder="Specimen Name" />
-              <label for="age">Age:</label>
-              <input
-                id="age"
-                formControlName="age"
-                type="number"
-                placeholder="Age" />
-              <label for="sex">Sex:</label>
-              <select
-                id="sex"
-                formControlName="sex">
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Unknown">Unknown</option>
-              </select>
-
-              <button
-                type="button"
-                (click)="removeSpecimen(i)"
-                class="remove-btn">
-                Remove
-              </button>
-            </div>
-          </div>
-        </div>
-        <button
-          type="button"
-          (click)="addSpecimen()"
-          class="add-btn">
-          Add Specimen
-        </button>
-
-        <!-- Metadata Creation Buttons -->
-        <div class="action-buttons">
-          <button
-            type="button"
-            (click)="onClickCancel()"
-            class="cancel-btn">
-            Cancel
-          </button>
-          <button
-            type="button"
-            [disabled]="isUploading"
-            (click)="onClickCreate()"
-            class="create-btn">
-            Create Metadata
-          </button>
-        </div>
-      </form>
+      <nz-switch
+        *ngIf="!isCreatingMetadata"
+        [ngModel]="isMetadataPublic"
+        (ngModelChange)="onPublicStatusChange($event)"
+        nzCheckedChildren="public"
+        nzUnCheckedChildren="private"></nz-switch>
     </div>
+
+    <button
+      nz-button
+      nzType="primary"
+      (click)="onClickCreate()"
+      [disabled]="isCreateButtonDisabled || isCreating"
+      class="create-btn">
+      Create
+    </button>
+
+    <button
+      nz-button
+      nzType="default"
+      (click)="onClickCancel()"
+      class="cancel-btn"
+      [disabled]="isCreating">
+      Cancel
+    </button>
   </nz-spin>
 </div>
