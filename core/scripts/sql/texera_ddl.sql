@@ -41,6 +41,10 @@ DROP TABLE IF EXISTS workflow_user_activity CASCADE;
 DROP TABLE IF EXISTS user_activity CASCADE;
 DROP TABLE IF EXISTS dataset_user_likes CASCADE;
 DROP TABLE IF EXISTS dataset_view_count CASCADE;
+DROP TABLE IF EXISTS metadata CASCADE;
+DROP TABLE IF EXISTS metadata_contributor CASCADE;
+DROP TABLE IF EXISTS metadata_funder CASCADE;
+DROP TABLE IF EXISTS metadata_specimen CASCADE;
 
 -- ============================================
 -- 4. Create PostgreSQL enum types
@@ -48,9 +52,28 @@ DROP TABLE IF EXISTS dataset_view_count CASCADE;
 -- ============================================
 DROP TYPE IF EXISTS user_role_enum CASCADE;
 DROP TYPE IF EXISTS privilege_enum CASCADE;
+DROP TYPE IF EXISTS contributor_role_enum CASCADE;
+DROP TYPE IF EXISTS specimen_sex_enum CASCADE;
+DROP TYPE IF EXISTS specimen_species_enum CASCADE;
 
 CREATE TYPE user_role_enum AS ENUM ('INACTIVE', 'RESTRICTED', 'REGULAR', 'ADMIN');
 CREATE TYPE privilege_enum AS ENUM ('NONE', 'READ', 'WRITE');
+CREATE TYPE contributor_role_enum AS ENUM (
+    'Researcher',
+    'Principal Investigator',
+    'Project Member',
+    'Other'
+);
+CREATE TYPE specimen_species_enum AS ENUM (
+    'Human',
+    'Mouse',
+    'Rat',
+    'Degu',
+    'Monkey',
+    'Other'
+    );
+CREATE TYPE specimen_sex_enum AS ENUM ('Male', 'Female');
+
 
 -- ============================================
 -- 5. Create tables
@@ -66,7 +89,6 @@ CREATE TABLE IF NOT EXISTS "user"
     google_id     VARCHAR(256) UNIQUE,
     google_avatar VARCHAR(100),
     role          user_role_enum NOT NULL DEFAULT 'INACTIVE',
-    comment TEXT,
     -- check that either password or google_id is not null
     CONSTRAINT ck_nulltest CHECK ((password IS NOT NULL) OR (google_id IS NOT NULL))
     );
@@ -300,16 +322,54 @@ CREATE TABLE IF NOT EXISTS dataset_view_count
     FOREIGN KEY (did) REFERENCES dataset(did) ON DELETE CASCADE
     );
 
--- workflow_computing_unit table
-CREATE TABLE IF NOT EXISTS workflow_computing_unit
+-- metadata
+CREATE TABLE IF NOT EXISTS metadata
 (
-    uid                INT           NOT NULL,
-    name               VARCHAR(128)  NOT NULL,
-    cuid               SERIAL PRIMARY KEY,
-    creation_time      TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    terminate_time     TIMESTAMP  DEFAULT NULL,
-    FOREIGN KEY (uid) REFERENCES "user"(uid) ON DELETE CASCADE
-);
+    mid            SERIAL PRIMARY KEY,
+    owner_uid      INT NOT NULL,
+    name           VARCHAR(128) NOT NULL,
+    creation_time  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_public          BOOLEAN NOT NULL DEFAULT false,
+    FOREIGN KEY (owner_uid) REFERENCES "user"(uid) ON DELETE CASCADE,
+    CONSTRAINT unique_owner_name UNIQUE (owner_uid, name)
+    );
+
+-- contributor table
+CREATE TABLE IF NOT EXISTS metadata_contributor
+(
+    cid               SERIAL PRIMARY KEY,
+    metadata_id       INT NOT NULL,
+    name              VARCHAR(256) NOT NULL,
+    creator           BOOLEAN NOT NULL DEFAULT FALSE,
+    role              contributor_role_enum,
+    email             VARCHAR(256),
+    affiliation       VARCHAR(256),
+    FOREIGN KEY (metadata_id) REFERENCES metadata(mid) ON DELETE CASCADE
+    );
+
+-- funder table
+CREATE TABLE IF NOT EXISTS metadata_funder
+(
+    fid           SERIAL PRIMARY KEY,
+    metadata_id   INT NOT NULL,
+    name   VARCHAR(256) NOT NULL,
+    award_title VARCHAR(256), -- Optional field to capture the agency name
+    FOREIGN KEY (metadata_id) REFERENCES metadata(mid) ON DELETE CASCADE
+    );
+
+-- specimen table
+CREATE TABLE IF NOT EXISTS metadata_specimen
+(
+    sid               SERIAL PRIMARY KEY,
+    metadata_id       INT NOT NULL,
+    id                VARCHAR(256) NOT NULL,
+    species           specimen_species_enum NOT NULL,
+    species_other     VARCHAR(128), -- Nullable, used when species is "Other"
+    age_value         INT,
+    age_unit          VARCHAR(32), -- e.g. "Years" or "Months"
+    sex               specimen_sex_enum,
+    FOREIGN KEY (metadata_id) REFERENCES metadata(mid) ON DELETE CASCADE
+    );
 
 -- START Fulltext search index creation (DO NOT EDIT THIS LINE)
 CREATE EXTENSION IF NOT EXISTS pgroonga;
