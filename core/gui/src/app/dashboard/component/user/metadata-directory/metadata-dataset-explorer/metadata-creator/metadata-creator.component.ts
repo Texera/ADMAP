@@ -2,6 +2,8 @@ import {Component, EventEmitter, inject, Input, OnInit, Output} from "@angular/c
 import { FormBuilder, FormGroup, FormArray, Validators } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { MetadataService } from "../../../../../service/user/metadata/metadata.service";
+import { DatasetService } from "../../../../../service/user/dataset/dataset.service";
+
 import { Metadata } from "../../../../../../common/type/Metadata";
 
 import { FileUploadItem } from "../../../../../type/dashboard-file.interface";
@@ -9,6 +11,7 @@ import {UntilDestroy, untilDestroyed} from "@ngneat/until-destroy";
 import { NotificationService } from "../../../../../../common/service/notification/notification.service";
 import {NZ_MODAL_DATA, NzModalRef} from "ng-zorro-antd/modal";
 import {HttpErrorResponse} from "@angular/common/http";
+import {Dataset} from "../../../../../../common/type/dataset";
 
 @UntilDestroy()
 @Component({
@@ -39,6 +42,7 @@ export class MetadataCreatorComponent implements OnInit {
 
   constructor(
     private modalRef: NzModalRef,
+    private datasetService: DatasetService,
     private metadataService: MetadataService,
     private notificationService: NotificationService,
     private formBuilder: FormBuilder
@@ -104,15 +108,6 @@ export class MetadataCreatorComponent implements OnInit {
                   { label: 'Other', value: 'Other' },
                 ],
               },
-            },
-            {
-              key: 'typeOther',
-              type: 'input',
-              templateOptions: {
-                label: 'Specify other contributor tole',
-                placeholder: 'Other role',
-              },
-              hideExpression: (model: any) => model?.role !== 'Other',
             },
             {
               key: 'affiliation',
@@ -181,10 +176,10 @@ export class MetadataCreatorComponent implements OnInit {
               },
             },
             {
-              key: 'type',
+              key: 'species',
               type: 'select',
               templateOptions: {
-                label: 'Specimen Type',
+                label: 'Specimen Species',
                 required: true,
                 options: [
                   { label: 'Human', value: 'Human' },
@@ -197,10 +192,10 @@ export class MetadataCreatorComponent implements OnInit {
               },
             },
             {
-              key: 'typeOther',
+              key: 'speciesOther',
               type: 'input',
               templateOptions: {
-                label: 'Specify other specimen type',
+                label: 'Specify other specimen species',
                 placeholder: 'Other specimen',
               },
               hideExpression: (model: any) => model?.type !== 'Other',
@@ -298,14 +293,23 @@ export class MetadataCreatorComponent implements OnInit {
 
     this.isCreating = true;
 
+    const ds: Dataset = {
+      name: this.metadataNameSanitization(this.form.get("name")?.value),
+      description: this.form.get("description")?.value,
+      isPublic: this.isMetadataPublic,
+      did: undefined,
+      ownerUid: undefined,
+      storagePath: undefined,
+      creationTime: undefined,
+    }
+
     const md: Metadata = {
       name: this.metadataNameSanitization(this.form.get("name")?.value),
       description: this.form.get("description")?.value,
       contributors: this.form.get('contributors')?.value.map((contributor: any) => ({
         name: contributor.name,
         creator: contributor.creator,
-        contributorType: contributor.role,
-        roleOther: contributor.typeOther,
+        role: contributor.role,
         affiliation: contributor.affiliation,
         email: contributor.email,
       })),
@@ -317,8 +321,8 @@ export class MetadataCreatorComponent implements OnInit {
 
       specimens: this.form.get('specimens')?.value.map((specimen: any) => ({
         id: specimen.id,
-        type: specimen.type,
-        typeOther: specimen.typeOther,
+        species: specimen.species,
+        typeOther: specimen.speciesOther,
         age: {
           value: specimen.age?.value,
           unit: specimen.age?.unit,
@@ -334,8 +338,10 @@ export class MetadataCreatorComponent implements OnInit {
       creationTime: undefined,
     };
 
-    this.metadataService
-      .createMetadata(md)
+    this.datasetService
+      // TODO, replace with this.metadataService and createMetadata(ds)
+      // .createMetadata(ds)
+      .createDataset(ds)
       .pipe(untilDestroyed(this))
       .subscribe({
         next: res => {
