@@ -1,8 +1,8 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { environment } from "../environments/environment";
-import { ProfileComponent } from "./profile/component/profile.component";
 import { DashboardComponent } from "./dashboard/component/dashboard.component";
+import { UserWorkflowComponent } from "./dashboard/component/user/user-workflow/user-workflow.component";
 import { UserQuotaComponent } from "./dashboard/component/user/user-quota/user-quota.component";
 import { UserProjectSectionComponent } from "./dashboard/component/user/user-project/user-project-section/user-project-section.component";
 import { UserProjectComponent } from "./dashboard/component/user/user-project/user-project.component";
@@ -17,12 +17,10 @@ import { FlarumComponent } from "./dashboard/component/user/flarum/flarum.compon
 import { AdminGmailComponent } from "./dashboard/component/admin/gmail/admin-gmail.component";
 import { DatasetDetailComponent } from "./dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component";
 import { UserDatasetComponent } from "./dashboard/component/user/user-dataset/user-dataset.component";
+import { HubWorkflowDetailComponent } from "./hub/component/workflow/detail/hub-workflow-detail.component";
 import { LandingPageComponent } from "./hub/component/landing-page/landing-page.component";
-import { DASHBOARD_HOME } from "./app-routing.constant";
+import { DASHBOARD_USER_WORKFLOW, DASHBOARD_ABOUT } from "./app-routing.constant";
 import { HubSearchResultComponent } from "./hub/component/hub-search-result/hub-search-result.component";
-import { FileDirectoryComponent } from "./dashboard/component/user/file-directory/file-directory.component";
-import { MetadataDirectoryComponent } from "./dashboard/component/user/metadata-directory/metadata-directory.component";
-import { MetadataDetailComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-detail.component";
 
 const routes: Routes = [];
 
@@ -42,6 +40,19 @@ if (environment.userSystemEnabled) {
       {
         path: "hub",
         children: [
+          {
+            path: "workflow",
+            children: [
+              {
+                path: "result",
+                component: HubSearchResultComponent,
+              },
+              {
+                path: "result/detail/:id",
+                component: HubWorkflowDetailComponent,
+              },
+            ],
+          },
           {
             path: "dataset",
             children: [
@@ -70,12 +81,16 @@ if (environment.userSystemEnabled) {
             component: UserProjectSectionComponent,
           },
           {
-            path: "dataset",
-            component: UserDatasetComponent,
+            path: "workspace/:id",
+            component: WorkspaceComponent,
           },
           {
-            path: "directory",
-            component: FileDirectoryComponent,
+            path: "workflow",
+            component: UserWorkflowComponent,
+          },
+          {
+            path: "dataset",
+            component: UserDatasetComponent,
           },
           {
             path: "dataset/:did",
@@ -86,28 +101,12 @@ if (environment.userSystemEnabled) {
             component: DatasetDetailComponent,
           },
           {
-            path: "directory",
-            component: FileDirectoryComponent,
-          },
-          {
-            path: "metadata",
-            component: MetadataDirectoryComponent,
-          },
-          {
-            path: "metadata/create",
-            component: MetadataDetailComponent,
-          },
-          {
             path: "quota",
             component: UserQuotaComponent,
           },
           {
             path: "discussion",
             component: FlarumComponent,
-          },
-          {
-            path: "profile",
-            component: ProfileComponent,
           },
         ],
       },
@@ -138,7 +137,7 @@ if (environment.userSystemEnabled) {
 
   routes.push({
     path: "",
-    redirectTo: DASHBOARD_HOME,
+    redirectTo: DASHBOARD_ABOUT,
     pathMatch: "full",
   });
 } else {
@@ -148,10 +147,10 @@ if (environment.userSystemEnabled) {
   });
 }
 
-// redirect all other paths to dashboard home.
+// redirect all other paths to index.
 routes.push({
   path: "**",
-  redirectTo: DASHBOARD_HOME,
+  redirectTo: DASHBOARD_USER_WORKFLOW,
 });
 
 @NgModule({
