@@ -323,16 +323,6 @@ CREATE TABLE IF NOT EXISTS dataset_view_count
     );
 
 -- metadata
-CREATE TABLE IF NOT EXISTS metadata
-(
-    mid            SERIAL PRIMARY KEY,
-    owner_uid      INT NOT NULL,
-    name           VARCHAR(128) NOT NULL,
-    creation_time  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    is_public          BOOLEAN NOT NULL DEFAULT false,
-    FOREIGN KEY (owner_uid) REFERENCES "user"(uid) ON DELETE CASCADE,
-    CONSTRAINT unique_owner_name UNIQUE (owner_uid, name)
-    );
 
 -- contributor table
 CREATE TABLE IF NOT EXISTS metadata_contributor
@@ -344,7 +334,7 @@ CREATE TABLE IF NOT EXISTS metadata_contributor
     role              contributor_role_enum,
     email             VARCHAR(256),
     affiliation       VARCHAR(256),
-    FOREIGN KEY (metadata_id) REFERENCES metadata(mid) ON DELETE CASCADE
+    FOREIGN KEY (metadata_id) REFERENCES dataset(did) ON DELETE CASCADE
     );
 
 -- funder table
@@ -353,8 +343,8 @@ CREATE TABLE IF NOT EXISTS metadata_funder
     fid           SERIAL PRIMARY KEY,
     metadata_id   INT NOT NULL,
     name   VARCHAR(256) NOT NULL,
-    award_title VARCHAR(256), -- Optional field to capture the agency name
-    FOREIGN KEY (metadata_id) REFERENCES metadata(mid) ON DELETE CASCADE
+    award_title VARCHAR(256),
+    FOREIGN KEY (metadata_id) REFERENCES dataset(did) ON DELETE CASCADE
     );
 
 -- specimen table
@@ -368,7 +358,8 @@ CREATE TABLE IF NOT EXISTS metadata_specimen
     age_value         INT,
     age_unit          VARCHAR(32), -- e.g. "Years" or "Months"
     sex               specimen_sex_enum,
-    FOREIGN KEY (metadata_id) REFERENCES metadata(mid) ON DELETE CASCADE
+    notes             TEXT,
+    FOREIGN KEY (metadata_id) REFERENCES dataset(did) ON DELETE CASCADE
     );
 
 -- START Fulltext search index creation (DO NOT EDIT THIS LINE)

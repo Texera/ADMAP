@@ -26,7 +26,7 @@ import java.security.SecureRandom
 import java.util.Base64
 import com.typesafe.config.{Config, ConfigFactory}
 import edu.uci.ics.amber.engine.common.AmberConfig.{conf, configFile, getConfSource, lastModifiedTime}
-import edu.uci.ics.texera.web.resource.dashboard.user.metadata.MetadataResource
+//import edu.uci.ics.texera.web.resource.dashboard.user.metadata.MetadataResource
 
 import java.io.File
 

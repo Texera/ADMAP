@@ -11,38 +11,18 @@ import edu.uci.ics.texera.dao.jooq.generated.tables.User.USER
 import edu.uci.ics.texera.dao.jooq.generated.tables.Dataset.DATASET
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetUserAccess.DATASET_USER_ACCESS
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetVersion.DATASET_VERSION
-import edu.uci.ics.texera.dao.jooq.generated.tables.daos.{
-  DatasetDao,
-  DatasetUserAccessDao,
-  DatasetVersionDao
-}
-import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.{
-  Dataset,
-  DatasetUserAccess,
-  DatasetVersion,
-  User
-}
+import edu.uci.ics.texera.dao.jooq.generated.tables.daos.{DatasetDao, DatasetUserAccessDao, DatasetVersionDao}
+
+import edu.uci.ics.texera.dao.jooq.generated.tables.daos.{MetadataContributorDao, MetadataFunderDao, MetadataSpecimenDao}
+import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.{MetadataContributor, MetadataFunder, MetadataSpecimen}
+import edu.uci.ics.texera.dao.jooq.generated.enums.ContributorRoleEnum
+import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSexEnum
+import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSpeciesEnum
+
+import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.{Dataset, DatasetUserAccess, DatasetVersion}
 import edu.uci.ics.texera.service.`type`.DatasetFileNode
-import edu.uci.ics.texera.service.resource.DatasetAccessResource.{
-  getDatasetUserAccessPrivilege,
-  getOwner,
-  isDatasetPublic,
-  userHasReadAccess,
-  userHasWriteAccess,
-  userOwnDataset
-}
-import edu.uci.ics.texera.service.resource.DatasetResource.{
-  CreateDatasetRequest,
-  DashboardDataset,
-  DashboardDatasetVersion,
-  DatasetDescriptionModification,
-  DatasetVersionRootFileNodesResponse,
-  Diff,
-  context,
-  getDatasetByID,
-  getDatasetVersionByID,
-  getLatestDatasetVersion
-}
+import edu.uci.ics.texera.service.resource.DatasetAccessResource.{getDatasetUserAccessPrivilege, getOwner, isDatasetPublic, userHasReadAccess, userHasWriteAccess, userOwnDataset}
+import edu.uci.ics.texera.service.resource.DatasetResource.{CreateDatasetRequest, DashboardDataset, DashboardDatasetVersion, DatasetDescriptionModification, DatasetVersionRootFileNodesResponse, Diff, context, getDatasetByID, getDatasetVersionByID, getLatestDatasetVersion}
 import edu.uci.ics.texera.service.util.S3StorageClient
 import io.dropwizard.auth.Auth
 import jakarta.annotation.security.RolesAllowed
@@ -50,7 +30,6 @@ import jakarta.ws.rs._
 import jakarta.ws.rs.core.{MediaType, Response, StreamingOutput}
 import org.jooq.{DSLContext, EnumType}
 
-import java.util
 import java.io.{InputStream, OutputStream}
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -109,22 +88,102 @@ object DatasetResource {
       .toScala
   }
 
+  def getContributorsByDatasetId(did: Integer): List[Contributor] = {
+    val ctx = SqlServer.getInstance().createDSLContext()
+    val dao = new MetadataContributorDao(ctx.configuration())
+    dao.fetchByMetadataId(did).asScala.toList.map { record =>
+      Contributor(
+        name = record.getName,
+        creator = record.getCreator,
+        role = record.getRole.getLiteral,
+        affiliation = record.getAffiliation,
+        email = record.getEmail
+      )
+    }
+  }
+
+
+  def getFundersByDatasetId(did: Integer): List[Funder] = {
+    val ctx = SqlServer.getInstance().createDSLContext()
+    val dao = new MetadataFunderDao(ctx.configuration())
+    dao.fetchByMetadataId(did).asScala.toList.map { record =>
+      Funder(
+        name = record.getName,
+        awardTitle = record.getAwardTitle
+      )
+    }
+  }
+
+  def getSpecimensByDatasetId(did: Integer): List[Specimen] = {
+    val ctx = SqlServer.getInstance().createDSLContext()
+    val dao = new MetadataSpecimenDao(ctx.configuration())
+    dao.fetchByMetadataId(did).asScala.toList.map { record =>
+      val age = if (record.getAgeValue != null && record.getAgeUnit != null) {
+        Some(Age(record.getAgeValue, record.getAgeUnit))
+      } else None
+
+      Specimen(
+        id = record.getId,
+        species = record.getSpecies.name(),
+        speciesOther = Option(record.getSpeciesOther),
+        age = age,
+        sex = record.getSex.name(),
+        notes = Option(record.getNotes)
+      )
+    }
+  }
+
+
   case class DashboardDataset(
       dataset: Dataset,
       ownerEmail: String,
       accessPrivilege: EnumType,
       isOwner: Boolean,
-      size: Long
+      size: Long,
+
+      contributors: Option[List[Contributor]] = Some(Nil),
+      funders: Option[List[Funder]] = Some(Nil),
+      specimens: Option[List[Specimen]] = Some(Nil)
   )
   case class DashboardDatasetVersion(
       datasetVersion: DatasetVersion,
       fileNodes: List[DatasetFileNode]
   )
 
+  case class Age(
+      value: Int,
+      unit: String
+  )
+
+  case class Specimen(
+      id: String,
+      species: String,
+      speciesOther: Option[String],
+      age: Option[Age],
+      sex: String,
+      notes: Option[String]
+  )
+
+  case class Contributor(
+      name: String,
+      creator: Boolean,
+      role: String,
+      affiliation: String,
+      email: String
+  )
+
+  case class Funder(
+      name: String,
+      awardTitle: String
+  )
+
   case class CreateDatasetRequest(
       datasetName: String,
       datasetDescription: String,
-      isDatasetPublic: Boolean
+      isDatasetPublic: Boolean,
+      contributors: Option[List[Contributor]],
+      funders: Option[List[Funder]],
+      specimens: Option[List[Specimen]]
   )
 
   case class Diff(
@@ -150,6 +209,9 @@ class DatasetResource {
   private val ERR_DATASET_CREATION_FAILED_MESSAGE =
     "Dataset creation is failed. Please make sure to upload files in order to create the initial version of dataset"
 
+
+
+
   /**
     * Helper function to get the dataset from DB with additional information including user access privilege and owner email
     */
@@ -160,24 +222,25 @@ class DatasetResource {
   ): DashboardDataset = {
     val targetDataset = getDatasetByID(ctx, did)
 
-    if (requesterUid.isEmpty && !targetDataset.getIsPublic) {
-      throw new ForbiddenException(ERR_USER_HAS_NO_ACCESS_TO_DATASET_MESSAGE)
-    } else if (requesterUid.exists(uid => !userHasReadAccess(ctx, did, uid))) {
+    if (requesterUid.isDefined && !userHasReadAccess(ctx, did, requesterUid.get)) {
       throw new ForbiddenException(ERR_USER_HAS_NO_ACCESS_TO_DATASET_MESSAGE)
     }
 
-    val userAccessPrivilege = requesterUid
-      .map(uid => getDatasetUserAccessPrivilege(ctx, did, uid))
-      .getOrElse(PrivilegeEnum.READ)
+    val userAccessPrivilege = getDatasetUserAccessPrivilege(ctx, did, requesterUid.get)
 
-    val isOwner = requesterUid.contains(targetDataset.getOwnerUid)
+    val contributors = DatasetResource.getContributorsByDatasetId(did)
+    val funders = DatasetResource.getFundersByDatasetId(did)
+    val specimens = DatasetResource.getSpecimensByDatasetId(did)
 
     DashboardDataset(
       targetDataset,
       getOwner(ctx, did).getEmail,
       userAccessPrivilege,
-      isOwner,
-      LakeFSStorageClient.retrieveRepositorySize(targetDataset.getName)
+      targetDataset.getOwnerUid == requesterUid.get,
+      LakeFSStorageClient.retrieveRepositorySize(targetDataset.getName),
+      contributors = Some(contributors),
+      funders = Some(funders),
+      specimens = Some(specimens),
     )
   }
 
@@ -194,10 +257,17 @@ class DatasetResource {
       val uid = user.getUid
       val datasetDao: DatasetDao = new DatasetDao(ctx.configuration())
       val datasetUserAccessDao: DatasetUserAccessDao = new DatasetUserAccessDao(ctx.configuration())
+      val metadataContributorDao = new MetadataContributorDao(ctx.configuration())
+      val metadataFunderDao = new MetadataFunderDao(ctx.configuration())
+      val metadataSpecimenDao = new MetadataSpecimenDao(ctx.configuration())
 
       val datasetName = request.datasetName
       val datasetDescription = request.datasetDescription
       val isDatasetPublic = request.isDatasetPublic
+
+      val contributors = request.contributors
+      val funders = request.funders
+      val specimens = request.specimens
 
       // Check if a dataset with the same name already exists
       if (!datasetDao.fetchByName(datasetName).isEmpty) {
@@ -234,6 +304,44 @@ class DatasetResource {
       datasetUserAccess.setPrivilege(PrivilegeEnum.WRITE)
       datasetUserAccessDao.insert(datasetUserAccess)
 
+      val did = createdDataset.getDid
+
+      // insert contributors
+      contributors.getOrElse(List()).foreach { contributor =>
+      val metadataContributor = new MetadataContributor()
+        metadataContributor.setMetadataId(did)
+        metadataContributor.setName(contributor.name)
+        metadataContributor.setCreator(contributor.creator)
+        metadataContributor.setRole(ContributorRoleEnum.lookupLiteral(contributor.role))
+        metadataContributor.setAffiliation(contributor.affiliation)
+        metadataContributor.setEmail(contributor.email)
+        metadataContributorDao.insert(metadataContributor)
+      }
+
+      // Insert funders
+      funders.getOrElse(List()).foreach { funder =>
+        val metadataFunder = new MetadataFunder()
+        metadataFunder.setMetadataId(did)
+        metadataFunder.setName(funder.name)
+        metadataFunder.setAwardTitle(funder.awardTitle)
+        metadataFunderDao.insert(metadataFunder)
+      }
+
+      // Insert specimens
+      specimens.getOrElse(List()).foreach { specimen =>
+        val metadataSpecimen = new MetadataSpecimen()
+        metadataSpecimen.setMetadataId(did)
+        metadataSpecimen.setSpecies(SpecimenSpeciesEnum.lookupLiteral(specimen.species))
+        metadataSpecimen.setSpeciesOther(specimen.speciesOther.orNull)
+
+        metadataSpecimen.setAgeValue(specimen.age.get.value)
+        metadataSpecimen.setAgeUnit(specimen.age.get.unit)
+
+        metadataSpecimen.setSex(SpecimenSexEnum.lookupLiteral(specimen.sex))
+        metadataSpecimen.setNotes(specimen.notes.orNull)
+        metadataSpecimenDao.insert(metadataSpecimen)
+      }
+
       DashboardDataset(
         new Dataset(
           createdDataset.getDid,
@@ -246,8 +354,12 @@ class DatasetResource {
         user.getEmail,
         PrivilegeEnum.WRITE,
         isOwner = true,
-        0
+        0,
+        contributors,
+        funders,
+        specimens,
       )
+
     }
   }
 
@@ -431,19 +543,57 @@ class DatasetResource {
       @Auth user: SessionUser
   ): Response = {
     val uid = user.getUid
-    generatePresignedResponse(encodedUrl, datasetName, commitHash, uid)
-  }
+    val decodedPathStr = URLDecoder.decode(encodedUrl, StandardCharsets.UTF_8.name())
 
-  @GET
-  @Path("/public-presign-download")
-  def getPublicPresignedUrl(
-      @QueryParam("filePath") encodedUrl: String,
-      @QueryParam("datasetName") datasetName: String,
-      @QueryParam("commitHash") commitHash: String
-  ): Response = {
-    val user = new SessionUser(new User())
-    val uid = user.getUid
-    generatePresignedResponse(encodedUrl, datasetName, commitHash, uid)
+    (Option(datasetName), Option(commitHash)) match {
+      case (Some(_), None) | (None, Some(_)) =>
+        // Case 1: Only one parameter is provided (error case)
+        Response
+          .status(Response.Status.BAD_REQUEST)
+          .entity(
+            "Both datasetName and commitHash must be provided together, or neither should be provided."
+          )
+          .build()
+
+      case (Some(dsName), Some(commit)) =>
+        // Case 2: datasetName and commitHash are provided, validate access
+        withTransaction(context) { ctx =>
+          val datasetDao = new DatasetDao(ctx.configuration())
+          val datasets = datasetDao.fetchByName(dsName).asScala.toList
+
+          if (datasets.isEmpty || !userHasReadAccess(ctx, datasets.head.getDid, uid)) {
+            throw new ForbiddenException(ERR_USER_HAS_NO_ACCESS_TO_DATASET_MESSAGE)
+          }
+
+          val url = LakeFSStorageClient.getFilePresignedUrl(dsName, commit, decodedPathStr)
+          Response.ok(Map("presignedUrl" -> url)).build()
+        }
+
+      case (None, None) =>
+        // Case 3: Neither datasetName nor commitHash are provided, resolve normally
+        withTransaction(context) { ctx =>
+          val fileUri = FileResolver.resolve(decodedPathStr)
+          val document = DocumentFactory.openReadonlyDocument(fileUri).asInstanceOf[OnDataset]
+          val datasetDao = new DatasetDao(ctx.configuration())
+          val datasets = datasetDao.fetchByName(document.getDatasetName()).asScala.toList
+
+          if (datasets.isEmpty || !userHasReadAccess(ctx, datasets.head.getDid, uid)) {
+            throw new ForbiddenException(ERR_USER_HAS_NO_ACCESS_TO_DATASET_MESSAGE)
+          }
+
+          Response
+            .ok(
+              Map(
+                "presignedUrl" -> LakeFSStorageClient.getFilePresignedUrl(
+                  document.getDatasetName(),
+                  document.getVersionHash(),
+                  document.getFileRelativePath()
+                )
+              )
+            )
+            .build()
+        }
+    }
   }
 
   @DELETE
@@ -1005,26 +1155,6 @@ class DatasetResource {
     records.getValues(DATASET_USER_ACCESS.UID)
   }
 
-  /**
-    * This method returns all owner user names of the dataset that the user has access to
-    *
-    * @return OwnerName[]
-    */
-  @GET
-  @RolesAllowed(Array("REGULAR", "ADMIN"))
-  @Path("/user-dataset-owners")
-  def retrieveOwners(@Auth user: SessionUser): util.List[String] = {
-    context
-      .selectDistinct(USER.EMAIL)
-      .from(USER)
-      .join(DATASET)
-      .on(DATASET.OWNER_UID.eq(USER.UID))
-      .join(DATASET_USER_ACCESS)
-      .on(DATASET_USER_ACCESS.DID.eq(DATASET.DID))
-      .where(DATASET_USER_ACCESS.UID.eq(user.getUid))
-      .fetchInto(classOf[String])
-  }
-
   private def fetchDatasetVersions(ctx: DSLContext, did: Integer): List[DatasetVersion] = {
     ctx
       .selectFrom(DATASET_VERSION)
@@ -1066,62 +1196,5 @@ class DatasetResource {
         .get,
       DatasetFileNode.calculateTotalSize(List(ownerFileNode))
     )
-  }
-
-  private def generatePresignedResponse(
-      encodedUrl: String,
-      datasetName: String,
-      commitHash: String,
-      uid: Integer
-  ): Response = {
-    val decodedPathStr = URLDecoder.decode(encodedUrl, StandardCharsets.UTF_8.name())
-
-    (Option(datasetName), Option(commitHash)) match {
-      case (Some(_), None) | (None, Some(_)) =>
-        // Case 1: Only one parameter is provided (error case)
-        Response
-          .status(Response.Status.BAD_REQUEST)
-          .entity(
-            "Both datasetName and commitHash must be provided together, or neither should be provided."
-          )
-          .build()
-
-      case (Some(dsName), Some(commit)) =>
-        // Case 2: datasetName and commitHash are provided, validate access
-        withTransaction(context) { ctx =>
-          val datasetDao = new DatasetDao(ctx.configuration())
-          val datasets = datasetDao.fetchByName(dsName).asScala.toList
-
-          if (datasets.isEmpty || !userHasReadAccess(ctx, datasets.head.getDid, uid))
-            throw new ForbiddenException(ERR_USER_HAS_NO_ACCESS_TO_DATASET_MESSAGE)
-
-          val url = LakeFSStorageClient.getFilePresignedUrl(dsName, commit, decodedPathStr)
-          Response.ok(Map("presignedUrl" -> url)).build()
-        }
-
-      case (None, None) =>
-        // Case 3: Neither datasetName nor commitHash are provided, resolve normally
-        withTransaction(context) { ctx =>
-          val fileUri = FileResolver.resolve(decodedPathStr)
-          val document = DocumentFactory.openReadonlyDocument(fileUri).asInstanceOf[OnDataset]
-          val datasetDao = new DatasetDao(ctx.configuration())
-          val datasets = datasetDao.fetchByName(document.getDatasetName()).asScala.toList
-
-          if (datasets.isEmpty || !userHasReadAccess(ctx, datasets.head.getDid, uid))
-            throw new ForbiddenException(ERR_USER_HAS_NO_ACCESS_TO_DATASET_MESSAGE)
-
-          Response
-            .ok(
-              Map(
-                "presignedUrl" -> LakeFSStorageClient.getFilePresignedUrl(
-                  document.getDatasetName(),
-                  document.getVersionHash(),
-                  document.getFileRelativePath()
-                )
-              )
-            )
-            .build()
-        }
-    }
   }
 }

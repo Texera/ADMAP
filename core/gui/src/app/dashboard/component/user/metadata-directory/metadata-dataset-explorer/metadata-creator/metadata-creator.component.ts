@@ -3,9 +3,6 @@ import { FormBuilder, FormGroup, FormArray, Validators } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { MetadataService } from "../../../../../service/user/metadata/metadata.service";
 import { DatasetService } from "../../../../../service/user/dataset/dataset.service";
-
-import { Metadata } from "../../../../../../common/type/Metadata";
-
 import { FileUploadItem } from "../../../../../type/dashboard-file.interface";
 import {UntilDestroy, untilDestroyed} from "@ngneat/until-destroy";
 import { NotificationService } from "../../../../../../common/service/notification/notification.service";
@@ -301,11 +298,6 @@ export class MetadataCreatorComponent implements OnInit {
       ownerUid: undefined,
       storagePath: undefined,
       creationTime: undefined,
-    }
-
-    const md: Metadata = {
-      name: this.metadataNameSanitization(this.form.get("name")?.value),
-      description: this.form.get("description")?.value,
       contributors: this.form.get('contributors')?.value.map((contributor: any) => ({
         name: contributor.name,
         creator: contributor.creator,
@@ -330,23 +322,16 @@ export class MetadataCreatorComponent implements OnInit {
         sex: specimen.sex,
         notes: specimen.notes,
       })),
-
-      isPublic: this.isMetadataPublic,
-      mid: undefined,
-      ownerUid: undefined,
-      storagePath: undefined,
-      creationTime: undefined,
     };
 
     this.datasetService
-      // TODO, replace with this.metadataService and createMetadata(ds)
       // .createMetadata(ds)
       .createDataset(ds)
       .pipe(untilDestroyed(this))
       .subscribe({
         next: res => {
           this.notificationService.success(
-            `Dataset '${md.name}' Created. ${this.isMetadataNameSanitized ? "We have sanitized your provided dataset name for the compatibility reason" : ""}`
+            `Dataset '${ds.name}' Created. ${this.isMetadataNameSanitized ? "We have sanitized your provided dataset name for the compatibility reason" : ""}`
           );
           this.isCreating = false;
           // if creation succeed, emit the created dashboard dataset
@@ -354,7 +339,7 @@ export class MetadataCreatorComponent implements OnInit {
         },
         error: (res: unknown) => {
           const err = res as HttpErrorResponse;
-          this.notificationService.error(`Dataset ${md.name} creation failed: ${err.error.message}`);
+          this.notificationService.error(`Dataset ${ds.name} creation failed: ${err.error.message}`);
           this.isCreating = false;
           // if creation failed, emit null value
           this.modalRef.close(null);
