@@ -22,6 +22,7 @@ import edu.uci.ics.texera.dao.jooq.generated.tables.User;
 import edu.uci.ics.texera.dao.jooq.generated.tables.UserActivity;
 import edu.uci.ics.texera.dao.jooq.generated.tables.UserConfig;
 import edu.uci.ics.texera.dao.jooq.generated.tables.Workflow;
+import edu.uci.ics.texera.dao.jooq.generated.tables.WorkflowComputingUnit;
 import edu.uci.ics.texera.dao.jooq.generated.tables.WorkflowExecutions;
 import edu.uci.ics.texera.dao.jooq.generated.tables.WorkflowOfProject;
 import edu.uci.ics.texera.dao.jooq.generated.tables.WorkflowOfUser;
@@ -143,6 +144,11 @@ public class TexeraDb extends SchemaImpl {
     public final Workflow WORKFLOW = Workflow.WORKFLOW;
 
     /**
+     * The table <code>texera_db.workflow_computing_unit</code>.
+     */
+    public final WorkflowComputingUnit WORKFLOW_COMPUTING_UNIT = WorkflowComputingUnit.WORKFLOW_COMPUTING_UNIT;
+
+    /**
      * The table <code>texera_db.workflow_executions</code>.
      */
     public final WorkflowExecutions WORKFLOW_EXECUTIONS = WorkflowExecutions.WORKFLOW_EXECUTIONS;
@@ -216,6 +222,7 @@ public class TexeraDb extends SchemaImpl {
             UserActivity.USER_ACTIVITY,
             UserConfig.USER_CONFIG,
             Workflow.WORKFLOW,
+            WorkflowComputingUnit.WORKFLOW_COMPUTING_UNIT,
             WorkflowExecutions.WORKFLOW_EXECUTIONS,
             WorkflowOfProject.WORKFLOW_OF_PROJECT,
             WorkflowOfUser.WORKFLOW_OF_USER,

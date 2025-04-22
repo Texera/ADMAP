@@ -37,7 +37,6 @@ import { DashboardComponent } from "./dashboard/component/dashboard.component";
 import { UserWorkflowComponent } from "./dashboard/component/user/user-workflow/user-workflow.component";
 import { ShareAccessComponent } from "./dashboard/component/user/share-access/share-access.component";
 import { WorkflowExecutionHistoryComponent } from "./dashboard/component/user/user-workflow/ngbd-modal-workflow-executions/workflow-execution-history.component";
-import { ProfileComponent } from "./profile/component/profile.component";
 import { UserQuotaComponent } from "./dashboard/component/user/user-quota/user-quota.component";
 import { UserIconComponent } from "./dashboard/component/user/user-icon/user-icon.component";
 import { UserAvatarComponent } from "./dashboard/component/user/user-avatar/user-avatar.component";
@@ -148,11 +147,7 @@ import { NzEmptyModule } from "ng-zorro-antd/empty";
 import { NzDividerModule } from "ng-zorro-antd/divider";
 import { NzProgressModule } from "ng-zorro-antd/progress";
 import { ComputingUnitSelectionComponent } from "./workspace/component/power-button/computing-unit-selection.component";
-import { FileDirectoryComponent } from "./dashboard/component/user/file-directory/file-directory.component";
-import { MetadataDirectoryComponent } from "./dashboard/component/user/metadata-directory/metadata-directory.component";
-import { MetadataDetailComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-detail.component";
-import { MetadataCreatorComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-creator/metadata-creator.component";
-import { MetadataBrowserComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-browser/metadata-browser.component";
+import { NzSliderModule } from "ng-zorro-antd/slider";
 
 registerLocaleData(en);
 
@@ -241,14 +236,8 @@ registerLocaleData(en);
     BrowseSectionComponent,
     BreakpointConditionInputComponent,
     CodeDebuggerComponent,
-    ProfileComponent,
     HubSearchResultComponent,
     ComputingUnitSelectionComponent,
-    FileDirectoryComponent,
-    MetadataDirectoryComponent,
-    MetadataDetailComponent,
-    MetadataCreatorComponent,
-    MetadataBrowserComponent,
   ],
   imports: [
     BrowserModule,
@@ -298,6 +287,7 @@ registerLocaleData(en);
     ColorPickerModule,
     NzSwitchModule,
     NzLayoutModule,
+    NzSliderModule,
     MarkdownModule.forRoot(),
     DragDropModule,
     NzAlertModule,
