@@ -41,11 +41,17 @@ export interface MultipartUploadProgress {
 export class DatasetService {
   constructor(private http: HttpClient) {}
 
+
   public createDataset(dataset: Dataset): Observable<DashboardDataset> {
     return this.http.post<DashboardDataset>(`${AppSettings.getApiEndpoint()}/${DATASET_CREATE_URL}`, {
       datasetName: dataset.name,
       datasetDescription: dataset.description,
       isDatasetPublic: dataset.isPublic,
+
+      contributors: dataset.contributors,
+      funders: dataset.funders,
+      specimens: dataset.specimens,
+
     });
   }
 

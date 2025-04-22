@@ -115,18 +115,33 @@ public class MetadataContributorDao extends DAOImpl<MetadataContributorRecord, e
     }
 
     /**
-     * Fetch records that have <code>type BETWEEN lowerInclusive AND
+     * Fetch records that have <code>role BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */
-    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataContributor> fetchRangeOfType(ContributorRoleEnum lowerInclusive, ContributorRoleEnum upperInclusive) {
-        return fetchRange(MetadataContributor.METADATA_CONTRIBUTOR.TYPE, lowerInclusive, upperInclusive);
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataContributor> fetchRangeOfRole(ContributorRoleEnum lowerInclusive, ContributorRoleEnum upperInclusive) {
+        return fetchRange(MetadataContributor.METADATA_CONTRIBUTOR.ROLE, lowerInclusive, upperInclusive);
     }
 
     /**
-     * Fetch records that have <code>type IN (values)</code>
+     * Fetch records that have <code>role IN (values)</code>
      */
-    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataContributor> fetchByType(ContributorRoleEnum... values) {
-        return fetch(MetadataContributor.METADATA_CONTRIBUTOR.TYPE, values);
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataContributor> fetchByRole(ContributorRoleEnum... values) {
+        return fetch(MetadataContributor.METADATA_CONTRIBUTOR.ROLE, values);
+    }
+
+    /**
+     * Fetch records that have <code>email BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataContributor> fetchRangeOfEmail(String lowerInclusive, String upperInclusive) {
+        return fetchRange(MetadataContributor.METADATA_CONTRIBUTOR.EMAIL, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>email IN (values)</code>
+     */
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataContributor> fetchByEmail(String... values) {
+        return fetch(MetadataContributor.METADATA_CONTRIBUTOR.EMAIL, values);
     }
 
     /**

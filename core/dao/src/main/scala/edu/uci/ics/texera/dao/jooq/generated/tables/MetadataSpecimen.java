@@ -7,6 +7,7 @@ package edu.uci.ics.texera.dao.jooq.generated.tables;
 import edu.uci.ics.texera.dao.jooq.generated.Keys;
 import edu.uci.ics.texera.dao.jooq.generated.TexeraDb;
 import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSexEnum;
+import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSpeciesEnum;
 import edu.uci.ics.texera.dao.jooq.generated.tables.records.MetadataSpecimenRecord;
 
 import java.util.Arrays;
@@ -17,7 +18,7 @@ import org.jooq.ForeignKey;
 import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row5;
+import org.jooq.Row9;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -60,19 +61,39 @@ public class MetadataSpecimen extends TableImpl<MetadataSpecimenRecord> {
     public final TableField<MetadataSpecimenRecord, Integer> METADATA_ID = createField(DSL.name("metadata_id"), SQLDataType.INTEGER.nullable(false), this, "");
 
     /**
-     * The column <code>texera_db.metadata_specimen.name</code>.
+     * The column <code>texera_db.metadata_specimen.id</code>.
      */
-    public final TableField<MetadataSpecimenRecord, String> NAME = createField(DSL.name("name"), SQLDataType.VARCHAR(256).nullable(false), this, "");
+    public final TableField<MetadataSpecimenRecord, String> ID = createField(DSL.name("id"), SQLDataType.VARCHAR(256).nullable(false), this, "");
 
     /**
-     * The column <code>texera_db.metadata_specimen.age</code>.
+     * The column <code>texera_db.metadata_specimen.species</code>.
      */
-    public final TableField<MetadataSpecimenRecord, Integer> AGE = createField(DSL.name("age"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<MetadataSpecimenRecord, SpecimenSpeciesEnum> SPECIES = createField(DSL.name("species"), SQLDataType.VARCHAR.nullable(false).asEnumDataType(edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSpeciesEnum.class), this, "");
+
+    /**
+     * The column <code>texera_db.metadata_specimen.species_other</code>.
+     */
+    public final TableField<MetadataSpecimenRecord, String> SPECIES_OTHER = createField(DSL.name("species_other"), SQLDataType.VARCHAR(128), this, "");
+
+    /**
+     * The column <code>texera_db.metadata_specimen.age_value</code>.
+     */
+    public final TableField<MetadataSpecimenRecord, Integer> AGE_VALUE = createField(DSL.name("age_value"), SQLDataType.INTEGER, this, "");
+
+    /**
+     * The column <code>texera_db.metadata_specimen.age_unit</code>.
+     */
+    public final TableField<MetadataSpecimenRecord, String> AGE_UNIT = createField(DSL.name("age_unit"), SQLDataType.VARCHAR(32), this, "");
 
     /**
      * The column <code>texera_db.metadata_specimen.sex</code>.
      */
     public final TableField<MetadataSpecimenRecord, SpecimenSexEnum> SEX = createField(DSL.name("sex"), SQLDataType.VARCHAR.asEnumDataType(edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSexEnum.class), this, "");
+
+    /**
+     * The column <code>texera_db.metadata_specimen.notes</code>.
+     */
+    public final TableField<MetadataSpecimenRecord, String> NOTES = createField(DSL.name("notes"), SQLDataType.CLOB, this, "");
 
     private MetadataSpecimen(Name alias, Table<MetadataSpecimenRecord> aliased) {
         this(alias, aliased, null);
@@ -129,16 +150,16 @@ public class MetadataSpecimen extends TableImpl<MetadataSpecimenRecord> {
         return Arrays.asList(Keys.METADATA_SPECIMEN__METADATA_SPECIMEN_METADATA_ID_FKEY);
     }
 
-    private transient Metadata _metadata;
+    private transient Dataset _dataset;
 
     /**
-     * Get the implicit join path to the <code>texera_db.metadata</code> table.
+     * Get the implicit join path to the <code>texera_db.dataset</code> table.
      */
-    public Metadata metadata() {
-        if (_metadata == null)
-            _metadata = new Metadata(this, Keys.METADATA_SPECIMEN__METADATA_SPECIMEN_METADATA_ID_FKEY);
+    public Dataset dataset() {
+        if (_dataset == null)
+            _dataset = new Dataset(this, Keys.METADATA_SPECIMEN__METADATA_SPECIMEN_METADATA_ID_FKEY);
 
-        return _metadata;
+        return _dataset;
     }
 
     @Override
@@ -168,11 +189,11 @@ public class MetadataSpecimen extends TableImpl<MetadataSpecimenRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row5 type methods
+    // Row9 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row5<Integer, Integer, String, Integer, SpecimenSexEnum> fieldsRow() {
-        return (Row5) super.fieldsRow();
+    public Row9<Integer, Integer, String, SpecimenSpeciesEnum, String, Integer, String, SpecimenSexEnum, String> fieldsRow() {
+        return (Row9) super.fieldsRow();
     }
 }

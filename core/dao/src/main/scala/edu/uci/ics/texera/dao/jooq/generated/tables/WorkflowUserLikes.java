@@ -104,21 +104,10 @@ public class WorkflowUserLikes extends TableImpl<WorkflowUserLikesRecord> {
 
     @Override
     public List<ForeignKey<WorkflowUserLikesRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.WORKFLOW_USER_LIKES__WORKFLOW_USER_LIKES_UID_FKEY, Keys.WORKFLOW_USER_LIKES__WORKFLOW_USER_LIKES_WID_FKEY);
+        return Arrays.asList(Keys.WORKFLOW_USER_LIKES__WORKFLOW_USER_LIKES_WID_FKEY);
     }
 
-    private transient User _user;
     private transient Workflow _workflow;
-
-    /**
-     * Get the implicit join path to the <code>texera_db.user</code> table.
-     */
-    public User user() {
-        if (_user == null)
-            _user = new User(this, Keys.WORKFLOW_USER_LIKES__WORKFLOW_USER_LIKES_UID_FKEY);
-
-        return _user;
-    }
 
     /**
      * Get the implicit join path to the <code>texera_db.workflow</code> table.

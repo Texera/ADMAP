@@ -20,7 +20,8 @@ public class MetadataContributor implements IMetadataContributor {
     private Integer             metadataId;
     private String              name;
     private Boolean             creator;
-    private ContributorRoleEnum type;
+    private ContributorRoleEnum role;
+    private String              email;
     private String              affiliation;
 
     public MetadataContributor() {}
@@ -30,7 +31,8 @@ public class MetadataContributor implements IMetadataContributor {
         this.metadataId = value.getMetadataId();
         this.name = value.getName();
         this.creator = value.getCreator();
-        this.type = value.getType();
+        this.role = value.getRole();
+        this.email = value.getEmail();
         this.affiliation = value.getAffiliation();
     }
 
@@ -39,14 +41,16 @@ public class MetadataContributor implements IMetadataContributor {
         Integer             metadataId,
         String              name,
         Boolean             creator,
-        ContributorRoleEnum type,
+        ContributorRoleEnum role,
+        String              email,
         String              affiliation
     ) {
         this.cid = cid;
         this.metadataId = metadataId;
         this.name = name;
         this.creator = creator;
-        this.type = type;
+        this.role = role;
+        this.email = email;
         this.affiliation = affiliation;
     }
 
@@ -115,19 +119,35 @@ public class MetadataContributor implements IMetadataContributor {
     }
 
     /**
-     * Getter for <code>texera_db.metadata_contributor.type</code>.
+     * Getter for <code>texera_db.metadata_contributor.role</code>.
      */
     @Override
-    public ContributorRoleEnum getType() {
-        return this.type;
+    public ContributorRoleEnum getRole() {
+        return this.role;
     }
 
     /**
-     * Setter for <code>texera_db.metadata_contributor.type</code>.
+     * Setter for <code>texera_db.metadata_contributor.role</code>.
      */
     @Override
-    public void setType(ContributorRoleEnum type) {
-        this.type = type;
+    public void setRole(ContributorRoleEnum role) {
+        this.role = role;
+    }
+
+    /**
+     * Getter for <code>texera_db.metadata_contributor.email</code>.
+     */
+    @Override
+    public String getEmail() {
+        return this.email;
+    }
+
+    /**
+     * Setter for <code>texera_db.metadata_contributor.email</code>.
+     */
+    @Override
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     /**
@@ -154,7 +174,8 @@ public class MetadataContributor implements IMetadataContributor {
         sb.append(", ").append(metadataId);
         sb.append(", ").append(name);
         sb.append(", ").append(creator);
-        sb.append(", ").append(type);
+        sb.append(", ").append(role);
+        sb.append(", ").append(email);
         sb.append(", ").append(affiliation);
 
         sb.append(")");
@@ -171,7 +192,8 @@ public class MetadataContributor implements IMetadataContributor {
         setMetadataId(from.getMetadataId());
         setName(from.getName());
         setCreator(from.getCreator());
-        setType(from.getType());
+        setRole(from.getRole());
+        setEmail(from.getEmail());
         setAffiliation(from.getAffiliation());
     }
 

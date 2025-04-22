@@ -56,14 +56,24 @@ public interface IMetadataContributor extends Serializable {
     public Boolean getCreator();
 
     /**
-     * Setter for <code>texera_db.metadata_contributor.type</code>.
+     * Setter for <code>texera_db.metadata_contributor.role</code>.
      */
-    public void setType(ContributorRoleEnum value);
+    public void setRole(ContributorRoleEnum value);
 
     /**
-     * Getter for <code>texera_db.metadata_contributor.type</code>.
+     * Getter for <code>texera_db.metadata_contributor.role</code>.
      */
-    public ContributorRoleEnum getType();
+    public ContributorRoleEnum getRole();
+
+    /**
+     * Setter for <code>texera_db.metadata_contributor.email</code>.
+     */
+    public void setEmail(String value);
+
+    /**
+     * Getter for <code>texera_db.metadata_contributor.email</code>.
+     */
+    public String getEmail();
 
     /**
      * Setter for <code>texera_db.metadata_contributor.affiliation</code>.

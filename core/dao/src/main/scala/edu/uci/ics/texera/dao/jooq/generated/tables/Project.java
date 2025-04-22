@@ -133,23 +133,6 @@ public class Project extends TableImpl<ProjectRecord> {
     }
 
     @Override
-    public List<ForeignKey<ProjectRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.PROJECT__PROJECT_OWNER_ID_FKEY);
-    }
-
-    private transient User _user;
-
-    /**
-     * Get the implicit join path to the <code>texera_db.user</code> table.
-     */
-    public User user() {
-        if (_user == null)
-            _user = new User(this, Keys.PROJECT__PROJECT_OWNER_ID_FKEY);
-
-        return _user;
-    }
-
-    @Override
     public Project as(String alias) {
         return new Project(DSL.name(alias), this);
     }

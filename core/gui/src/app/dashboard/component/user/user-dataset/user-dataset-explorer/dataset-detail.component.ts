@@ -40,6 +40,10 @@ export class DatasetDetailComponent implements OnInit {
   public datasetIsPublic: boolean = false;
   public userDatasetAccessLevel: "READ" | "WRITE" | "NONE" = "NONE";
 
+  public datasetContributors: any[] = [];
+  public datasetFunders: any[] = [];
+  public datasetSpecimens: any[] = [];
+
   public currentDisplayedFileName: string = "";
   public currentFileSize: number | undefined;
   public currentDatasetVersionSize: number | undefined;
@@ -213,6 +217,11 @@ export class DatasetDetailComponent implements OnInit {
           if (typeof dataset.creationTime === "number") {
             this.datasetCreationTime = new Date(dataset.creationTime).toString();
           }
+          this.datasetContributors = dashboardDataset.contributors || [];
+          this.datasetFunders = dashboardDataset.funders || [];
+          this.datasetSpecimens = dashboardDataset.specimens || [];
+
+          console.log(this.datasetFunders)
         });
     }
   }

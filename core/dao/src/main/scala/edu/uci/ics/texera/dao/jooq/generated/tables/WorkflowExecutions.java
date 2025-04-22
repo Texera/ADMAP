@@ -162,11 +162,10 @@ public class WorkflowExecutions extends TableImpl<WorkflowExecutionsRecord> {
 
     @Override
     public List<ForeignKey<WorkflowExecutionsRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.WORKFLOW_EXECUTIONS__WORKFLOW_EXECUTIONS_VID_FKEY, Keys.WORKFLOW_EXECUTIONS__WORKFLOW_EXECUTIONS_UID_FKEY);
+        return Arrays.asList(Keys.WORKFLOW_EXECUTIONS__WORKFLOW_EXECUTIONS_VID_FKEY);
     }
 
     private transient WorkflowVersion _workflowVersion;
-    private transient User _user;
 
     /**
      * Get the implicit join path to the <code>texera_db.workflow_version</code>
@@ -177,16 +176,6 @@ public class WorkflowExecutions extends TableImpl<WorkflowExecutionsRecord> {
             _workflowVersion = new WorkflowVersion(this, Keys.WORKFLOW_EXECUTIONS__WORKFLOW_EXECUTIONS_VID_FKEY);
 
         return _workflowVersion;
-    }
-
-    /**
-     * Get the implicit join path to the <code>texera_db.user</code> table.
-     */
-    public User user() {
-        if (_user == null)
-            _user = new User(this, Keys.WORKFLOW_EXECUTIONS__WORKFLOW_EXECUTIONS_UID_FKEY);
-
-        return _user;
     }
 
     @Override
