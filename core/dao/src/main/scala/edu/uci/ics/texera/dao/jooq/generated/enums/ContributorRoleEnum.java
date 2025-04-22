@@ -17,23 +17,11 @@ import org.jooq.Schema;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public enum ContributorRoleEnum implements EnumType {
 
-    Contact_Person("Contact Person"),
-
-    Data_Collector("Data Collector"),
-
-    Data_Curator("Data Curator"),
-
-    Project_Leader("Project Leader"),
-
-    Project_Manager("Project Manager"),
-
-    Project_Member("Project Member"),
-
-    Related_Person("Related Person"),
-
     Researcher("Researcher"),
 
-    Research_Group("Research Group"),
+    Principal_Investigator("Principal Investigator"),
+
+    Project_Member("Project Member"),
 
     Other("Other");
 

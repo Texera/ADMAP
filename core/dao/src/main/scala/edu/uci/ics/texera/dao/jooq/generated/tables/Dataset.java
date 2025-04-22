@@ -9,8 +9,6 @@ import edu.uci.ics.texera.dao.jooq.generated.TexeraDb;
 import edu.uci.ics.texera.dao.jooq.generated.tables.records.DatasetRecord;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.List;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
@@ -125,23 +123,6 @@ public class Dataset extends TableImpl<DatasetRecord> {
     @Override
     public UniqueKey<DatasetRecord> getPrimaryKey() {
         return Keys.DATASET_PKEY;
-    }
-
-    @Override
-    public List<ForeignKey<DatasetRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.DATASET__DATASET_OWNER_UID_FKEY);
-    }
-
-    private transient User _user;
-
-    /**
-     * Get the implicit join path to the <code>texera_db.user</code> table.
-     */
-    public User user() {
-        if (_user == null)
-            _user = new User(this, Keys.DATASET__DATASET_OWNER_UID_FKEY);
-
-        return _user;
     }
 
     @Override

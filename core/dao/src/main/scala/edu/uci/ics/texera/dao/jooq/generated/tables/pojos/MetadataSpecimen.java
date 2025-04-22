@@ -5,6 +5,7 @@ package edu.uci.ics.texera.dao.jooq.generated.tables.pojos;
 
 
 import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSexEnum;
+import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSpeciesEnum;
 import edu.uci.ics.texera.dao.jooq.generated.tables.interfaces.IMetadataSpecimen;
 
 
@@ -16,34 +17,50 @@ public class MetadataSpecimen implements IMetadataSpecimen {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer         sid;
-    private Integer         metadataId;
-    private String          name;
-    private Integer         age;
-    private SpecimenSexEnum sex;
+    private Integer             sid;
+    private Integer             metadataId;
+    private String              id;
+    private SpecimenSpeciesEnum species;
+    private String              speciesOther;
+    private Integer             ageValue;
+    private String              ageUnit;
+    private SpecimenSexEnum     sex;
+    private String              notes;
 
     public MetadataSpecimen() {}
 
     public MetadataSpecimen(IMetadataSpecimen value) {
         this.sid = value.getSid();
         this.metadataId = value.getMetadataId();
-        this.name = value.getName();
-        this.age = value.getAge();
+        this.id = value.getId();
+        this.species = value.getSpecies();
+        this.speciesOther = value.getSpeciesOther();
+        this.ageValue = value.getAgeValue();
+        this.ageUnit = value.getAgeUnit();
         this.sex = value.getSex();
+        this.notes = value.getNotes();
     }
 
     public MetadataSpecimen(
-        Integer         sid,
-        Integer         metadataId,
-        String          name,
-        Integer         age,
-        SpecimenSexEnum sex
+        Integer             sid,
+        Integer             metadataId,
+        String              id,
+        SpecimenSpeciesEnum species,
+        String              speciesOther,
+        Integer             ageValue,
+        String              ageUnit,
+        SpecimenSexEnum     sex,
+        String              notes
     ) {
         this.sid = sid;
         this.metadataId = metadataId;
-        this.name = name;
-        this.age = age;
+        this.id = id;
+        this.species = species;
+        this.speciesOther = speciesOther;
+        this.ageValue = ageValue;
+        this.ageUnit = ageUnit;
         this.sex = sex;
+        this.notes = notes;
     }
 
     /**
@@ -79,35 +96,83 @@ public class MetadataSpecimen implements IMetadataSpecimen {
     }
 
     /**
-     * Getter for <code>texera_db.metadata_specimen.name</code>.
+     * Getter for <code>texera_db.metadata_specimen.id</code>.
      */
     @Override
-    public String getName() {
-        return this.name;
+    public String getId() {
+        return this.id;
     }
 
     /**
-     * Setter for <code>texera_db.metadata_specimen.name</code>.
+     * Setter for <code>texera_db.metadata_specimen.id</code>.
      */
     @Override
-    public void setName(String name) {
-        this.name = name;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
-     * Getter for <code>texera_db.metadata_specimen.age</code>.
+     * Getter for <code>texera_db.metadata_specimen.species</code>.
      */
     @Override
-    public Integer getAge() {
-        return this.age;
+    public SpecimenSpeciesEnum getSpecies() {
+        return this.species;
     }
 
     /**
-     * Setter for <code>texera_db.metadata_specimen.age</code>.
+     * Setter for <code>texera_db.metadata_specimen.species</code>.
      */
     @Override
-    public void setAge(Integer age) {
-        this.age = age;
+    public void setSpecies(SpecimenSpeciesEnum species) {
+        this.species = species;
+    }
+
+    /**
+     * Getter for <code>texera_db.metadata_specimen.species_other</code>.
+     */
+    @Override
+    public String getSpeciesOther() {
+        return this.speciesOther;
+    }
+
+    /**
+     * Setter for <code>texera_db.metadata_specimen.species_other</code>.
+     */
+    @Override
+    public void setSpeciesOther(String speciesOther) {
+        this.speciesOther = speciesOther;
+    }
+
+    /**
+     * Getter for <code>texera_db.metadata_specimen.age_value</code>.
+     */
+    @Override
+    public Integer getAgeValue() {
+        return this.ageValue;
+    }
+
+    /**
+     * Setter for <code>texera_db.metadata_specimen.age_value</code>.
+     */
+    @Override
+    public void setAgeValue(Integer ageValue) {
+        this.ageValue = ageValue;
+    }
+
+    /**
+     * Getter for <code>texera_db.metadata_specimen.age_unit</code>.
+     */
+    @Override
+    public String getAgeUnit() {
+        return this.ageUnit;
+    }
+
+    /**
+     * Setter for <code>texera_db.metadata_specimen.age_unit</code>.
+     */
+    @Override
+    public void setAgeUnit(String ageUnit) {
+        this.ageUnit = ageUnit;
     }
 
     /**
@@ -126,15 +191,35 @@ public class MetadataSpecimen implements IMetadataSpecimen {
         this.sex = sex;
     }
 
+    /**
+     * Getter for <code>texera_db.metadata_specimen.notes</code>.
+     */
+    @Override
+    public String getNotes() {
+        return this.notes;
+    }
+
+    /**
+     * Setter for <code>texera_db.metadata_specimen.notes</code>.
+     */
+    @Override
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("MetadataSpecimen (");
 
         sb.append(sid);
         sb.append(", ").append(metadataId);
-        sb.append(", ").append(name);
-        sb.append(", ").append(age);
+        sb.append(", ").append(id);
+        sb.append(", ").append(species);
+        sb.append(", ").append(speciesOther);
+        sb.append(", ").append(ageValue);
+        sb.append(", ").append(ageUnit);
         sb.append(", ").append(sex);
+        sb.append(", ").append(notes);
 
         sb.append(")");
         return sb.toString();
@@ -148,9 +233,13 @@ public class MetadataSpecimen implements IMetadataSpecimen {
     public void from(IMetadataSpecimen from) {
         setSid(from.getSid());
         setMetadataId(from.getMetadataId());
-        setName(from.getName());
-        setAge(from.getAge());
+        setId(from.getId());
+        setSpecies(from.getSpecies());
+        setSpeciesOther(from.getSpeciesOther());
+        setAgeValue(from.getAgeValue());
+        setAgeUnit(from.getAgeUnit());
         setSex(from.getSex());
+        setNotes(from.getNotes());
     }
 
     @Override

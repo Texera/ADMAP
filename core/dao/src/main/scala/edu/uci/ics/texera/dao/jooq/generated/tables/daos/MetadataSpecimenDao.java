@@ -5,6 +5,7 @@ package edu.uci.ics.texera.dao.jooq.generated.tables.daos;
 
 
 import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSexEnum;
+import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSpeciesEnum;
 import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataSpecimen;
 import edu.uci.ics.texera.dao.jooq.generated.tables.records.MetadataSpecimenRecord;
 
@@ -85,33 +86,78 @@ public class MetadataSpecimenDao extends DAOImpl<MetadataSpecimenRecord, edu.uci
     }
 
     /**
-     * Fetch records that have <code>name BETWEEN lowerInclusive AND
+     * Fetch records that have <code>id BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */
-    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchRangeOfName(String lowerInclusive, String upperInclusive) {
-        return fetchRange(MetadataSpecimen.METADATA_SPECIMEN.NAME, lowerInclusive, upperInclusive);
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchRangeOfId(String lowerInclusive, String upperInclusive) {
+        return fetchRange(MetadataSpecimen.METADATA_SPECIMEN.ID, lowerInclusive, upperInclusive);
     }
 
     /**
-     * Fetch records that have <code>name IN (values)</code>
+     * Fetch records that have <code>id IN (values)</code>
      */
-    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchByName(String... values) {
-        return fetch(MetadataSpecimen.METADATA_SPECIMEN.NAME, values);
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchById(String... values) {
+        return fetch(MetadataSpecimen.METADATA_SPECIMEN.ID, values);
     }
 
     /**
-     * Fetch records that have <code>age BETWEEN lowerInclusive AND
+     * Fetch records that have <code>species BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */
-    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchRangeOfAge(Integer lowerInclusive, Integer upperInclusive) {
-        return fetchRange(MetadataSpecimen.METADATA_SPECIMEN.AGE, lowerInclusive, upperInclusive);
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchRangeOfSpecies(SpecimenSpeciesEnum lowerInclusive, SpecimenSpeciesEnum upperInclusive) {
+        return fetchRange(MetadataSpecimen.METADATA_SPECIMEN.SPECIES, lowerInclusive, upperInclusive);
     }
 
     /**
-     * Fetch records that have <code>age IN (values)</code>
+     * Fetch records that have <code>species IN (values)</code>
      */
-    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchByAge(Integer... values) {
-        return fetch(MetadataSpecimen.METADATA_SPECIMEN.AGE, values);
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchBySpecies(SpecimenSpeciesEnum... values) {
+        return fetch(MetadataSpecimen.METADATA_SPECIMEN.SPECIES, values);
+    }
+
+    /**
+     * Fetch records that have <code>species_other BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchRangeOfSpeciesOther(String lowerInclusive, String upperInclusive) {
+        return fetchRange(MetadataSpecimen.METADATA_SPECIMEN.SPECIES_OTHER, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>species_other IN (values)</code>
+     */
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchBySpeciesOther(String... values) {
+        return fetch(MetadataSpecimen.METADATA_SPECIMEN.SPECIES_OTHER, values);
+    }
+
+    /**
+     * Fetch records that have <code>age_value BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchRangeOfAgeValue(Integer lowerInclusive, Integer upperInclusive) {
+        return fetchRange(MetadataSpecimen.METADATA_SPECIMEN.AGE_VALUE, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>age_value IN (values)</code>
+     */
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchByAgeValue(Integer... values) {
+        return fetch(MetadataSpecimen.METADATA_SPECIMEN.AGE_VALUE, values);
+    }
+
+    /**
+     * Fetch records that have <code>age_unit BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchRangeOfAgeUnit(String lowerInclusive, String upperInclusive) {
+        return fetchRange(MetadataSpecimen.METADATA_SPECIMEN.AGE_UNIT, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>age_unit IN (values)</code>
+     */
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchByAgeUnit(String... values) {
+        return fetch(MetadataSpecimen.METADATA_SPECIMEN.AGE_UNIT, values);
     }
 
     /**
@@ -127,5 +173,20 @@ public class MetadataSpecimenDao extends DAOImpl<MetadataSpecimenRecord, edu.uci
      */
     public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchBySex(SpecimenSexEnum... values) {
         return fetch(MetadataSpecimen.METADATA_SPECIMEN.SEX, values);
+    }
+
+    /**
+     * Fetch records that have <code>notes BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchRangeOfNotes(String lowerInclusive, String upperInclusive) {
+        return fetchRange(MetadataSpecimen.METADATA_SPECIMEN.NOTES, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>notes IN (values)</code>
+     */
+    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchByNotes(String... values) {
+        return fetch(MetadataSpecimen.METADATA_SPECIMEN.NOTES, values);
     }
 }

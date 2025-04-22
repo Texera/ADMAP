@@ -147,7 +147,7 @@ public class User extends TableImpl<UserRecord> {
     @Override
     public List<Check<UserRecord>> getChecks() {
         return Arrays.asList(
-                Internal.createCheck(this, DSL.name("ck_nulltest"), "(((password IS NOT NULL) OR (google_id IS NOT NULL)))", true)
+            Internal.createCheck(this, DSL.name("ck_nulltest"), "(((password IS NOT NULL) OR (google_id IS NOT NULL)))", true)
         );
     }
 

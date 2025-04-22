@@ -110,21 +110,10 @@ public class ProjectUserAccess extends TableImpl<ProjectUserAccessRecord> {
 
     @Override
     public List<ForeignKey<ProjectUserAccessRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.PROJECT_USER_ACCESS__PROJECT_USER_ACCESS_UID_FKEY, Keys.PROJECT_USER_ACCESS__PROJECT_USER_ACCESS_PID_FKEY);
+        return Arrays.asList(Keys.PROJECT_USER_ACCESS__PROJECT_USER_ACCESS_PID_FKEY);
     }
 
-    private transient User _user;
     private transient Project _project;
-
-    /**
-     * Get the implicit join path to the <code>texera_db.user</code> table.
-     */
-    public User user() {
-        if (_user == null)
-            _user = new User(this, Keys.PROJECT_USER_ACCESS__PROJECT_USER_ACCESS_UID_FKEY);
-
-        return _user;
-    }
 
     /**
      * Get the implicit join path to the <code>texera_db.project</code> table.

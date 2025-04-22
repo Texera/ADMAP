@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { UserService } from "../../common/service/user/user.service";
 import { User } from "../../common/type/user";
+import { FileDirectoryService } from "../../dashboard/service/user/file-directory/file-directory.service";
 
 @Component({
   selector: "texera-profile",
@@ -16,8 +17,9 @@ export class ProfileComponent {
 
   constructor(
     private userService: UserService,
+    private fileDirectoryService: FileDirectoryService
   ) {
-    this.host_ip = "3.142.252.209";
+    this.host_ip = this.fileDirectoryService.host_ip;
     this.user = this.userService.getCurrentUser();
 
     if (this.user) {

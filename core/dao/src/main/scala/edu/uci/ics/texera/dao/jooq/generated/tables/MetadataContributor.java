@@ -17,7 +17,7 @@ import org.jooq.ForeignKey;
 import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row6;
+import org.jooq.Row7;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -70,9 +70,14 @@ public class MetadataContributor extends TableImpl<MetadataContributorRecord> {
     public final TableField<MetadataContributorRecord, Boolean> CREATOR = createField(DSL.name("creator"), SQLDataType.BOOLEAN.nullable(false).defaultValue(DSL.field("false", SQLDataType.BOOLEAN)), this, "");
 
     /**
-     * The column <code>texera_db.metadata_contributor.type</code>.
+     * The column <code>texera_db.metadata_contributor.role</code>.
      */
-    public final TableField<MetadataContributorRecord, ContributorRoleEnum> TYPE = createField(DSL.name("type"), SQLDataType.VARCHAR.asEnumDataType(edu.uci.ics.texera.dao.jooq.generated.enums.ContributorRoleEnum.class), this, "");
+    public final TableField<MetadataContributorRecord, ContributorRoleEnum> ROLE = createField(DSL.name("role"), SQLDataType.VARCHAR.asEnumDataType(edu.uci.ics.texera.dao.jooq.generated.enums.ContributorRoleEnum.class), this, "");
+
+    /**
+     * The column <code>texera_db.metadata_contributor.email</code>.
+     */
+    public final TableField<MetadataContributorRecord, String> EMAIL = createField(DSL.name("email"), SQLDataType.VARCHAR(256), this, "");
 
     /**
      * The column <code>texera_db.metadata_contributor.affiliation</code>.
@@ -134,16 +139,16 @@ public class MetadataContributor extends TableImpl<MetadataContributorRecord> {
         return Arrays.asList(Keys.METADATA_CONTRIBUTOR__METADATA_CONTRIBUTOR_METADATA_ID_FKEY);
     }
 
-    private transient Metadata _metadata;
+    private transient Dataset _dataset;
 
     /**
-     * Get the implicit join path to the <code>texera_db.metadata</code> table.
+     * Get the implicit join path to the <code>texera_db.dataset</code> table.
      */
-    public Metadata metadata() {
-        if (_metadata == null)
-            _metadata = new Metadata(this, Keys.METADATA_CONTRIBUTOR__METADATA_CONTRIBUTOR_METADATA_ID_FKEY);
+    public Dataset dataset() {
+        if (_dataset == null)
+            _dataset = new Dataset(this, Keys.METADATA_CONTRIBUTOR__METADATA_CONTRIBUTOR_METADATA_ID_FKEY);
 
-        return _metadata;
+        return _dataset;
     }
 
     @Override
@@ -173,11 +178,11 @@ public class MetadataContributor extends TableImpl<MetadataContributorRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row6 type methods
+    // Row7 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row6<Integer, Integer, String, Boolean, ContributorRoleEnum, String> fieldsRow() {
-        return (Row6) super.fieldsRow();
+    public Row7<Integer, Integer, String, Boolean, ContributorRoleEnum, String, String> fieldsRow() {
+        return (Row7) super.fieldsRow();
     }
 }

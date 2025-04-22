@@ -5,6 +5,7 @@ package edu.uci.ics.texera.dao.jooq.generated.tables.interfaces;
 
 
 import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSexEnum;
+import edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSpeciesEnum;
 
 import java.io.Serializable;
 
@@ -36,24 +37,54 @@ public interface IMetadataSpecimen extends Serializable {
     public Integer getMetadataId();
 
     /**
-     * Setter for <code>texera_db.metadata_specimen.name</code>.
+     * Setter for <code>texera_db.metadata_specimen.id</code>.
      */
-    public void setName(String value);
+    public void setId(String value);
 
     /**
-     * Getter for <code>texera_db.metadata_specimen.name</code>.
+     * Getter for <code>texera_db.metadata_specimen.id</code>.
      */
-    public String getName();
+    public String getId();
 
     /**
-     * Setter for <code>texera_db.metadata_specimen.age</code>.
+     * Setter for <code>texera_db.metadata_specimen.species</code>.
      */
-    public void setAge(Integer value);
+    public void setSpecies(SpecimenSpeciesEnum value);
 
     /**
-     * Getter for <code>texera_db.metadata_specimen.age</code>.
+     * Getter for <code>texera_db.metadata_specimen.species</code>.
      */
-    public Integer getAge();
+    public SpecimenSpeciesEnum getSpecies();
+
+    /**
+     * Setter for <code>texera_db.metadata_specimen.species_other</code>.
+     */
+    public void setSpeciesOther(String value);
+
+    /**
+     * Getter for <code>texera_db.metadata_specimen.species_other</code>.
+     */
+    public String getSpeciesOther();
+
+    /**
+     * Setter for <code>texera_db.metadata_specimen.age_value</code>.
+     */
+    public void setAgeValue(Integer value);
+
+    /**
+     * Getter for <code>texera_db.metadata_specimen.age_value</code>.
+     */
+    public Integer getAgeValue();
+
+    /**
+     * Setter for <code>texera_db.metadata_specimen.age_unit</code>.
+     */
+    public void setAgeUnit(String value);
+
+    /**
+     * Getter for <code>texera_db.metadata_specimen.age_unit</code>.
+     */
+    public String getAgeUnit();
 
     /**
      * Setter for <code>texera_db.metadata_specimen.sex</code>.
@@ -64,6 +95,16 @@ public interface IMetadataSpecimen extends Serializable {
      * Getter for <code>texera_db.metadata_specimen.sex</code>.
      */
     public SpecimenSexEnum getSex();
+
+    /**
+     * Setter for <code>texera_db.metadata_specimen.notes</code>.
+     */
+    public void setNotes(String value);
+
+    /**
+     * Getter for <code>texera_db.metadata_specimen.notes</code>.
+     */
+    public String getNotes();
 
     // -------------------------------------------------------------------------
     // FROM and INTO

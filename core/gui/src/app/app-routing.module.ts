@@ -19,9 +19,9 @@ import { DatasetDetailComponent } from "./dashboard/component/user/user-dataset/
 import { UserDatasetComponent } from "./dashboard/component/user/user-dataset/user-dataset.component";
 import { HubWorkflowDetailComponent } from "./hub/component/workflow/detail/hub-workflow-detail.component";
 import { LandingPageComponent } from "./hub/component/landing-page/landing-page.component";
-import { DASHBOARD_USER_WORKFLOW, DASHBOARD_ABOUT } from "./app-routing.constant";
+import {DASHBOARD_USER_WORKFLOW, DASHBOARD_ABOUT, DASHBOARD_HOME} from "./app-routing.constant";
 import { HubSearchResultComponent } from "./hub/component/hub-search-result/hub-search-result.component";
-
+import { ProfileComponent } from "./profile/component/profile.component"
 const routes: Routes = [];
 
 if (environment.userSystemEnabled) {
@@ -108,6 +108,10 @@ if (environment.userSystemEnabled) {
             path: "discussion",
             component: FlarumComponent,
           },
+          {
+            path: "profile",
+            component: ProfileComponent,
+          },
         ],
       },
       {
@@ -150,7 +154,7 @@ if (environment.userSystemEnabled) {
 // redirect all other paths to index.
 routes.push({
   path: "**",
-  redirectTo: DASHBOARD_USER_WORKFLOW,
+  redirectTo: DASHBOARD_HOME,
 });
 
 @NgModule({

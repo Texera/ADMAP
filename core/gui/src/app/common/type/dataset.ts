@@ -10,6 +10,16 @@ export interface DatasetVersion {
   fileNodes: DatasetFileNode[] | undefined;
 }
 
+// export interface Dataset {
+//   did: number | undefined;
+//   ownerUid: number | undefined;
+//   name: string;
+//   isPublic: boolean;
+//   storagePath: string | undefined;
+//   description: string;
+//   creationTime: number | undefined;
+// }
+
 export interface Dataset {
   did: number | undefined;
   ownerUid: number | undefined;
@@ -18,4 +28,31 @@ export interface Dataset {
   storagePath: string | undefined;
   description: string;
   creationTime: number | undefined;
+
+
+  contributors?: {
+    name: string;
+    creator?: boolean;
+    role: string;
+    affiliation: string;
+    email: string;
+  }[];
+
+  funders?: {
+    name: string;
+    awardTitle: string;
+  }[];
+
+  specimens?: {
+    id: string;
+    species: string;
+    speciesOther?: string;
+    age?: {
+      value?: number;
+      unit?: string;
+    };
+    sex?: string;
+    notes?: string;
+  }[];
 }
+

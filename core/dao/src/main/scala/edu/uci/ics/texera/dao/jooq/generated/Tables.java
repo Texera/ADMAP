@@ -9,7 +9,6 @@ import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetUserAccess;
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetUserLikes;
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetVersion;
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetViewCount;
-import edu.uci.ics.texera.dao.jooq.generated.tables.Metadata;
 import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataContributor;
 import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataFunder;
 import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataSpecimen;
@@ -63,11 +62,6 @@ public class Tables {
      * The table <code>texera_db.dataset_view_count</code>.
      */
     public static final DatasetViewCount DATASET_VIEW_COUNT = DatasetViewCount.DATASET_VIEW_COUNT;
-
-    /**
-     * The table <code>texera_db.metadata</code>.
-     */
-    public static final Metadata METADATA = Metadata.METADATA;
 
     /**
      * The table <code>texera_db.metadata_contributor</code>.

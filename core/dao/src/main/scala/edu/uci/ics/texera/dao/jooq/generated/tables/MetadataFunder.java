@@ -121,16 +121,16 @@ public class MetadataFunder extends TableImpl<MetadataFunderRecord> {
         return Arrays.asList(Keys.METADATA_FUNDER__METADATA_FUNDER_METADATA_ID_FKEY);
     }
 
-    private transient Metadata _metadata;
+    private transient Dataset _dataset;
 
     /**
-     * Get the implicit join path to the <code>texera_db.metadata</code> table.
+     * Get the implicit join path to the <code>texera_db.dataset</code> table.
      */
-    public Metadata metadata() {
-        if (_metadata == null)
-            _metadata = new Metadata(this, Keys.METADATA_FUNDER__METADATA_FUNDER_METADATA_ID_FKEY);
+    public Dataset dataset() {
+        if (_dataset == null)
+            _dataset = new Dataset(this, Keys.METADATA_FUNDER__METADATA_FUNDER_METADATA_ID_FKEY);
 
-        return _metadata;
+        return _dataset;
     }
 
     @Override
