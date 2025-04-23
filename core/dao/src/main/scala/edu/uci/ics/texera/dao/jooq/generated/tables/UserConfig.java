@@ -8,6 +8,9 @@ import edu.uci.ics.texera.dao.jooq.generated.Keys;
 import edu.uci.ics.texera.dao.jooq.generated.TexeraDb;
 import edu.uci.ics.texera.dao.jooq.generated.tables.records.UserConfigRecord;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Name;
@@ -100,6 +103,23 @@ public class UserConfig extends TableImpl<UserConfigRecord> {
     @Override
     public UniqueKey<UserConfigRecord> getPrimaryKey() {
         return Keys.USER_CONFIG_PKEY;
+    }
+
+    @Override
+    public List<ForeignKey<UserConfigRecord, ?>> getReferences() {
+        return Arrays.asList(Keys.USER_CONFIG__USER_CONFIG_UID_FKEY);
+    }
+
+    private transient User _user;
+
+    /**
+     * Get the implicit join path to the <code>texera_db.user</code> table.
+     */
+    public User user() {
+        if (_user == null)
+            _user = new User(this, Keys.USER_CONFIG__USER_CONFIG_UID_FKEY);
+
+        return _user;
     }
 
     @Override

@@ -110,10 +110,11 @@ public class DatasetUserAccess extends TableImpl<DatasetUserAccessRecord> {
 
     @Override
     public List<ForeignKey<DatasetUserAccessRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.DATASET_USER_ACCESS__DATASET_USER_ACCESS_DID_FKEY);
+        return Arrays.asList(Keys.DATASET_USER_ACCESS__DATASET_USER_ACCESS_DID_FKEY, Keys.DATASET_USER_ACCESS__DATASET_USER_ACCESS_UID_FKEY);
     }
 
     private transient Dataset _dataset;
+    private transient User _user;
 
     /**
      * Get the implicit join path to the <code>texera_db.dataset</code> table.
@@ -123,6 +124,16 @@ public class DatasetUserAccess extends TableImpl<DatasetUserAccessRecord> {
             _dataset = new Dataset(this, Keys.DATASET_USER_ACCESS__DATASET_USER_ACCESS_DID_FKEY);
 
         return _dataset;
+    }
+
+    /**
+     * Get the implicit join path to the <code>texera_db.user</code> table.
+     */
+    public User user() {
+        if (_user == null)
+            _user = new User(this, Keys.DATASET_USER_ACCESS__DATASET_USER_ACCESS_UID_FKEY);
+
+        return _user;
     }
 
     @Override

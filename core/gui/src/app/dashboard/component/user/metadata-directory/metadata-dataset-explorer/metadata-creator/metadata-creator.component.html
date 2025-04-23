@@ -6,13 +6,10 @@
     <div
       class="texera-user-metadata-creator-form"
       [ngClass]="{'disabled-backdrop': isCreating}">
-      <div>
       <formly-form
         [form]="form"
         [fields]="fields"
         [model]="model"></formly-form>
-      </div>
-
       <nz-switch
         *ngIf="!isCreatingMetadata"
         [ngModel]="isMetadataPublic"

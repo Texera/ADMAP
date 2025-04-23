@@ -104,10 +104,21 @@ public class WorkflowUserClones extends TableImpl<WorkflowUserClonesRecord> {
 
     @Override
     public List<ForeignKey<WorkflowUserClonesRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.WORKFLOW_USER_CLONES__WORKFLOW_USER_CLONES_WID_FKEY);
+        return Arrays.asList(Keys.WORKFLOW_USER_CLONES__WORKFLOW_USER_CLONES_UID_FKEY, Keys.WORKFLOW_USER_CLONES__WORKFLOW_USER_CLONES_WID_FKEY);
     }
 
+    private transient User _user;
     private transient Workflow _workflow;
+
+    /**
+     * Get the implicit join path to the <code>texera_db.user</code> table.
+     */
+    public User user() {
+        if (_user == null)
+            _user = new User(this, Keys.WORKFLOW_USER_CLONES__WORKFLOW_USER_CLONES_UID_FKEY);
+
+        return _user;
+    }
 
     /**
      * Get the implicit join path to the <code>texera_db.workflow</code> table.

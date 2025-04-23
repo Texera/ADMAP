@@ -9,8 +9,6 @@ import edu.uci.ics.texera.dao.jooq.generated.TexeraDb;
 import edu.uci.ics.texera.dao.jooq.generated.tables.records.WorkflowComputingUnitRecord;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.List;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
@@ -122,23 +120,6 @@ public class WorkflowComputingUnit extends TableImpl<WorkflowComputingUnitRecord
     @Override
     public UniqueKey<WorkflowComputingUnitRecord> getPrimaryKey() {
         return Keys.WORKFLOW_COMPUTING_UNIT_PKEY;
-    }
-
-    @Override
-    public List<ForeignKey<WorkflowComputingUnitRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.WORKFLOW_COMPUTING_UNIT__WORKFLOW_COMPUTING_UNIT_UID_FKEY);
-    }
-
-    private transient User _user;
-
-    /**
-     * Get the implicit join path to the <code>texera_db.user</code> table.
-     */
-    public User user() {
-        if (_user == null)
-            _user = new User(this, Keys.WORKFLOW_COMPUTING_UNIT__WORKFLOW_COMPUTING_UNIT_UID_FKEY);
-
-        return _user;
     }
 
     @Override

@@ -89,7 +89,7 @@ public class User extends TableImpl<UserRecord> {
     /**
      * The column <code>texera_db.user.comment</code>.
      */
-    public final TableField<UserRecord, String> COMMENT = createField(DSL.name("comment"), SQLDataType.VARCHAR(100), this, "");
+    public final TableField<UserRecord, String> COMMENT = createField(DSL.name("comment"), SQLDataType.CLOB, this, "");
 
     private User(Name alias, Table<UserRecord> aliased) {
         this(alias, aliased, null);
