@@ -1,0 +1,37 @@
+<form [formGroup]="contributorForm" (ngSubmit)="submit()">
+  <div nz-form-item nz-row>
+    <div nz-form-label nz-col nzSpan="6"><label>Name</label></div>
+    <div nz-form-control nz-col nzSpan="14">
+      <input nz-input formControlName="name" />
+    </div>
+  </div>
+  <div nz-form-item nz-row>
+    <div nz-form-label nz-col nzSpan="6"><label>Creator</label></div>
+    <div nz-form-control nz-col nzSpan="14">
+      <nz-switch formControlName="creator"></nz-switch>
+    </div>
+  </div>
+  <div nz-form-item nz-row>
+    <div nz-form-label nz-col nzSpan="6"><label>Role</label></div>
+    <div nz-form-control nz-col nzSpan="14">
+      <input nz-input formControlName="role" />
+    </div>
+  </div>
+  <div nz-form-item nz-row>
+    <div nz-form-label nz-col nzSpan="6"><label>Email</label></div>
+    <div nz-form-control nz-col nzSpan="14">
+      <input nz-input formControlName="email" />
+    </div>
+  </div>
+  <div nz-form-item nz-row>
+    <div nz-form-label nz-col nzSpan="6"><label>Affiliation</label></div>
+    <div nz-form-control nz-col nzSpan="14">
+      <input nz-input formControlName="affiliation" />
+    </div>
+  </div>
+  <div nz-form-item nz-row>
+    <div nz-form-control nz-col nzOffset="6" nzSpan="14">
+      <button nz-button nzType="primary" [disabled]="contributorForm.invalid">Save</button>
+    </div>
+  </div>
+</form>
