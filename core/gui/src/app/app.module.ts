@@ -149,6 +149,7 @@ import { NzProgressModule } from "ng-zorro-antd/progress";
 import { ComputingUnitSelectionComponent } from "./workspace/component/power-button/computing-unit-selection.component";
 import { NzSliderModule } from "ng-zorro-antd/slider";
 import { MetadataCreatorComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-creator/metadata-creator.component";
+import { MetadataBrowserComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-browser/metadata-browser.component";
 
 registerLocaleData(en);
 
@@ -240,6 +241,7 @@ registerLocaleData(en);
     HubSearchResultComponent,
     ComputingUnitSelectionComponent,
     MetadataCreatorComponent,
+    MetadataBrowserComponent,
   ],
   imports: [
     BrowserModule,

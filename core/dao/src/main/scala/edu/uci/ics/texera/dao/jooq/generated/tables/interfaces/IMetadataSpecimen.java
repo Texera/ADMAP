@@ -57,16 +57,6 @@ public interface IMetadataSpecimen extends Serializable {
     public SpecimenSpeciesEnum getSpecies();
 
     /**
-     * Setter for <code>texera_db.metadata_specimen.species_other</code>.
-     */
-    public void setSpeciesOther(String value);
-
-    /**
-     * Getter for <code>texera_db.metadata_specimen.species_other</code>.
-     */
-    public String getSpeciesOther();
-
-    /**
      * Setter for <code>texera_db.metadata_specimen.age_value</code>.
      */
     public void setAgeValue(Integer value);

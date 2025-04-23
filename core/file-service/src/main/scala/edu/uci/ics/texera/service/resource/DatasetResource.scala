@@ -125,7 +125,6 @@ object DatasetResource {
       Specimen(
         id = record.getId,
         species = record.getSpecies.name(),
-        speciesOther = Option(record.getSpeciesOther),
         age = age,
         sex = record.getSex.name(),
         notes = Option(record.getNotes)
@@ -158,7 +157,6 @@ object DatasetResource {
   case class Specimen(
       id: String,
       species: String,
-      speciesOther: Option[String],
       age: Option[Age],
       sex: String,
       notes: Option[String]
@@ -332,7 +330,7 @@ class DatasetResource {
         val metadataSpecimen = new MetadataSpecimen()
         metadataSpecimen.setMetadataId(did)
         metadataSpecimen.setSpecies(SpecimenSpeciesEnum.lookupLiteral(specimen.species))
-        metadataSpecimen.setSpeciesOther(specimen.speciesOther.orNull)
+        metadataSpecimen.setId(specimen.id)
 
         metadataSpecimen.setAgeValue(specimen.age.get.value)
         metadataSpecimen.setAgeUnit(specimen.age.get.unit)

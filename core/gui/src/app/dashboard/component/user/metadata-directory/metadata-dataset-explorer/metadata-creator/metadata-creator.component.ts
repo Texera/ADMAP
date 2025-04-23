@@ -286,7 +286,6 @@ export class MetadataCreatorComponent implements OnInit {
     if (!this.form.valid) {
       return; // Stop further execution if the form is not valid
     }
-    console.log("Form Data:", this.form.value);
 
     this.isCreating = true;
 

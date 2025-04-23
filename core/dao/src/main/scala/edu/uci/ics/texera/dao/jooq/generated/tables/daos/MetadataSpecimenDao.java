@@ -116,21 +116,6 @@ public class MetadataSpecimenDao extends DAOImpl<MetadataSpecimenRecord, edu.uci
     }
 
     /**
-     * Fetch records that have <code>species_other BETWEEN lowerInclusive AND
-     * upperInclusive</code>
-     */
-    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchRangeOfSpeciesOther(String lowerInclusive, String upperInclusive) {
-        return fetchRange(MetadataSpecimen.METADATA_SPECIMEN.SPECIES_OTHER, lowerInclusive, upperInclusive);
-    }
-
-    /**
-     * Fetch records that have <code>species_other IN (values)</code>
-     */
-    public List<edu.uci.ics.texera.dao.jooq.generated.tables.pojos.MetadataSpecimen> fetchBySpeciesOther(String... values) {
-        return fetch(MetadataSpecimen.METADATA_SPECIMEN.SPECIES_OTHER, values);
-    }
-
-    /**
      * Fetch records that have <code>age_value BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */

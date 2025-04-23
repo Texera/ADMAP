@@ -220,8 +220,6 @@ export class DatasetDetailComponent implements OnInit {
           this.datasetContributors = dashboardDataset.contributors || [];
           this.datasetFunders = dashboardDataset.funders || [];
           this.datasetSpecimens = dashboardDataset.specimens || [];
-
-          console.log(this.datasetFunders)
         });
     }
   }

@@ -18,7 +18,7 @@ import org.jooq.ForeignKey;
 import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row9;
+import org.jooq.Row8;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -69,11 +69,6 @@ public class MetadataSpecimen extends TableImpl<MetadataSpecimenRecord> {
      * The column <code>texera_db.metadata_specimen.species</code>.
      */
     public final TableField<MetadataSpecimenRecord, SpecimenSpeciesEnum> SPECIES = createField(DSL.name("species"), SQLDataType.VARCHAR.nullable(false).asEnumDataType(edu.uci.ics.texera.dao.jooq.generated.enums.SpecimenSpeciesEnum.class), this, "");
-
-    /**
-     * The column <code>texera_db.metadata_specimen.species_other</code>.
-     */
-    public final TableField<MetadataSpecimenRecord, String> SPECIES_OTHER = createField(DSL.name("species_other"), SQLDataType.VARCHAR(128), this, "");
 
     /**
      * The column <code>texera_db.metadata_specimen.age_value</code>.
@@ -189,11 +184,11 @@ public class MetadataSpecimen extends TableImpl<MetadataSpecimenRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row9 type methods
+    // Row8 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row9<Integer, Integer, String, SpecimenSpeciesEnum, String, Integer, String, SpecimenSexEnum, String> fieldsRow() {
-        return (Row9) super.fieldsRow();
+    public Row8<Integer, Integer, String, SpecimenSpeciesEnum, Integer, String, SpecimenSexEnum, String> fieldsRow() {
+        return (Row8) super.fieldsRow();
     }
 }

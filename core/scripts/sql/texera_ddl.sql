@@ -355,7 +355,6 @@ CREATE TABLE IF NOT EXISTS metadata_specimen
     metadata_id       INT NOT NULL,
     id                VARCHAR(256) NOT NULL,
     species           specimen_species_enum NOT NULL,
-    species_other     VARCHAR(128), -- Nullable, used when species is "Other"
     age_value         INT,
     age_unit          VARCHAR(32), -- e.g. "Years" or "Months"
     sex               specimen_sex_enum,

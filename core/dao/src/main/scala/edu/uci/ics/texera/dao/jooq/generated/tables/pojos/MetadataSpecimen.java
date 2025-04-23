@@ -21,7 +21,6 @@ public class MetadataSpecimen implements IMetadataSpecimen {
     private Integer             metadataId;
     private String              id;
     private SpecimenSpeciesEnum species;
-    private String              speciesOther;
     private Integer             ageValue;
     private String              ageUnit;
     private SpecimenSexEnum     sex;
@@ -34,7 +33,6 @@ public class MetadataSpecimen implements IMetadataSpecimen {
         this.metadataId = value.getMetadataId();
         this.id = value.getId();
         this.species = value.getSpecies();
-        this.speciesOther = value.getSpeciesOther();
         this.ageValue = value.getAgeValue();
         this.ageUnit = value.getAgeUnit();
         this.sex = value.getSex();
@@ -46,7 +44,6 @@ public class MetadataSpecimen implements IMetadataSpecimen {
         Integer             metadataId,
         String              id,
         SpecimenSpeciesEnum species,
-        String              speciesOther,
         Integer             ageValue,
         String              ageUnit,
         SpecimenSexEnum     sex,
@@ -56,7 +53,6 @@ public class MetadataSpecimen implements IMetadataSpecimen {
         this.metadataId = metadataId;
         this.id = id;
         this.species = species;
-        this.speciesOther = speciesOther;
         this.ageValue = ageValue;
         this.ageUnit = ageUnit;
         this.sex = sex;
@@ -125,22 +121,6 @@ public class MetadataSpecimen implements IMetadataSpecimen {
     @Override
     public void setSpecies(SpecimenSpeciesEnum species) {
         this.species = species;
-    }
-
-    /**
-     * Getter for <code>texera_db.metadata_specimen.species_other</code>.
-     */
-    @Override
-    public String getSpeciesOther() {
-        return this.speciesOther;
-    }
-
-    /**
-     * Setter for <code>texera_db.metadata_specimen.species_other</code>.
-     */
-    @Override
-    public void setSpeciesOther(String speciesOther) {
-        this.speciesOther = speciesOther;
     }
 
     /**
@@ -215,7 +195,6 @@ public class MetadataSpecimen implements IMetadataSpecimen {
         sb.append(", ").append(metadataId);
         sb.append(", ").append(id);
         sb.append(", ").append(species);
-        sb.append(", ").append(speciesOther);
         sb.append(", ").append(ageValue);
         sb.append(", ").append(ageUnit);
         sb.append(", ").append(sex);
@@ -235,7 +214,6 @@ public class MetadataSpecimen implements IMetadataSpecimen {
         setMetadataId(from.getMetadataId());
         setId(from.getId());
         setSpecies(from.getSpecies());
-        setSpeciesOther(from.getSpeciesOther());
         setAgeValue(from.getAgeValue());
         setAgeUnit(from.getAgeUnit());
         setSex(from.getSex());
