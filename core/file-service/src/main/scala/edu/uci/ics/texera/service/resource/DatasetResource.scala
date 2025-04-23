@@ -10,6 +10,8 @@ import edu.uci.ics.texera.dao.jooq.generated.enums.PrivilegeEnum
 import edu.uci.ics.texera.dao.jooq.generated.tables.User.USER
 import edu.uci.ics.texera.dao.jooq.generated.tables.Dataset.DATASET
 import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataContributor.METADATA_CONTRIBUTOR
+import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataFunder.METADATA_FUNDER
+import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataSpecimen.METADATA_SPECIMEN
 
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetUserAccess.DATASET_USER_ACCESS
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetVersion.DATASET_VERSION
@@ -399,6 +401,84 @@ class DatasetResource {
       Response.ok().build()
     }
   }
+
+  @PUT
+  @Path("/{did}/funders")
+  @RolesAllowed(Array("REGULAR", "ADMIN"))
+  @Consumes(Array(MediaType.APPLICATION_JSON))
+  def updateDatasetFunders(
+                            @PathParam("did") did: Int,
+                            request: java.util.Map[String, java.util.List[DatasetResource.Funder]],
+                            @Auth user: SessionUser
+                          ): Response = {
+    withTransaction(context) { ctx =>
+      val metadataFunderDao = new MetadataFunderDao(ctx.configuration())
+
+      val funders = request.get("funders")
+      if (funders == null) {
+        throw new BadRequestException("Missing funders list")
+      }
+
+      // Delete existing funders for this dataset
+      ctx.delete(METADATA_FUNDER)
+        .where(METADATA_FUNDER.METADATA_ID.eq(did))
+        .execute()
+
+      // Re‐insert updated funders
+      funders.asScala.foreach { funder =>
+        val metadataFunder = new MetadataFunder()
+        metadataFunder.setMetadataId(did)
+        metadataFunder.setName(funder.name)
+        metadataFunder.setAwardTitle(funder.awardTitle)
+        metadataFunderDao.insert(metadataFunder)
+      }
+
+      Response.ok().build()
+    }
+  }
+
+  @PUT
+  @Path("/{did}/specimens")
+  @RolesAllowed(Array("REGULAR", "ADMIN"))
+  @Consumes(Array(MediaType.APPLICATION_JSON))
+  def updateDatasetSpecimens(
+                              @PathParam("did") did: Int,
+                              request: java.util.Map[String, java.util.List[DatasetResource.Specimen]],
+                              @Auth user: SessionUser
+                            ): Response = {
+    withTransaction(context) { ctx =>
+      val metadataSpecimenDao = new MetadataSpecimenDao(ctx.configuration())
+
+      val specimens = request.get("specimens")
+      if (specimens == null) {
+        throw new BadRequestException("Missing specimens list")
+      }
+
+      // Delete existing specimens for this dataset
+      ctx.delete(METADATA_SPECIMEN)
+        .where(METADATA_SPECIMEN.METADATA_ID.eq(did))
+        .execute()
+
+      // Re‐insert updated specimens
+      specimens.asScala.foreach { specimen =>
+        val metadataSpecimen = new MetadataSpecimen()
+        metadataSpecimen.setMetadataId(did)
+        metadataSpecimen.setId(specimen.id)
+        metadataSpecimen.setSpecies(SpecimenSpeciesEnum.lookupLiteral(specimen.species))
+        metadataSpecimen.setAgeValue(specimen.age.get.value)
+        metadataSpecimen.setAgeUnit(specimen.age.get.unit)
+        metadataSpecimen.setSex(SpecimenSexEnum.lookupLiteral(specimen.sex))
+        metadataSpecimen.setNotes(specimen.notes.orNull)
+        metadataSpecimen.setSex(SpecimenSexEnum.lookupLiteral(specimen.sex))
+        metadataSpecimen.setNotes(specimen.notes.orNull)
+        metadataSpecimenDao.insert(metadataSpecimen)
+      }
+
+      Response.ok().build()
+    }
+  }
+
+
 
 
   @POST

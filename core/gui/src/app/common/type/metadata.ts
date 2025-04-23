@@ -23,7 +23,6 @@ export interface Metadata {
   specimens?: {
     id: string;
     species: string;
-    speciesOther?: string;
     age?: {
       value?: number;
       unit?: string;
