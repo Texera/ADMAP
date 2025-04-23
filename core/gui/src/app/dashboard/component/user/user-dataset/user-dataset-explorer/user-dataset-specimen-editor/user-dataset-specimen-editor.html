@@ -1,0 +1,53 @@
+<!-- user-dataset-specimen-editor.html -->
+<form [formGroup]="specimenForm" (ngSubmit)="submit()">
+  <div nz-form-item nz-row>
+    <div nz-form-label nz-col nzSpan="6"><label>ID</label></div>
+    <div nz-form-control nz-col nzSpan="14">
+      <input nz-input formControlName="id" />
+    </div>
+  </div>
+
+  <div nz-form-item nz-row>
+    <div nz-form-label nz-col nzSpan="6"><label>Species</label></div>
+    <div nz-form-control nz-col nzSpan="14">
+      <nz-select formControlName="species">
+        <nz-option *ngFor="let s of species" [nzValue]="s" [nzLabel]="s"></nz-option>
+      </nz-select>
+    </div>
+  </div>
+
+  <div nz-form-item nz-row>
+    <div nz-form-label nz-col nzSpan="6"><label>Age</label></div>
+    <div nz-form-control nz-col nzSpan="7">
+      <input nz-input type="number" formControlName="ageValue" />
+    </div>
+    <div nz-form-control nz-col nzSpan="7">
+      <nz-select formControlName="ageUnit">
+        <nz-option *ngFor="let u of ageUnits" [nzValue]="u" [nzLabel]="u"></nz-option>
+      </nz-select>
+    </div>
+  </div>
+
+  <div nz-form-item nz-row>
+    <div nz-form-label nz-col nzSpan="6"><label>Sex</label></div>
+    <div nz-form-control nz-col nzSpan="14">
+      <nz-select formControlName="sex">
+        <nz-option *ngFor="let s of sexOptions" [nzValue]="s" [nzLabel]="s"></nz-option>
+      </nz-select>
+    </div>
+  </div>
+
+  <div nz-form-item nz-row>
+    <div nz-form-label nz-col nzSpan="6"><label>Notes</label></div>
+    <div nz-form-control nz-col nzSpan="14">
+      <textarea nz-input rows="3" formControlName="notes"></textarea>
+    </div>
+  </div>
+
+  <div nz-form-item nz-row>
+    <div nz-form-control nz-col nzOffset="6" nzSpan="14">
+      <button nz-button nzType="default" (click)="cancel()" style="margin-right: 8px;">Cancel</button>
+      <button nz-button nzType="primary" [disabled]="specimenForm.invalid">Save</button>
+    </div>
+  </div>
+</form>

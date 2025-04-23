@@ -25,6 +25,9 @@ import { NzModalService } from "ng-zorro-antd/modal";
 import { UserDatasetVersionCreatorComponent } from "./user-dataset-version-creator/user-dataset-version-creator.component";
 import { DashboardDataset } from "../../../../type/dashboard-dataset.interface";
 import { UserDatasetContributorEditor } from './user-dataset-contributor-editor/user-dataset-contributor-editor';
+import { UserDatasetFunderEditor } from './user-dataset-funder-editor/user-dataset-funder-editor';
+import { UserDatasetSpecimenEditor } from './user-dataset-specimen-editor/user-dataset-specimen-editor';
+
 
 export const THROTTLE_TIME_MS = 1000;
 
@@ -106,9 +109,7 @@ export class DatasetDetailComponent implements OnInit {
       nzTitle: 'Add Contributor',
       nzContent: UserDatasetContributorEditor,
       nzFooter: null,
-      nzData: {
-        contributorData: null,
-      }
+      nzData: null,
     });
     modal.afterClose.subscribe((newContributor) => {
       if (newContributor) {
@@ -145,6 +146,98 @@ export class DatasetDetailComponent implements OnInit {
       .subscribe({
         next: () => this.notificationService.success('Contributors updated'),
         error: () => this.notificationService.error('Failed to update contributors')
+      });
+  }
+
+  /** Open modal to add a new funder */
+  onAddFunder(): void {
+    const modal = this.modalService.create({
+      nzTitle: 'Add Funder',
+      nzContent: UserDatasetFunderEditor,
+      nzFooter: null,
+      nzData: null,
+    });
+    modal.afterClose.subscribe((newFunder) => {
+      if (newFunder) {
+        this.datasetFunders = [...this.datasetFunders, newFunder];
+        this.saveFunders();
+      }
+    });
+  }
+
+  /** Open modal to edit an existing funders */
+  onEditFunder(funder: any): void {
+    const modal = this.modalService.create({
+      nzTitle: 'Edit Funder',
+      nzContent: UserDatasetFunderEditor,
+      nzFooter: null,
+      nzData: { ...funder }
+    });
+    modal.afterClose.subscribe((updated) => {
+      if (updated) {
+        // replace the old contributor with updated
+        this.datasetFunders = this.datasetFunders.map(f =>
+          f.id === updated.id ? updated : f
+        );
+        this.saveFunders();
+      }
+    });
+  }
+
+  /** Persist funders to backend */
+  private saveFunders(): void {
+    if (!this.did) return;
+    this.datasetService
+      .updateDatasetFunders(this.did, this.datasetFunders)
+      .subscribe({
+        next: () => this.notificationService.success('Funders updated'),
+        error: () => this.notificationService.error('Failed to update funders')
+      });
+  }
+
+  /** Open modal to add a new specimen */
+  onAddSpecimen(): void {
+    const modal = this.modalService.create({
+      nzTitle: 'Add Specimen',
+      nzContent: UserDatasetSpecimenEditor,
+      nzFooter: null,
+      nzData: null,
+    });
+    modal.afterClose.subscribe((newSpecimen) => {
+      if (newSpecimen) {
+        this.datasetSpecimens = [...this.datasetSpecimens, newSpecimen];
+        this.saveSpecimens();
+      }
+    });
+  }
+
+  /** Open modal to edit an existing specimen */
+  onEditSpecimen(specimen: any): void {
+    const modal = this.modalService.create({
+      nzTitle: 'Edit Specimen',
+      nzContent: UserDatasetSpecimenEditor,
+      nzFooter: null,
+      nzData: { ...specimen }
+    });
+    modal.afterClose.subscribe((updated) => {
+      if (updated) {
+        // replace the old contributor with updated
+        this.datasetSpecimens = this.datasetSpecimens.map(s =>
+          s.id === updated.id ? updated : s
+        );
+        this.saveSpecimens();
+      }
+    });
+  }
+
+  /** Persist specimens to backend */
+  private saveSpecimens(): void {
+    if (!this.did) return;
+    this.datasetService
+      .updateDatasetSpecimens(this.did, this.datasetSpecimens)
+      .subscribe({
+        next: () => this.notificationService.success('Specimens updated'),
+        error: () => this.notificationService.error('Failed to update specimens')
       });
   }
 

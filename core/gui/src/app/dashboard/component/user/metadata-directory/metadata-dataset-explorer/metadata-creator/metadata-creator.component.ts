@@ -189,16 +189,6 @@ export class MetadataCreatorComponent implements OnInit {
               },
             },
             {
-              key: 'speciesOther',
-              type: 'input',
-              templateOptions: {
-                label: 'Specify other specimen species',
-                placeholder: 'Other specimen',
-              },
-              hideExpression: (model: any) => model?.type !== 'Other',
-            },
-
-            {
               key: 'age',
               fieldGroup: [
                 {
@@ -313,7 +303,6 @@ export class MetadataCreatorComponent implements OnInit {
       specimens: this.form.get('specimens')?.value.map((specimen: any) => ({
         id: specimen.id,
         species: specimen.species,
-        typeOther: specimen.speciesOther,
         age: {
           value: specimen.age?.value,
           unit: specimen.age?.unit,

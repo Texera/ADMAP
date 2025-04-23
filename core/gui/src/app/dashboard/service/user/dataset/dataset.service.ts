@@ -64,12 +64,28 @@ export class DatasetService {
 
   /** Update contributors list for a dataset */
   updateDatasetContributors(did: number, contributors: any[]): Observable<void> {
-    console.log("in updateDatasetContributors - 0");
     return this.http.put<void>(
       `${AppSettings.getApiEndpoint()}/${DATASET_BASE_URL}/${did}/contributors`,
       { contributors }
     );
   }
+
+  /** Update funders list for a dataset */
+  updateDatasetFunders(did: number, funders: any[]): Observable<void> {
+    return this.http.put<void>(
+      `${AppSettings.getApiEndpoint()}/${DATASET_BASE_URL}/${did}/funders`,
+      { funders }
+    );
+  }
+
+  /** Update specimen list for a dataset */
+  updateDatasetSpecimens(did: number, specimens: any[]): Observable<void> {
+    return this.http.put<void>(
+      `${AppSettings.getApiEndpoint()}/${DATASET_BASE_URL}/${did}/specimens`,
+      { specimens }
+    );
+  }
+
 
   /**
    * Retrieves a single file from a dataset version using a pre-signed URL.

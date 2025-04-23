@@ -23,6 +23,11 @@ export class UserDatasetContributorEditor implements OnInit {
   @Output() contributorChange = new EventEmitter<ContributorData>();
 
   public contributorForm: FormGroup;
+  public roles = [
+    'Researcher',
+    'Principal Investigator',
+    'Project Member',
+    'Other'];
 
   constructor(
     private fb: FormBuilder,
@@ -32,7 +37,7 @@ export class UserDatasetContributorEditor implements OnInit {
     this.contributorForm = this.fb.group({
       name: new FormControl("", [Validators.required]),
       creator: new FormControl(false, [Validators.required]),
-      role: new FormControl("", [Validators.required]),
+      role:   new FormControl(this.roles[0], [Validators.required]),
       email: new FormControl("", [Validators.required, Validators.email]),
       affiliation: new FormControl("", [Validators.required]),
     });
@@ -63,6 +68,10 @@ export class UserDatasetContributorEditor implements OnInit {
     };
     this.contributorChange.emit(data);
     this.modalRef.close(data);
+  }
+
+  public cancel(): void {
+    this.modalRef.close();
   }
 
 

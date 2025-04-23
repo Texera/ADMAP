@@ -46,7 +46,6 @@ export interface Dataset {
   specimens?: {
     id: string;
     species: string;
-    speciesOther?: string;
     age?: {
       value?: number;
       unit?: string;
