@@ -3,13 +3,19 @@
     <div class="section-intro-text">
       <h1>ADMAP</h1>
       <h3>UC Irvine Alzheimer's Disease Multimodal Atlasing Project</h3>
+      <h4>
+        <a
+          href="javascript:void(0)"
+          (click)="navigateToData('meta')">
+          View metadata
+        </a>
+      </h4>
+      <h4>
+        <a
+          href="javascript:void(0)"
+          (click)="navigateToData('raw')">
+          View raw data
+        </a>
+      </h4>
     </div>
-    <div>
-      <texera-browse-section
-        [entities]="topLovedDatasets"
-        sectionTitle="Top Loved Datasets"
-        [currentUid]="currentUid">
-      </texera-browse-section>
-    </div>
-  </div>
 </div>

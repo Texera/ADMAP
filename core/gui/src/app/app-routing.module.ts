@@ -22,6 +22,9 @@ import { LandingPageComponent } from "./hub/component/landing-page/landing-page.
 import {DASHBOARD_USER_WORKFLOW, DASHBOARD_ABOUT, DASHBOARD_HOME} from "./app-routing.constant";
 import { HubSearchResultComponent } from "./hub/component/hub-search-result/hub-search-result.component";
 import { ProfileComponent } from "./profile/component/profile.component"
+import { FileDirectoryComponent } from "./dashboard/component/user/file-directory/file-directory.component"
+
+
 const routes: Routes = [];
 
 if (environment.userSystemEnabled) {
@@ -99,6 +102,10 @@ if (environment.userSystemEnabled) {
           {
             path: "dataset/create",
             component: DatasetDetailComponent,
+          },
+          {
+            path: "directory",
+            component: FileDirectoryComponent,
           },
           {
             path: "quota",
