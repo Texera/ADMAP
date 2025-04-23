@@ -62,6 +62,15 @@ export class DatasetService {
     return this.http.get<DashboardDataset>(apiUrl);
   }
 
+  /** Update contributors list for a dataset */
+  updateDatasetContributors(did: number, contributors: any[]): Observable<void> {
+    console.log("in updateDatasetContributors - 0");
+    return this.http.put<void>(
+      `${AppSettings.getApiEndpoint()}/${DATASET_BASE_URL}/${did}/contributors`,
+      { contributors }
+    );
+  }
+
   /**
    * Retrieves a single file from a dataset version using a pre-signed URL.
    * @param filePath Relative file path within the dataset.

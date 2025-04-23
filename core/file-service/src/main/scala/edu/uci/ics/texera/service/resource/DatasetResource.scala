@@ -9,6 +9,8 @@ import edu.uci.ics.texera.dao.SqlServer.withTransaction
 import edu.uci.ics.texera.dao.jooq.generated.enums.PrivilegeEnum
 import edu.uci.ics.texera.dao.jooq.generated.tables.User.USER
 import edu.uci.ics.texera.dao.jooq.generated.tables.Dataset.DATASET
+import edu.uci.ics.texera.dao.jooq.generated.tables.MetadataContributor.METADATA_CONTRIBUTOR
+
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetUserAccess.DATASET_USER_ACCESS
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetVersion.DATASET_VERSION
 import edu.uci.ics.texera.dao.jooq.generated.tables.daos.{DatasetDao, DatasetUserAccessDao, DatasetVersionDao}
@@ -207,9 +209,6 @@ class DatasetResource {
   private val ERR_DATASET_CREATION_FAILED_MESSAGE =
     "Dataset creation is failed. Please make sure to upload files in order to create the initial version of dataset"
 
-
-
-
   /**
     * Helper function to get the dataset from DB with additional information including user access privilege and owner email
     */
@@ -360,6 +359,47 @@ class DatasetResource {
 
     }
   }
+
+  @PUT
+  @Path("/{did}/contributors")
+  @RolesAllowed(Array("REGULAR", "ADMIN"))
+  @Consumes(Array(MediaType.APPLICATION_JSON))
+  def updateDatasetContributors(
+                                 @PathParam("did") did: Int,
+                                 request: java.util.Map[String, java.util.List[DatasetResource.Contributor]],
+                                 @Auth user: SessionUser
+                               ): Response = {
+    withTransaction(context) { ctx =>
+      val metadataContributorDao = new MetadataContributorDao(ctx.configuration())
+
+      val contributors = request.get("contributors")
+      if (contributors == null) {
+        throw new BadRequestException("Missing contributors list")
+      }
+
+      // Delete existing contributors for this dataset
+//      metadataContributorDao.deleteByMetadataId(did)
+      ctx.delete(METADATA_CONTRIBUTOR)
+        .where(METADATA_CONTRIBUTOR.METADATA_ID.eq(did))
+        .execute()
+
+
+      // Re-insert updated contributors
+      contributors.asScala.foreach { contributor: DatasetResource.Contributor =>
+      val metadataContributor = new MetadataContributor()
+        metadataContributor.setMetadataId(did)
+        metadataContributor.setName(contributor.name)
+        metadataContributor.setCreator(contributor.creator)
+        metadataContributor.setRole(ContributorRoleEnum.lookupLiteral(contributor.role))
+        metadataContributor.setAffiliation(contributor.affiliation)
+        metadataContributor.setEmail(contributor.email)
+        metadataContributorDao.insert(metadataContributor)
+      }
+
+      Response.ok().build()
+    }
+  }
+
 
   @POST
   @RolesAllowed(Array("REGULAR", "ADMIN"))
