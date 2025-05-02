@@ -14,7 +14,6 @@ import { NzModalService } from "ng-zorro-antd/modal";
 import { FileSelectionComponent } from "../../../../workspace/component/file-selection/file-selection.component";
 import { DatasetFileNode, getFullPathFromDatasetFileNode } from "../../../../common/type/datasetVersionFileTree";
 import { UserDatasetVersionCreatorComponent } from "./user-dataset-explorer/user-dataset-version-creator/user-dataset-version-creator.component";
-import { MetadataCreatorComponent } from "../user-metadata/metadata-creator/metadata-creator.component";
 import { DashboardDataset } from "../../../type/dashboard-dataset.interface";
 
 @UntilDestroy()
@@ -161,8 +160,7 @@ export class UserDatasetComponent implements AfterViewInit {
   public onClickOpenDatasetAddComponent(): void {
     const modal = this.modalService.create({
       nzTitle: "Create New Dataset",
-      // nzContent: UserDatasetVersionCreatorComponent,
-      nzContent: MetadataCreatorComponent,
+      nzContent: UserDatasetVersionCreatorComponent,
       nzFooter: null,
       nzData: {
         isCreatingVersion: false,
