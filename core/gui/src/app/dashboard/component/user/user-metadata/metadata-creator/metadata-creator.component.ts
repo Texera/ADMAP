@@ -1,14 +1,14 @@
 import {Component, EventEmitter, inject, Input, OnInit, Output} from "@angular/core";
 import { FormBuilder, FormGroup, FormArray, Validators } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
-import { MetadataService } from "../../../../../service/user/metadata/metadata.service";
-import { DatasetService } from "../../../../../service/user/dataset/dataset.service";
-import { FileUploadItem } from "../../../../../type/dashboard-file.interface";
+import { MetadataService } from "../../../../service/user/metadata/metadata.service";
+import { DatasetService } from "../../../../service/user/dataset/dataset.service";
+import { FileUploadItem } from "../../../../type/dashboard-file.interface";
 import {UntilDestroy, untilDestroyed} from "@ngneat/until-destroy";
-import { NotificationService } from "../../../../../../common/service/notification/notification.service";
+import { NotificationService } from "../../../../../common/service/notification/notification.service";
 import {NZ_MODAL_DATA, NzModalRef} from "ng-zorro-antd/modal";
 import {HttpErrorResponse} from "@angular/common/http";
-import {Dataset} from "../../../../../../common/type/dataset";
+import {Dataset} from "../../../../../common/type/dataset";
 
 @UntilDestroy()
 @Component({

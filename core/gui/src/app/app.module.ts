@@ -151,7 +151,7 @@ import { NzDividerModule } from "ng-zorro-antd/divider";
 import { NzProgressModule } from "ng-zorro-antd/progress";
 import { ComputingUnitSelectionComponent } from "./workspace/component/power-button/computing-unit-selection.component";
 import { NzSliderModule } from "ng-zorro-antd/slider";
-import { MetadataCreatorComponent } from "./dashboard/component/user/metadata-directory/metadata-dataset-explorer/metadata-creator/metadata-creator.component";
+import { MetadataCreatorComponent } from "./dashboard/component/user/user-metadata/metadata-creator/metadata-creator.component";
 
 registerLocaleData(en);
 
