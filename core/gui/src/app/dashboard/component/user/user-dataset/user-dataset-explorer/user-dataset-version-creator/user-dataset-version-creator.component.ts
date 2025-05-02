@@ -30,7 +30,7 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
   // used when creating the dataset
   isDatasetNameSanitized: boolean = false;
 
-  // boolean to control if is uploading
+  // boolean to control if it's uploading
   isCreating: boolean = false;
 
   constructor(
@@ -99,6 +99,7 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
                   type: 'checkbox',
                   templateOptions: {
                     label: 'Creator',
+                    required: true,
                   },
                 },
                 {
@@ -106,7 +107,6 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
                   type: 'select',
                   templateOptions: {
                     label: 'Contributor Role',
-                    required: true,
                     options: [
                       { label: 'Researcher', value: 'Researcher' },
                       { label: 'Principal Investigator (PI)', value: 'Principal Investigator' },
@@ -120,7 +120,6 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
                   type: 'input',
                   templateOptions: {
                     label: 'Department',
-                    required: true,
                     placeholder: 'Department',
                   },
                 },
@@ -129,7 +128,6 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
                   type: 'input',
                   templateOptions: {
                     label: 'Email',
-                    required: true,
                     placeholder: 'Email',
                     type: 'email',
                   },
@@ -151,6 +149,7 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
                   templateOptions: {
                     label: "Funder's Name",
                     placeholder: "Funder's Name",
+                    required: true,
                   },
                 },
                 {

@@ -324,9 +324,8 @@ CREATE TABLE IF NOT EXISTS dataset_view_count
     );
 
 -- metadata
-
 -- contributor table
-CREATE TABLE IF NOT EXISTS metadata_contributor
+CREATE TABLE IF NOT EXISTS dataset_contributor
 (
     cid               SERIAL PRIMARY KEY,
     metadata_id       INT NOT NULL,
@@ -339,7 +338,7 @@ CREATE TABLE IF NOT EXISTS metadata_contributor
     );
 
 -- funder table
-CREATE TABLE IF NOT EXISTS metadata_funder
+CREATE TABLE IF NOT EXISTS dataset_funder
 (
     fid           SERIAL PRIMARY KEY,
     metadata_id   INT NOT NULL,
@@ -349,14 +348,14 @@ CREATE TABLE IF NOT EXISTS metadata_funder
     );
 
 -- specimen table
-CREATE TABLE IF NOT EXISTS metadata_specimen
+CREATE TABLE IF NOT EXISTS dataset_specimen
 (
     sid               SERIAL PRIMARY KEY,
     metadata_id       INT NOT NULL,
     id                VARCHAR(256) NOT NULL,
     species           specimen_species_enum NOT NULL,
     age_value         INT,
-    age_unit          VARCHAR(32), -- e.g. "Years" or "Months"
+    age_unit          VARCHAR(32), -- TODO: make enum
     sex               specimen_sex_enum,
     notes             TEXT,
     FOREIGN KEY (metadata_id) REFERENCES dataset(did) ON DELETE CASCADE
