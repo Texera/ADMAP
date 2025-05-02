@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { UntilDestroy } from '@ngneat/until-destroy';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 
 export interface SpecimenData {
@@ -43,9 +43,9 @@ export class UserDatasetSpecimenEditor implements OnInit {
     this.specimenForm = this.fb.group({
       id:        new FormControl('', [Validators.required]),
       species:   new FormControl(this.species[0], [Validators.required]),
-      ageValue:  new FormControl(null, [Validators.required, Validators.min(0)]),
-      ageUnit:   new FormControl(this.ageUnits[0], [Validators.required]),
-      sex:       new FormControl(this.sexOptions[2], [Validators.required]),
+      ageValue:  new FormControl(null, [Validators.min(0)]),
+      ageUnit:   new FormControl(this.ageUnits[0], []),
+      sex:       new FormControl(this.sexOptions[2], []),
       notes:     new FormControl('', [])
 
     });
