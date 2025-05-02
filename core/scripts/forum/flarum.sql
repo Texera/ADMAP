@@ -613,7 +613,7 @@ CREATE TABLE `post_mentions_user` (
   `post_id` int unsigned NOT NULL,
   `mentions_user_id` int unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`post_id`,`mengtions_user_id`),
+  PRIMARY KEY (`post_id`,`mentions_user_id`),
   KEY `post_mentions_user_mentions_user_id_foreign` (`mentions_user_id`),
   CONSTRAINT `post_mentions_user_mentions_user_id_foreign` FOREIGN KEY (`mentions_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `post_mentions_user_post_id_foreign` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE
