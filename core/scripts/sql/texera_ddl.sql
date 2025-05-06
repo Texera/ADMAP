@@ -325,7 +325,7 @@ CREATE TABLE IF NOT EXISTS dataset_view_count
 
 -- metadata
 -- contributor table
-CREATE TABLE IF NOT EXISTS dataset_contributor
+CREATE TABLE IF NOT EXISTS metadata_contributor
 (
     cid               SERIAL PRIMARY KEY,
     metadata_id       INT NOT NULL,
@@ -338,7 +338,7 @@ CREATE TABLE IF NOT EXISTS dataset_contributor
     );
 
 -- funder table
-CREATE TABLE IF NOT EXISTS dataset_funder
+CREATE TABLE IF NOT EXISTS metadata_funder
 (
     fid           SERIAL PRIMARY KEY,
     metadata_id   INT NOT NULL,
@@ -348,7 +348,7 @@ CREATE TABLE IF NOT EXISTS dataset_funder
     );
 
 -- specimen table
-CREATE TABLE IF NOT EXISTS dataset_specimen
+CREATE TABLE IF NOT EXISTS metadata_specimen
 (
     sid               SERIAL PRIMARY KEY,
     metadata_id       INT NOT NULL,

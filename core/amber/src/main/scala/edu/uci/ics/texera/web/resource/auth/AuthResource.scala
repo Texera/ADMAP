@@ -35,13 +35,13 @@ object AuthResource {
   )
 
   /**
-   * Retrieve exactly one User from databases with the given username and password.
-   * The password is used to validate against the hashed password stored in the db.
-   *
-   * @param name     String
-   * @param password String, plain text password
-   * @return
-   */
+    * Retrieve exactly one User from databases with the given username and password.
+    * The password is used to validate against the hashed password stored in the db.
+    *
+    * @param name     String
+    * @param password String, plain text password
+    * @return
+    */
   def retrieveUserByUsernameAndPassword(name: String, password: String): Option[User] = {
     Option(
       SqlServer
@@ -103,4 +103,5 @@ class AuthResource {
         throw new NotAcceptableException("Username exists already.")
     }
   }
+  
 }
