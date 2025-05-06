@@ -11,6 +11,7 @@ import edu.uci.ics.texera.dao.jooq.generated.enums.UserRoleEnum
 import edu.uci.ics.texera.dao.jooq.generated.tables.daos.UserDao
 import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.User
 import edu.uci.ics.texera.web.resource.auth.GoogleAuthResource.userDao
+
 import java.util.Collections
 import javax.ws.rs._
 import javax.ws.rs.core.MediaType
