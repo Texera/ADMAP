@@ -49,7 +49,7 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
   // used when creating the dataset
   isDatasetNameSanitized: boolean = false;
 
-  // boolean to control if is uploading
+  // boolean to control if it's uploading
   isCreating: boolean = false;
 
   constructor(
@@ -96,6 +96,177 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
               label: "Description",
             },
           },
+          {
+            key: 'contributors',
+            type: 'array',
+            templateOptions: {
+              label: 'Contributors',
+            },
+            fieldArray: {
+              fieldGroup: [
+                {
+                  key: 'name',
+                  type: 'input',
+                  templateOptions: {
+                    label: "Contributor's Name",
+                    placeholder: "Contributor's Name",
+                    required: true,
+                  },
+                },
+                {
+                  key: 'creator',
+                  type: 'checkbox',
+                  templateOptions: {
+                    label: 'Creator',
+                    required: true,
+                  },
+                },
+                {
+                  key: 'role',
+                  type: 'select',
+                  templateOptions: {
+                    label: 'Contributor Role',
+                    options: [
+                      { label: 'Researcher', value: 'Researcher' },
+                      { label: 'Principal Investigator (PI)', value: 'Principal Investigator' },
+                      { label: 'Project Member', value: 'Project Member' },
+                      { label: 'Other', value: 'Other' },
+                    ],
+                  },
+                },
+                {
+                  key: 'affiliation',
+                  type: 'input',
+                  templateOptions: {
+                    label: 'Department',
+                    placeholder: 'Department',
+                  },
+                },
+                {
+                  key: 'email',
+                  type: 'input',
+                  templateOptions: {
+                    label: 'Email',
+                    placeholder: 'Email',
+                    type: 'email',
+                  },
+                },
+              ],
+            },
+          },
+          {
+            key: 'funders',
+            type: 'array',
+            templateOptions: {
+              label: 'Funders',
+            },
+            fieldArray: {
+              fieldGroup: [
+                {
+                  key: 'name',
+                  type: 'input',
+                  templateOptions: {
+                    label: "Funder's Name",
+                    placeholder: "Funder's Name",
+                    required: true,
+                  },
+                },
+                {
+                  key: 'award',
+                  type: 'input',
+                  templateOptions: {
+                    label: 'Award title',
+                    placeholder: 'Award title',
+                  },
+                },
+              ],
+            },
+          },
+          {
+            key: 'specimens',
+            type: 'array',
+            templateOptions: {
+              label: 'Specimens',
+            },
+            fieldArray: {
+              fieldGroup: [
+                {
+                  key: 'id',
+                  type: 'input',
+                  templateOptions: {
+                    label: "Specimen's ID",
+                    required: true,
+                    placeholder: "Specimen's ID",
+                  },
+                },
+                {
+                  key: 'species',
+                  type: 'select',
+                  templateOptions: {
+                    label: 'Specimen Species',
+                    required: true,
+                    options: [
+                      { label: 'Human', value: 'Human' },
+                      { label: 'Mouse', value: 'Mouse' },
+                      { label: 'Rat', value: 'Rat' },
+                      { label: 'Degu', value: 'Degu' },
+                      { label: 'Monkey', value: 'Monkey' },
+                      { label: 'Other', value: 'Other' },
+                    ],
+                  },
+                },
+                {
+                  key: 'age',
+                  fieldGroup: [
+                    {
+                      key: 'value',
+                      type: 'input',
+                      templateOptions: {
+                        type: 'number',
+                        label: 'Age',
+                        placeholder: 'Age',
+                        min: 0,
+                      },
+                    },
+                    {
+                      key: 'unit',
+                      type: 'select',
+                      defaultValue: 'Years',
+                      templateOptions: {
+                        label: 'Unit',
+                        options: [
+                          { label: 'Years', value: 'Years' },
+                          { label: 'Months', value: 'Months' },
+                        ],
+                      },
+                    },
+                  ],
+                },
+
+                {
+                  key: 'sex',
+                  type: 'select',
+                  templateOptions: {
+                    label: 'Sex',
+                    options: [
+                      { label: 'Male', value: 'Male' },
+                      { label: 'Female', value: 'Female' },
+                    ],
+                  },
+                },
+                {
+                  key: 'notes',
+                  type: 'input',
+                  templateOptions: {
+                    type: 'text',
+                    label: 'Notes',
+                    placeholder:
+                      'Any additional notes (e.g., Non-AD, AD, MAPT, under cage, inject 50um chemicals)',
+                  },
+                },
+              ],
+            },
+          }
         ];
   }
   get formControlNames(): string[] {
@@ -165,6 +336,29 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
         ownerUid: undefined,
         storagePath: undefined,
         creationTime: undefined,
+        contributors: this.form.get('contributors')?.value.map((contributor: any) => ({
+          name: contributor.name,
+          creator: contributor.creator,
+          role: contributor.role,
+          affiliation: contributor.affiliation,
+          email: contributor.email,
+        })),
+
+        funders: this.form.get('funders')?.value.map((funder: any) => ({
+          name: funder.name,
+          awardTitle: funder.award,
+        })),
+
+        specimens: this.form.get('specimens')?.value.map((specimen: any) => ({
+          id: specimen.id,
+          species: specimen.species,
+          age: {
+            value: specimen.age?.value,
+            unit: specimen.age?.unit,
+          },
+          sex: specimen.sex,
+          notes: specimen.notes,
+        })),
       };
       this.datasetService
         .createDataset(ds)

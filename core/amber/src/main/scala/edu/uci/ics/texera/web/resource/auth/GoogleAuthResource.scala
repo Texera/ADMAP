@@ -29,9 +29,8 @@ import edu.uci.ics.texera.web.model.http.response.TokenIssueResponse
 import edu.uci.ics.texera.dao.jooq.generated.enums.UserRoleEnum
 import edu.uci.ics.texera.dao.jooq.generated.tables.daos.UserDao
 import edu.uci.ics.texera.dao.jooq.generated.tables.pojos.User
-import edu.uci.ics.texera.web.resource.auth.AuthResource.addUserToLdap
-import edu.uci.ics.texera.web.resource.auth.AuthResource.generateSecurePassword
 import edu.uci.ics.texera.web.resource.auth.GoogleAuthResource.userDao
+
 import java.util.Collections
 import javax.ws.rs._
 import javax.ws.rs.core.MediaType
@@ -106,10 +105,7 @@ class GoogleAuthResource {
               user.setGoogleId(googleId)
               user.setRole(UserRoleEnum.INACTIVE)
               user.setGoogleAvatar(googleAvatar)
-              user.setPassword(generateSecurePassword())
               userDao.insert(user)
-              userDao.update(user)
-              addUserToLdap(user)
               user
           }
       }

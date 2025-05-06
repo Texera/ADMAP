@@ -47,7 +47,6 @@ export class AuthService {
   public static readonly REFRESH_TOKEN = "auth/refresh";
   public static readonly REGISTER_ENDPOINT = "auth/register";
   public static readonly GOOGLE_LOGIN_ENDPOINT = "auth/google/login";
-  public static readonly GET_PASSWORD_ENDPOINT = "auth/password";
 
   private tokenExpirationSubscription?: Subscription;
   private refreshTokenSubscription?: Subscription;
@@ -91,16 +90,6 @@ export class AuthService {
         },
       }
     );
-  }
-
-  /**
-   * This method will handle the request for getting the user password
-   */
-  public getPassword() {
-    console.log("Fetching password from:", `${AppSettings.getApiEndpoint()}/${AuthService.GET_PASSWORD_ENDPOINT}`);
-    return this.http.get(`${AppSettings.getApiEndpoint()}/${AuthService.GET_PASSWORD_ENDPOINT}`, {
-      responseType: "text",
-    });
   }
 
   /**

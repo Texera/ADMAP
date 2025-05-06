@@ -29,16 +29,6 @@ export interface DatasetVersion {
   fileNodes: DatasetFileNode[] | undefined;
 }
 
-// export interface Dataset {
-//   did: number | undefined;
-//   ownerUid: number | undefined;
-//   name: string;
-//   isPublic: boolean;
-//   storagePath: string | undefined;
-//   description: string;
-//   creationTime: number | undefined;
-// }
-
 export interface Dataset {
   did: number | undefined;
   ownerUid: number | undefined;
@@ -47,7 +37,6 @@ export interface Dataset {
   storagePath: string | undefined;
   description: string;
   creationTime: number | undefined;
-
 
   contributors?: {
     name: string;

@@ -341,7 +341,6 @@ CREATE TABLE IF NOT EXISTS dataset_view_count
     );
 
 -- metadata
-
 -- contributor table
 CREATE TABLE IF NOT EXISTS metadata_contributor
 (
@@ -373,7 +372,7 @@ CREATE TABLE IF NOT EXISTS metadata_specimen
     id                VARCHAR(256) NOT NULL,
     species           specimen_species_enum NOT NULL,
     age_value         INT,
-    age_unit          VARCHAR(32), -- e.g. "Years" or "Months"
+    age_unit          VARCHAR(32), -- TODO: make enum
     sex               specimen_sex_enum,
     notes             TEXT,
     FOREIGN KEY (metadata_id) REFERENCES dataset(did) ON DELETE CASCADE

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { UntilDestroy } from '@ngneat/until-destroy';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 
 export interface FunderData {
@@ -28,7 +28,7 @@ export class UserDatasetFunderEditor implements OnInit {
   ) {
     this.funderForm = this.fb.group({
       name: new FormControl("", [Validators.required]),
-      awardTitle: new FormControl("", [Validators.required]),
+      awardTitle: new FormControl("", []),
     });
   }
 

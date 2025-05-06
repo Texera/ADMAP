@@ -56,8 +56,6 @@ lazy val WorkflowCompilingService = (project in file("workflow-compiling-service
 lazy val WorkflowExecutionService = (project in file("amber"))
   .dependsOn(WorkflowOperator, Auth)
   .settings(
-    libraryDependencies += "com.unboundid" % "unboundid-ldapsdk" % "7.0.1",
-    libraryDependencies += "com.jcraft" % "jsch" % "0.1.55",
     dependencyOverrides ++= Seq(
       "com.fasterxml.jackson.core" % "jackson-core" % "2.15.1",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.1",

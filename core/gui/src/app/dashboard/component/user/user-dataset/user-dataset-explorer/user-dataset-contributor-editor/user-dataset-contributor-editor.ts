@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { UntilDestroy } from '@ngneat/until-destroy';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 
 export interface ContributorData {
@@ -37,14 +37,13 @@ export class UserDatasetContributorEditor implements OnInit {
     this.contributorForm = this.fb.group({
       name: new FormControl("", [Validators.required]),
       creator: new FormControl(false, [Validators.required]),
-      role:   new FormControl(this.roles[0], [Validators.required]),
-      email: new FormControl("", [Validators.required, Validators.email]),
-      affiliation: new FormControl("", [Validators.required]),
+      role:   new FormControl(this.roles[0], []),
+      email: new FormControl("", [Validators.email]),
+      affiliation: new FormControl("", []),
     });
   }
 
   ngOnInit() {
-    console.log(this.contributorData);
     if (this.contributorData) {
       this.contributorForm.patchValue({
         name: this.contributorData.name,
@@ -73,6 +72,4 @@ export class UserDatasetContributorEditor implements OnInit {
   public cancel(): void {
     this.modalRef.close();
   }
-
-
 }
