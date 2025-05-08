@@ -86,6 +86,7 @@ import jakarta.ws.rs._
 import jakarta.ws.rs.core.{Context, HttpHeaders, MediaType, Response, StreamingOutput}
 import org.jooq.{DSLContext, EnumType}
 
+import java.util
 import java.io.{InputStream, OutputStream}
 import java.net.{HttpURLConnection, URL, URLDecoder}
 import java.nio.charset.StandardCharsets
