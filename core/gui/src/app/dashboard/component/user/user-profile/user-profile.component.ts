@@ -5,14 +5,12 @@ import { User } from "../../../../common/type/user";
 @Component({
   selector: "texera-user-profile",
   templateUrl: "./user-profile.component.html",
-  styleUrls: ["./user-profile.component.scss"]
+  styleUrls: ["./user-profile.component.scss"],
 })
 export class UserProfileComponent {
   public user: User | undefined;
 
-  constructor(
-    private userService: UserService,
-  ) {
+  constructor(private userService: UserService) {
     this.user = this.userService.getCurrentUser();
   }
 }

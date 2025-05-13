@@ -52,7 +52,6 @@ export class UserIconComponent {
     this.router.navigate([DASHBOARD_USER_PROFILE]);
   }
 
-
   /**
    * handle the event when user click on the logout button
    */
