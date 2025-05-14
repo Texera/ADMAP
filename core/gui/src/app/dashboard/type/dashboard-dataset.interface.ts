@@ -26,4 +26,5 @@ export interface DashboardDataset {
   dataset: Dataset;
   accessPrivilege: "READ" | "WRITE" | "NONE";
   size: number;
+  contributors: any[];
 }
