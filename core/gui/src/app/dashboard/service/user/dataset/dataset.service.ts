@@ -400,11 +400,8 @@ export class DatasetService {
 
   /** Update contributors list for a dataset */
   updateDatasetContributors(did: number, contributors: any[]): Observable<void> {
-    return this.http.put<void>(
-      `${AppSettings.getApiEndpoint()}/${DATASET_BASE_URL}/${did}/contributors`,
-      { contributors }
-    );
+    return this.http.put<void>(`${AppSettings.getApiEndpoint()}/${DATASET_BASE_URL}/${did}/contributors`, {
+      contributors,
+    });
   }
-
-
 }

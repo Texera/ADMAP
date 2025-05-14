@@ -43,7 +43,7 @@ import { DatasetStagedObject } from "../../../../../common/type/dataset-staged-o
 import { NzModalService } from "ng-zorro-antd/modal";
 import { UserDatasetVersionCreatorComponent } from "./user-dataset-version-creator/user-dataset-version-creator.component";
 import { DashboardDataset } from "../../../../type/dashboard-dataset.interface";
-import { UserDatasetContributorEditor } from './user-dataset-contributor-editor/user-dataset-contributor-editor.component';
+import { UserDatasetContributorEditor } from "./user-dataset-contributor-editor/user-dataset-contributor-editor.component";
 
 export const THROTTLE_TIME_MS = 1000;
 
@@ -492,12 +492,12 @@ export class DatasetDetailComponent implements OnInit {
   /** Open modal to add a new contributor */
   onAddContributor(): void {
     const modal = this.modalService.create({
-      nzTitle: 'Add Contributor',
+      nzTitle: "Add Contributor",
       nzContent: UserDatasetContributorEditor,
       nzFooter: null,
       nzData: null,
     });
-    modal.afterClose.subscribe((newContributor) => {
+    modal.afterClose.subscribe(newContributor => {
       if (newContributor) {
         this.datasetContributors = [...this.datasetContributors, newContributor];
         this.saveContributors();
@@ -508,17 +508,15 @@ export class DatasetDetailComponent implements OnInit {
   /** Open modal to edit an existing contributor */
   onEditContributor(contributor: any): void {
     const modal = this.modalService.create({
-      nzTitle: 'Edit Contributor',
+      nzTitle: "Edit Contributor",
       nzContent: UserDatasetContributorEditor,
       nzFooter: null,
-      nzData: { ...contributor }
+      nzData: { ...contributor },
     });
-    modal.afterClose.subscribe((updated) => {
+    modal.afterClose.subscribe(updated => {
       if (updated) {
         // replace the old contributor with updated
-        this.datasetContributors = this.datasetContributors.map(c =>
-          c.id === updated.id ? updated : c
-        );
+        this.datasetContributors = this.datasetContributors.map(c => (c.id === updated.id ? updated : c));
         this.saveContributors();
       }
     });
@@ -527,11 +525,9 @@ export class DatasetDetailComponent implements OnInit {
   /** Persist contributors to backend */
   private saveContributors(): void {
     if (!this.did) return;
-    this.datasetService
-      .updateDatasetContributors(this.did, this.datasetContributors)
-      .subscribe({
-        next: () => this.notificationService.success('Contributors updated'),
-        error: () => this.notificationService.error('Failed to update contributors')
-      });
+    this.datasetService.updateDatasetContributors(this.did, this.datasetContributors).subscribe({
+      next: () => this.notificationService.success("Contributors updated"),
+      error: () => this.notificationService.error("Failed to update contributors"),
+    });
   }
 }

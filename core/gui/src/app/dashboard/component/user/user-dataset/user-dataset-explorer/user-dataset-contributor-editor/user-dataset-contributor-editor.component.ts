@@ -1,8 +1,8 @@
-import { Component, EventEmitter, OnInit, Output, Inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
-import { UntilDestroy } from '@ngneat/until-destroy';
-import { NzModalRef } from 'ng-zorro-antd/modal';
+import { Component, EventEmitter, OnInit, Output, Inject } from "@angular/core";
+import { FormBuilder, FormGroup, Validators, FormControl } from "@angular/forms";
+import { NZ_MODAL_DATA } from "ng-zorro-antd/modal";
+import { UntilDestroy } from "@ngneat/until-destroy";
+import { NzModalRef } from "ng-zorro-antd/modal";
 
 export interface ContributorData {
   id?: number;
@@ -15,18 +15,14 @@ export interface ContributorData {
 
 @UntilDestroy()
 @Component({
-  selector: 'texera-user-dataset-contributor-editor',
-  templateUrl: './user-dataset-contributor-editor.component.html',
+  selector: "texera-user-dataset-contributor-editor",
+  templateUrl: "./user-dataset-contributor-editor.component.html",
 })
 export class UserDatasetContributorEditor implements OnInit {
   @Output() contributorChange = new EventEmitter<ContributorData>();
 
   public contributorForm: FormGroup;
-  public roles = [
-    'Researcher',
-    'Principal Investigator',
-    'Project Member',
-    'Other'];
+  public roles = ["Researcher", "Principal Investigator", "Project Member", "Other"];
 
   constructor(
     private fb: FormBuilder,
@@ -36,7 +32,7 @@ export class UserDatasetContributorEditor implements OnInit {
     this.contributorForm = this.fb.group({
       name: new FormControl("", [Validators.required]),
       creator: new FormControl(false, [Validators.required]),
-      role:   new FormControl(this.roles[0], []),
+      role: new FormControl(this.roles[0], []),
       email: new FormControl("", [Validators.email]),
       affiliation: new FormControl("", []),
     });
@@ -49,7 +45,7 @@ export class UserDatasetContributorEditor implements OnInit {
         creator: this.contributorData.creator,
         role: this.contributorData.role,
         email: this.contributorData.email,
-        affiliation: this.contributorData.affiliation
+        affiliation: this.contributorData.affiliation,
       });
     }
   }
@@ -62,7 +58,7 @@ export class UserDatasetContributorEditor implements OnInit {
 
     const data: ContributorData = {
       id: this.contributorData?.id,
-      ...this.contributorForm.value
+      ...this.contributorForm.value,
     };
     this.contributorChange.emit(data);
     this.modalRef.close(data);

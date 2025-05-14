@@ -96,16 +96,16 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
             },
           },
           {
-            key: 'contributors',
-            type: 'array',
+            key: "contributors",
+            type: "array",
             templateOptions: {
-              label: 'Contributors',
+              label: "Contributors",
             },
             fieldArray: {
               fieldGroup: [
                 {
-                  key: 'name',
-                  type: 'input',
+                  key: "name",
+                  type: "input",
                   templateOptions: {
                     label: "Contributor's Name",
                     placeholder: "Contributor's Name",
@@ -113,41 +113,41 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
                   },
                 },
                 {
-                  key: 'creator',
-                  type: 'checkbox',
+                  key: "creator",
+                  type: "checkbox",
                   templateOptions: {
-                    label: 'Creator',
+                    label: "Creator",
                     required: true,
                   },
                 },
                 {
-                  key: 'role',
-                  type: 'select',
+                  key: "role",
+                  type: "select",
                   templateOptions: {
-                    label: 'Contributor Role',
+                    label: "Contributor Role",
                     options: [
-                      { label: 'Researcher', value: 'Researcher' },
-                      { label: 'Principal Investigator (PI)', value: 'Principal Investigator' },
-                      { label: 'Project Member', value: 'Project Member' },
-                      { label: 'Other', value: 'Other' },
+                      { label: "Researcher", value: "Researcher" },
+                      { label: "Principal Investigator (PI)", value: "Principal Investigator" },
+                      { label: "Project Member", value: "Project Member" },
+                      { label: "Other", value: "Other" },
                     ],
                   },
                 },
                 {
-                  key: 'affiliation',
-                  type: 'input',
+                  key: "affiliation",
+                  type: "input",
                   templateOptions: {
-                    label: 'Department',
-                    placeholder: 'Department',
+                    label: "Department",
+                    placeholder: "Department",
                   },
                 },
                 {
-                  key: 'email',
-                  type: 'input',
+                  key: "email",
+                  type: "input",
                   templateOptions: {
-                    label: 'Email',
-                    placeholder: 'Email',
-                    type: 'email',
+                    label: "Email",
+                    placeholder: "Email",
+                    type: "email",
                   },
                 },
               ],
