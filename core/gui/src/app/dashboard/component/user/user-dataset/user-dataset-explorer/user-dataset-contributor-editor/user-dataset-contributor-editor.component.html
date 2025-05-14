@@ -1,97 +1,43 @@
-<form
-  [formGroup]="contributorForm"
-  (ngSubmit)="submit()">
-  <div nz-row>
-    <div
-      nz-col
-      nzSpan="6">
-      <label>Name</label>
-    </div>
-    <div
-      nz-col
-      nzSpan="14">
-      <input
-        nz-input
-        formControlName="name" />
-    </div>
-  </div>
-  <div nz-row>
-    <div
-      nz-col
-      nzSpan="6">
-      <label>Creator</label>
-    </div>
-    <div
-      nz-col
-      nzSpan="14">
+<form [formGroup]="contributorForm" (ngSubmit)="submit()">
+  <nz-row>
+    <nz-col nzSpan="6"><label>Name</label></nz-col>
+    <nz-col nzSpan="14">
+      <input nz-input formControlName="name" />
+    </nz-col>
+  </nz-row>
+  <nz-row>
+    <div nz-col nzSpan="6"><label>Creator</label></div>
+    <div nz-col nzSpan="14">
       <nz-switch formControlName="creator"></nz-switch>
     </div>
-  </div>
-  <div nz-row>
-    <div
-      nz-col
-      nzSpan="6">
-      <label>Role</label>
-    </div>
-    <div
-      nz-col
-      nzSpan="14">
+  </nz-row>
+  <nz-row>
+    <nz-col nzSpan="6"><label>Role</label></nz-col>
+    <nz-col nzSpan="14">
       <nz-select formControlName="role">
-        <nz-option
-          *ngFor="let r of roles"
-          [nzValue]="r"
-          [nzLabel]="r"></nz-option>
+        <nz-option *ngFor="let r of roles" [nzValue]="r" [nzLabel]="r"></nz-option>
       </nz-select>
-    </div>
-  </div>
+    </nz-col>
+  </nz-row>
 
-  <div nz-row>
-    <div
-      nz-col
-      nzSpan="6">
-      <label>Email</label>
-    </div>
-    <div
-      nz-col
-      nzSpan="14">
-      <input
-        nz-input
-        formControlName="email" />
-    </div>
-  </div>
-  <div nz-row>
-    <div
-      nz-col
-      nzSpan="6">
-      <label>Affiliation</label>
-    </div>
-    <div
-      nz-col
-      nzSpan="14">
-      <input
-        nz-input
-        formControlName="affiliation" />
-    </div>
-  </div>
 
-  <div nz-row>
-    <div
-      nz-col
-      nzOffset="6"
-      nzSpan="14">
-      <button
-        nz-button
-        nzType="default"
-        (click)="cancel()"
-        style="margin-right: 8px">
-        Cancel
-      </button>
-      <button
-        nz-button
-        nzType="primary"
-        [disabled]="contributorForm.invalid">
-        Save
-      </button>
+  <nz-row>
+    <nz-col nzSpan="6"><label>Email</label></nz-col>
+    <nz-col nzSpan="14">
+      <input formControlName="email" />
+    </nz-col>
+  </nz-row>
+  <nz-row>
+    <nz-col nzSpan="6"><label>Affiliation</label></nz-col>
+    <nz-col nzSpan="14">
+      <input formControlName="affiliation" />
+    </nz-col>
+  </nz-row>
+
+  <nz-row>
+    <div nz-col nzOffset="6" nzSpan="14">
+      <button nzType="default" (click)="cancel()" style="margin-right: 8px;">Cancel</button>
+      <button nzType="primary" [disabled]="contributorForm.invalid">Save</button>
     </div>
-  </div>
+  </nz-row>
 </form>
