@@ -126,10 +126,10 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
                   templateOptions: {
                     label: "Contributor Role",
                     options: [
-                      { label: "Researcher", value: "Researcher" },
-                      { label: "Principal Investigator (PI)", value: "Principal Investigator" },
-                      { label: "Project Member", value: "Project Member" },
-                      { label: "Other", value: "Other" },
+                      { label: "Researcher", value: "RESEARCHER" },
+                      { label: "Principal Investigator (PI)", value: "PRINCIPAL INVESTIGATOR" },
+                      { label: "Project Member", value: "PROJECT MEMBER" },
+                      { label: "Other", value: "OTHER" },
                     ],
                   },
                 },
