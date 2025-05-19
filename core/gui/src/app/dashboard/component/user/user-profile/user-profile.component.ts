@@ -7,10 +7,12 @@ import { User } from "../../../../common/type/user";
   templateUrl: "./user-profile.component.html",
   styleUrls: ["./user-profile.component.scss"],
 })
-export class UserProfileComponent {
+export class UserProfileComponent implements OnInit {
   public user: User | undefined;
 
-  constructor(private userService: UserService) {
+  constructor(private userService: UserService) {}
+
+  ngOnInit(): void {
     this.user = this.userService.getCurrentUser();
   }
 }
