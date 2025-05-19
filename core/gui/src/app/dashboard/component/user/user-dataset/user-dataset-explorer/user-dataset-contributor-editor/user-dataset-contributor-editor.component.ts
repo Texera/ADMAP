@@ -22,7 +22,7 @@ export class UserDatasetContributorEditor implements OnInit {
   @Output() contributorChange = new EventEmitter<ContributorData>();
 
   public contributorForm: FormGroup;
-  public roles = ["Researcher", "Principal Investigator", "Project Member", "Other"];
+  public roles = ["RESEARCHER", "PRINCIPAL INVESTIGATOR", "PROJECT MEMBER", "OTHER"];
 
   constructor(
     private fb: FormBuilder,
