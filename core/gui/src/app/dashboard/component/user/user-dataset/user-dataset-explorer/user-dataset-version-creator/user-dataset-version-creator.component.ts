@@ -117,7 +117,6 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
                   type: "checkbox",
                   templateOptions: {
                     label: "Creator",
-                    required: true,
                   },
                 },
                 {
