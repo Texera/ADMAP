@@ -99,9 +99,10 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
             key: "contributors",
             type: "array",
             templateOptions: {
-              label: "Contributors",
+              label: "Add a New Contributor",
             },
             fieldArray: {
+              className: 'contributor-fields',
               fieldGroup: [
                 {
                   key: "name",
