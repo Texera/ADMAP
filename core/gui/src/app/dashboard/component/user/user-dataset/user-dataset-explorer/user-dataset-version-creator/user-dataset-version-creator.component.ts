@@ -102,7 +102,7 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
               label: "Add a New Contributor",
             },
             fieldArray: {
-              className: 'contributor-fields',
+              className: "contributor-fields",
               fieldGroup: [
                 {
                   key: "name",
