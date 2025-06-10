@@ -65,7 +65,7 @@
               nzType="edit"></i>
           </button>
           <div><strong>Name:</strong> {{ contributor.name }}</div>
-          <div><strong>Creator:</strong> {{ contributor.creator }}</div>
+          <div><strong>Creator:</strong> {{ contributor.creator ? 'Yes' : 'No' }}</div>
           <div><strong>Role:</strong> {{ contributor.role }}</div>
           <div><strong>Email:</strong> {{ contributor.email }}</div>
           <div><strong>Affiliation:</strong> {{ contributor.affiliation }}</div>
