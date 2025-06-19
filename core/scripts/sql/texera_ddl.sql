@@ -70,7 +70,9 @@ DROP TYPE IF EXISTS contributor_role_enum CASCADE;
 
 CREATE TYPE user_role_enum AS ENUM ('INACTIVE', 'RESTRICTED', 'REGULAR', 'ADMIN');
 CREATE TYPE privilege_enum AS ENUM ('NONE', 'READ', 'WRITE');
+CREATE TYPE workflow_computing_unit_type_enum AS ENUM ('local', 'kubernetes');
 CREATE TYPE contributor_role_enum AS ENUM ('RESEARCHER', 'PRINCIPAL INVESTIGATOR', 'PROJECT MEMBER', 'OTHER');
+
 -- ============================================
 -- 5. Create tables
 -- ============================================
@@ -177,12 +179,27 @@ CREATE TABLE IF NOT EXISTS project_user_access
     FOREIGN KEY (pid) REFERENCES project(pid) ON DELETE CASCADE
     );
 
+-- workflow_computing_unit table
+CREATE TABLE IF NOT EXISTS workflow_computing_unit
+(
+    uid                INT           NOT NULL,
+    name               VARCHAR(128)  NOT NULL,
+    cuid               SERIAL PRIMARY KEY,
+    creation_time      TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    terminate_time     TIMESTAMP  DEFAULT NULL,
+    type               workflow_computing_unit_type_enum,
+    uri                TEXT NOT NULL DEFAULT '',
+    resource           TEXT DEFAULT '',
+    FOREIGN KEY (uid) REFERENCES "user"(uid) ON DELETE CASCADE
+);
+
 -- workflow_executions
 CREATE TABLE IF NOT EXISTS workflow_executions
 (
     eid                 SERIAL PRIMARY KEY,
     vid                 INT NOT NULL,
     uid                 INT NOT NULL,
+    cuid                INT,
     status              SMALLINT NOT NULL DEFAULT 1,
     result              TEXT,
     starting_time       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -194,8 +211,9 @@ CREATE TABLE IF NOT EXISTS workflow_executions
     runtime_stats_uri   TEXT,
     runtime_stats_size  INT DEFAULT 0,
     FOREIGN KEY (vid) REFERENCES workflow_version(vid) ON DELETE CASCADE,
-    FOREIGN KEY (uid) REFERENCES "user"(uid) ON DELETE CASCADE
-    );
+    FOREIGN KEY (uid) REFERENCES "user"(uid) ON DELETE CASCADE,
+    FOREIGN KEY (cuid) REFERENCES workflow_computing_unit(cuid) ON DELETE CASCADE
+);
 
 -- public_project
 CREATE TABLE IF NOT EXISTS public_project
@@ -333,17 +351,6 @@ CREATE TABLE IF NOT EXISTS dataset_view_count
     PRIMARY KEY (did),
     FOREIGN KEY (did) REFERENCES dataset(did) ON DELETE CASCADE
     );
-
--- workflow_computing_unit table
-CREATE TABLE IF NOT EXISTS workflow_computing_unit
-(
-    uid                INT           NOT NULL,
-    name               VARCHAR(128)  NOT NULL,
-    cuid               SERIAL PRIMARY KEY,
-    creation_time      TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    terminate_time     TIMESTAMP  DEFAULT NULL,
-    FOREIGN KEY (uid) REFERENCES "user"(uid) ON DELETE CASCADE
-);
 
 -- START Fulltext search index creation (DO NOT EDIT THIS LINE)
 CREATE EXTENSION IF NOT EXISTS pgroonga;
