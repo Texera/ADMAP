@@ -51,7 +51,7 @@
   cursor: pointer;
   margin-right: 15%;
   margin-left: 5%;
-  margin-top: 10%;
+  margin-top: 5%;
   width: 30%;
   text-align: center;
   &:hover {
@@ -64,4 +64,8 @@
   height: 40%;
   width: 90%;
   margin: auto;
+}
+
+.public-status {
+  margin-left: 45px;
 }
