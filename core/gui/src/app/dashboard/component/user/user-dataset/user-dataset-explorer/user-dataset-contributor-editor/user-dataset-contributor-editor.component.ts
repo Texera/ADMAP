@@ -37,7 +37,7 @@ export interface ContributorData {
   templateUrl: "./user-dataset-contributor-editor.component.html",
   styleUrls: ["./user-dataset-contributor-editor.component.scss"],
 })
-export class UserDatasetContributorEditor implements OnInit {
+export class UserDatasetContributorEditorComponent implements OnInit {
   @Output() contributorChange = new EventEmitter<ContributorData>();
 
   contributorForm = new FormGroup({});
