@@ -161,8 +161,8 @@ object DatasetResource {
   }
 
   /**
-   * Helper function to get the contributors using the did
-   */
+    * Helper function to get the contributors using the did
+    */
   def getContributorsByDid(did: Integer): List[Contributor] = {
     val ctx = SqlServer.getInstance().createDSLContext()
     val dao = new DatasetContributorDao(ctx.configuration())
@@ -183,7 +183,7 @@ object DatasetResource {
       accessPrivilege: EnumType,
       isOwner: Boolean,
       size: Long,
-      contributors: Option[List[Contributor]] = Some(Nil),
+      contributors: Option[List[Contributor]] = Some(Nil)
   )
 
   case class DashboardDatasetVersion(
@@ -195,7 +195,7 @@ object DatasetResource {
       datasetName: String,
       datasetDescription: String,
       isDatasetPublic: Boolean,
-      contributors: Option[List[Contributor]],
+      contributors: Option[List[Contributor]]
   )
 
   case class Diff(
@@ -213,11 +213,11 @@ object DatasetResource {
   )
 
   case class Contributor(
-    name: String,
-    creator: Boolean,
-    role: String,
-    affiliation: String,
-    email: String
+      name: String,
+      creator: Boolean,
+      role: String,
+      affiliation: String,
+      email: String
   )
 
 }
@@ -259,7 +259,7 @@ class DatasetResource {
       userAccessPrivilege,
       isOwner,
       LakeFSStorageClient.retrieveRepositorySize(targetDataset.getName),
-      contributors = Some(contributors),
+      contributors = Some(contributors)
     )
   }
 
@@ -325,7 +325,6 @@ class DatasetResource {
         datasetContributorDao.insert(datasetContributor)
       }
 
-
       // Insert the requester as the WRITE access user for this dataset
       val datasetUserAccess = new DatasetUserAccess()
       datasetUserAccess.setDid(createdDataset.getDid)
@@ -346,7 +345,7 @@ class DatasetResource {
         PrivilegeEnum.WRITE,
         isOwner = true,
         0,
-        contributors,
+        contributors
       )
     }
   }
@@ -1251,15 +1250,15 @@ class DatasetResource {
       DatasetFileNode.calculateTotalSize(List(ownerFileNode))
     )
   }
-    @PUT
-    @Path("/{did}/contributors")
-    @RolesAllowed(Array("REGULAR", "ADMIN"))
-    @Consumes(Array(MediaType.APPLICATION_JSON))
-    def updateDatasetContributors(
-                                 @PathParam("did") did: Int,
-                                 request: java.util.Map[String, java.util.List[DatasetResource.Contributor]],
-                                 @Auth user: SessionUser
-                               ): Response = {
+  @PUT
+  @Path("/{did}/contributors")
+  @RolesAllowed(Array("REGULAR", "ADMIN"))
+  @Consumes(Array(MediaType.APPLICATION_JSON))
+  def updateDatasetContributors(
+      @PathParam("did") did: Int,
+      request: java.util.Map[String, java.util.List[DatasetResource.Contributor]],
+      @Auth user: SessionUser
+  ): Response = {
     withTransaction(context) { ctx =>
       val datasetContributorDao = new DatasetContributorDao(ctx.configuration())
 
@@ -1269,10 +1268,10 @@ class DatasetResource {
       }
 
       // Delete existing contributors for this dataset
-      ctx.delete(DATASET_CONTRIBUTOR)
+      ctx
+        .delete(DATASET_CONTRIBUTOR)
         .where(DATASET_CONTRIBUTOR.DID.eq(did))
         .execute()
-
 
       // Re-insert updated contributors
       contributors.asScala.foreach { contributor: DatasetResource.Contributor =>

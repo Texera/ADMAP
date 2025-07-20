@@ -116,6 +116,7 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
                 {
                   key: "creator",
                   type: "checkbox",
+                  defaultValue: false,
                   templateOptions: {
                     label: "Creator",
                   },

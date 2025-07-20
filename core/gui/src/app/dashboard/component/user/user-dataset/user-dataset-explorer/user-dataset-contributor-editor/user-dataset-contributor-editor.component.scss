@@ -17,17 +17,12 @@
  * under the License.
  */
 
-.texera-user-dataset-creator-form {
+.contributor-form {
   width: 80%;
   margin: auto;
 }
 
-.contributor-fields {
-  display: flex;
-  flex-direction: column;
-}
-
-.create-btn {
+.save-btn {
   background-color: #ffffff;
   color: #007bff;
   border: 1px solid lightgray;
@@ -58,14 +53,4 @@
     background-color: darken(#ff0000, 10%);
     color: #ffffff;
   }
-}
-
-.file-uploader {
-  height: 40%;
-  width: 90%;
-  margin: auto;
-}
-
-.public-status {
-  margin-left: 45px;
 }
