@@ -21,6 +21,7 @@
 package edu.uci.ics.texera.dao.jooq.generated;
 
 
+import edu.uci.ics.texera.dao.jooq.generated.tables.ComputingUnitUserAccess;
 import edu.uci.ics.texera.dao.jooq.generated.tables.Dataset;
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetContributor;
 import edu.uci.ics.texera.dao.jooq.generated.tables.DatasetUserAccess;
@@ -45,6 +46,7 @@ import edu.uci.ics.texera.dao.jooq.generated.tables.WorkflowUserLikes;
 import edu.uci.ics.texera.dao.jooq.generated.tables.WorkflowVersion;
 import edu.uci.ics.texera.dao.jooq.generated.tables.WorkflowViewCount;
 import edu.uci.ics.texera.dao.jooq.generated.tables.records.DatasetContributorRecord;
+import edu.uci.ics.texera.dao.jooq.generated.tables.records.ComputingUnitUserAccessRecord;
 import edu.uci.ics.texera.dao.jooq.generated.tables.records.DatasetRecord;
 import edu.uci.ics.texera.dao.jooq.generated.tables.records.DatasetUserAccessRecord;
 import edu.uci.ics.texera.dao.jooq.generated.tables.records.DatasetUserLikesRecord;
@@ -86,6 +88,7 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
+    public static final UniqueKey<ComputingUnitUserAccessRecord> COMPUTING_UNIT_USER_ACCESS_PKEY = Internal.createUniqueKey(ComputingUnitUserAccess.COMPUTING_UNIT_USER_ACCESS, DSL.name("computing_unit_user_access_pkey"), new TableField[] { ComputingUnitUserAccess.COMPUTING_UNIT_USER_ACCESS.CUID, ComputingUnitUserAccess.COMPUTING_UNIT_USER_ACCESS.UID }, true);
     public static final UniqueKey<DatasetRecord> DATASET_PKEY = Internal.createUniqueKey(Dataset.DATASET, DSL.name("dataset_pkey"), new TableField[] { Dataset.DATASET.DID }, true);
     public static final UniqueKey<DatasetContributorRecord> DATASET_CONTRIBUTOR_PKEY = Internal.createUniqueKey(DatasetContributor.DATASET_CONTRIBUTOR, DSL.name("dataset_contributor_pkey"), new TableField[] { DatasetContributor.DATASET_CONTRIBUTOR.CID }, true);
     public static final UniqueKey<DatasetUserAccessRecord> DATASET_USER_ACCESS_PKEY = Internal.createUniqueKey(DatasetUserAccess.DATASET_USER_ACCESS, DSL.name("dataset_user_access_pkey"), new TableField[] { DatasetUserAccess.DATASET_USER_ACCESS.DID, DatasetUserAccess.DATASET_USER_ACCESS.UID }, true);
@@ -117,6 +120,8 @@ public class Keys {
     // FOREIGN KEY definitions
     // -------------------------------------------------------------------------
 
+    public static final ForeignKey<ComputingUnitUserAccessRecord, WorkflowComputingUnitRecord> COMPUTING_UNIT_USER_ACCESS__COMPUTING_UNIT_USER_ACCESS_CUID_FKEY = Internal.createForeignKey(ComputingUnitUserAccess.COMPUTING_UNIT_USER_ACCESS, DSL.name("computing_unit_user_access_cuid_fkey"), new TableField[] { ComputingUnitUserAccess.COMPUTING_UNIT_USER_ACCESS.CUID }, Keys.WORKFLOW_COMPUTING_UNIT_PKEY, new TableField[] { WorkflowComputingUnit.WORKFLOW_COMPUTING_UNIT.CUID }, true);
+    public static final ForeignKey<ComputingUnitUserAccessRecord, UserRecord> COMPUTING_UNIT_USER_ACCESS__COMPUTING_UNIT_USER_ACCESS_UID_FKEY = Internal.createForeignKey(ComputingUnitUserAccess.COMPUTING_UNIT_USER_ACCESS, DSL.name("computing_unit_user_access_uid_fkey"), new TableField[] { ComputingUnitUserAccess.COMPUTING_UNIT_USER_ACCESS.UID }, Keys.USER_PKEY, new TableField[] { User.USER.UID }, true);
     public static final ForeignKey<DatasetRecord, UserRecord> DATASET__DATASET_OWNER_UID_FKEY = Internal.createForeignKey(Dataset.DATASET, DSL.name("dataset_owner_uid_fkey"), new TableField[] { Dataset.DATASET.OWNER_UID }, Keys.USER_PKEY, new TableField[] { User.USER.UID }, true);
     public static final ForeignKey<DatasetContributorRecord, DatasetRecord> DATASET_CONTRIBUTOR__DATASET_CONTRIBUTOR_DID_FKEY = Internal.createForeignKey(DatasetContributor.DATASET_CONTRIBUTOR, DSL.name("dataset_contributor_did_fkey"), new TableField[] { DatasetContributor.DATASET_CONTRIBUTOR.DID }, Keys.DATASET_PKEY, new TableField[] { Dataset.DATASET.DID }, true);
     public static final ForeignKey<DatasetUserAccessRecord, DatasetRecord> DATASET_USER_ACCESS__DATASET_USER_ACCESS_DID_FKEY = Internal.createForeignKey(DatasetUserAccess.DATASET_USER_ACCESS, DSL.name("dataset_user_access_did_fkey"), new TableField[] { DatasetUserAccess.DATASET_USER_ACCESS.DID }, Keys.DATASET_PKEY, new TableField[] { Dataset.DATASET.DID }, true);

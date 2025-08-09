@@ -177,6 +177,11 @@ workflowComputingUnitPool:
   name: texera-workflow-computing-unit
   # Note: the namespace of the workflow computing unit pool might conflict when there are multiple texera deployments in the same cluster
   namespace: texera-workflow-computing-unit-pool
+  # Max number of resources allocated for computing units
+  maxRequestedResources:
+    cpu: 100
+    memory: 100Gi
+    nvidiaGpu: 5
   imageName: texera/computing-unit-master:cluster
   service:
     port: 8085
@@ -224,6 +229,8 @@ texeraEnvVars:
   - name: GUI_WORKFLOW_WORKSPACE_WORKFLOW_EXECUTIONS_TRACKING_ENABLED
     value: "true"
   - name: GUI_WORKFLOW_WORKSPACE_ASYNC_RENDERING_ENABLED
+    value: "true"
+  - name: COMPUTING_UNIT_SHARING_ENABLED
     value: "true"
   - name: USER_SYS_INVITE_ONLY
     value: "true"
@@ -313,6 +320,9 @@ ingressPaths:
     - path: /api/access/dataset
       serviceName: file-service-svc
       servicePort: 9092
+    - path: /api/access/computing-unit
+      serviceName: workflow-computing-unit-manager-svc
+      servicePort: 8888
     - path: /api/config
       serviceName: config-service-svc
       servicePort: 9094

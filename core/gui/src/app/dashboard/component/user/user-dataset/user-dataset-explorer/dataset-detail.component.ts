@@ -18,14 +18,13 @@
  */
 
 import { Component, EventEmitter, OnInit, Output } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { DatasetService, MultipartUploadProgress } from "../../../../service/user/dataset/dataset.service";
 import { NzResizeEvent } from "ng-zorro-antd/resizable";
 import {
   DatasetFileNode,
   getFullPathFromDatasetFileNode,
-  getPathsUnderOrEqualDatasetFileNode,
   getRelativePathFromDatasetFileNode,
 } from "../../../../../common/type/datasetVersionFileTree";
 import { DatasetVersion } from "../../../../../common/type/dataset";
@@ -33,17 +32,16 @@ import { switchMap, throttleTime } from "rxjs/operators";
 import { NotificationService } from "../../../../../common/service/notification/notification.service";
 import { DownloadService } from "../../../../service/user/download/download.service";
 import { formatSize } from "src/app/common/util/size-formatter.util";
-import { DASHBOARD_USER_DATASET } from "../../../../../app-routing.constant";
 import { UserService } from "../../../../../common/service/user/user.service";
 import { isDefined } from "../../../../../common/util/predicate";
-import { HubService } from "../../../../../hub/service/hub.service";
+import { ActionType, EntityType, HubService, LikedStatus } from "../../../../../hub/service/hub.service";
 import { FileUploadItem } from "../../../../type/dashboard-file.interface";
-import { file } from "jszip";
 import { DatasetStagedObject } from "../../../../../common/type/dataset-staged-object";
 import { NzModalService } from "ng-zorro-antd/modal";
 import { UserDatasetVersionCreatorComponent } from "./user-dataset-version-creator/user-dataset-version-creator.component";
 import { DashboardDataset } from "../../../../type/dashboard-dataset.interface";
 import { UserDatasetContributorEditorComponent } from "./user-dataset-contributor-editor/user-dataset-contributor-editor.component";
+import { AdminSettingsService } from "../../../../service/admin/settings/admin-settings.service";
 
 export const THROTTLE_TIME_MS = 1000;
 
@@ -83,6 +81,9 @@ export class DatasetDetailComponent implements OnInit {
   public datasetContributors: any[] = [];
 
   userHasPendingChanges: boolean = false;
+  // Uploading setting
+  chunkSizeMB: number = 50;
+  maxConcurrentChunks: number = 10;
 
   //  List of upload tasks – each task tracked by its filePath
   public uploadTasks: Array<
@@ -101,7 +102,8 @@ export class DatasetDetailComponent implements OnInit {
     private notificationService: NotificationService,
     private downloadService: DownloadService,
     private userService: UserService,
-    private hubService: HubService
+    private hubService: HubService,
+    private adminSettingsService: AdminSettingsService
   ) {
     this.userService
       .userChanged()
@@ -142,14 +144,14 @@ export class DatasetDetailComponent implements OnInit {
     }
 
     this.hubService
-      .getLikeCount(this.did, "dataset")
+      .getCounts([EntityType.Dataset], [this.did], [ActionType.Like])
       .pipe(untilDestroyed(this))
-      .subscribe(count => {
-        this.likeCount = count;
+      .subscribe(counts => {
+        this.likeCount = counts[0].counts.like ?? 0;
       });
 
     this.hubService
-      .postView(this.did, this.currentUid ? this.currentUid : 0, "dataset")
+      .postView(this.did, this.currentUid ? this.currentUid : 0, EntityType.Dataset)
       .pipe(throttleTime(THROTTLE_TIME_MS))
       .pipe(untilDestroyed(this))
       .subscribe(count => {
@@ -161,13 +163,14 @@ export class DatasetDetailComponent implements OnInit {
     }
 
     this.hubService
-      .isLiked(this.did, this.currentUid, "dataset")
+      .isLiked([this.did], [EntityType.Dataset])
       .pipe(untilDestroyed(this))
-      .subscribe((isLiked: boolean) => {
-        this.isLiked = isLiked;
+      .subscribe((isLiked: LikedStatus[]) => {
+        this.isLiked = isLiked.length > 0 ? isLiked[0].isLiked : false;
       });
-  }
 
+    this.loadUploadSettings();
+  }
   public onClickOpenVersionCreator() {
     if (this.did) {
       const modal = this.modalService.create({
@@ -317,6 +320,17 @@ export class DatasetDetailComponent implements OnInit {
     return task.filePath;
   }
 
+  private loadUploadSettings(): void {
+    this.adminSettingsService
+      .getSetting("multipart_upload_chunk_size_mb")
+      .pipe(untilDestroyed(this))
+      .subscribe(value => (this.chunkSizeMB = parseInt(value)));
+    this.adminSettingsService
+      .getSetting("max_number_of_concurrent_uploading_file_chunks")
+      .pipe(untilDestroyed(this))
+      .subscribe(value => (this.maxConcurrentChunks = parseInt(value)));
+  }
+
   onNewUploadFilesChanged(files: FileUploadItem[]) {
     if (this.did) {
       files.forEach((file, idx) => {
@@ -328,10 +342,15 @@ export class DatasetDetailComponent implements OnInit {
           uploadId: "",
           physicalAddress: "",
         });
-
         // Start multipart upload
         this.datasetService
-          .multipartUpload(this.datasetName, file.name, file.file)
+          .multipartUpload(
+            this.datasetName,
+            file.name,
+            file.file,
+            this.chunkSizeMB * 1024 * 1024,
+            this.maxConcurrentChunks
+          )
           .pipe(untilDestroyed(this))
           .subscribe({
             next: progress => {
@@ -454,31 +473,31 @@ export class DatasetDetailComponent implements OnInit {
 
     if (this.isLiked) {
       this.hubService
-        .postUnlike(this.did, userId, "dataset")
+        .postUnlike(this.did, EntityType.Dataset)
         .pipe(untilDestroyed(this))
         .subscribe((success: boolean) => {
           if (success) {
             this.isLiked = false;
             this.hubService
-              .getLikeCount(this.did!, "dataset")
+              .getCounts([EntityType.Dataset], [this.did!], [ActionType.Like])
               .pipe(untilDestroyed(this))
-              .subscribe((count: number) => {
-                this.likeCount = count;
+              .subscribe(counts => {
+                this.likeCount = counts[0].counts.like ?? 0;
               });
           }
         });
     } else {
       this.hubService
-        .postLike(this.did, userId, "dataset")
+        .postLike(this.did, EntityType.Dataset)
         .pipe(untilDestroyed(this))
         .subscribe((success: boolean) => {
           if (success) {
             this.isLiked = true;
             this.hubService
-              .getLikeCount(this.did!, "dataset")
+              .getCounts([EntityType.Dataset], [this.did!], [ActionType.Like])
               .pipe(untilDestroyed(this))
-              .subscribe((count: number) => {
-                this.likeCount = count;
+              .subscribe(counts => {
+                this.likeCount = counts[0].counts.like ?? 0;
               });
           }
         });
