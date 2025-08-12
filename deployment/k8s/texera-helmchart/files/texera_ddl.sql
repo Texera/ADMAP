@@ -15,41 +15,6 @@
 -- specific language governing permissions and limitations
 -- under the License.
 
--- CREATE LakeFS db
-DROP DATABASE IF EXISTS texera_lakefs;
-CREATE DATABASE texera_lakefs;
-
--- CREATE iceberg catalog db
-
-\c postgres
-
-DO $$
-BEGIN
-        IF NOT EXISTS (
-            SELECT FROM pg_catalog.pg_roles WHERE rolname = 'texera'
-        ) THEN
-CREATE ROLE texera LOGIN PASSWORD 'password';
-END IF;
-END
-$$;
-
--- Drop and recreate the database
-DROP DATABASE IF EXISTS texera_iceberg_catalog;
-CREATE DATABASE texera_iceberg_catalog;
-
--- Grant and change ownership
-GRANT ALL PRIVILEGES ON DATABASE texera_iceberg_catalog TO texera;
-ALTER DATABASE texera_iceberg_catalog OWNER TO texera;
-
--- Reconnect to the new database
-\c texera_iceberg_catalog
-
--- Grant schema access
-GRANT ALL ON SCHEMA public TO texera;
-
-
--- CREATE texera_db
-
 -- ============================================
 -- 1. Drop and recreate the database (psql only)
 --    Remove if you already created texera_db
@@ -76,6 +41,7 @@ DROP TABLE IF EXISTS workflow_user_access CASCADE;
 DROP TABLE IF EXISTS workflow_of_user CASCADE;
 DROP TABLE IF EXISTS user_config CASCADE;
 DROP TABLE IF EXISTS "user" CASCADE;
+DROP TABLE IF EXISTS time_log CASCADE;
 DROP TABLE IF EXISTS workflow CASCADE;
 DROP TABLE IF EXISTS workflow_version CASCADE;
 DROP TABLE IF EXISTS project CASCADE;
@@ -84,6 +50,7 @@ DROP TABLE IF EXISTS workflow_executions CASCADE;
 DROP TABLE IF EXISTS dataset CASCADE;
 DROP TABLE IF EXISTS dataset_user_access CASCADE;
 DROP TABLE IF EXISTS dataset_version CASCADE;
+DROP TABLE IF EXISTS dataset_contributor CASCADE;
 DROP TABLE IF EXISTS public_project CASCADE;
 DROP TABLE IF EXISTS project_user_access CASCADE;
 DROP TABLE IF EXISTS workflow_user_likes CASCADE;
@@ -102,10 +69,12 @@ DROP TABLE IF EXISTS computing_unit_user_access CASCADE;
 -- ============================================
 DROP TYPE IF EXISTS user_role_enum CASCADE;
 DROP TYPE IF EXISTS privilege_enum CASCADE;
+DROP TYPE IF EXISTS contributor_role_enum CASCADE;
 
 CREATE TYPE user_role_enum AS ENUM ('INACTIVE', 'RESTRICTED', 'REGULAR', 'ADMIN');
 CREATE TYPE privilege_enum AS ENUM ('NONE', 'READ', 'WRITE');
 CREATE TYPE workflow_computing_unit_type_enum AS ENUM ('local', 'kubernetes');
+CREATE TYPE contributor_role_enum AS ENUM ('RESEARCHER', 'PRINCIPAL INVESTIGATOR', 'PROJECT MEMBER', 'OTHER');
 
 -- ============================================
 -- 5. Create tables
@@ -225,7 +194,7 @@ CREATE TABLE IF NOT EXISTS workflow_computing_unit
     uri                TEXT NOT NULL DEFAULT '',
     resource           TEXT DEFAULT '',
     FOREIGN KEY (uid) REFERENCES "user"(uid) ON DELETE CASCADE
-    );
+);
 
 -- workflow_executions
 CREATE TABLE IF NOT EXISTS workflow_executions
@@ -247,7 +216,7 @@ CREATE TABLE IF NOT EXISTS workflow_executions
     FOREIGN KEY (vid) REFERENCES workflow_version(vid) ON DELETE CASCADE,
     FOREIGN KEY (uid) REFERENCES "user"(uid) ON DELETE CASCADE,
     FOREIGN KEY (cuid) REFERENCES workflow_computing_unit(cuid) ON DELETE CASCADE
-    );
+);
 
 -- public_project
 CREATE TABLE IF NOT EXISTS public_project
@@ -290,6 +259,18 @@ CREATE TABLE IF NOT EXISTS dataset_version
     name          VARCHAR(128) NOT NULL,
     version_hash  VARCHAR(64) NOT NULL,
     creation_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (did) REFERENCES dataset(did) ON DELETE CASCADE
+    );
+
+CREATE TABLE IF NOT EXISTS dataset_contributor
+(
+    cid               SERIAL PRIMARY KEY,
+    did               INT NOT NULL,
+    name              VARCHAR(256) NOT NULL,
+    creator           BOOLEAN NOT NULL DEFAULT FALSE,
+    role              contributor_role_enum,
+    email             VARCHAR(256),
+    affiliation       VARCHAR(256),
     FOREIGN KEY (did) REFERENCES dataset(did) ON DELETE CASCADE
     );
 
@@ -383,6 +364,14 @@ CREATE TABLE IF NOT EXISTS site_settings
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
+CREATE TABLE IF NOT EXISTS time_log
+(
+    uid            INT          NOT NULL
+        PRIMARY KEY
+        REFERENCES "user"(uid),
+    last_login     TIMESTAMPTZ
+);
+
 -- computing_unit_user_access table
 CREATE TABLE IF NOT EXISTS computing_unit_user_access
 (
@@ -399,57 +388,57 @@ CREATE EXTENSION IF NOT EXISTS pgroonga;
 
 DO $$
 DECLARE
-r RECORD;
+  r RECORD;
   stem_filter TEXT := '';
   plugin_status TEXT;
 BEGIN
   -- Drop all GIN and PGroonga indexes
-FOR r IN
-SELECT indexname FROM pg_indexes
-WHERE (indexdef ILIKE '%USING gin%' OR indexdef ILIKE '%USING pgroonga%')
-  AND tablename IN ('workflow', 'user', 'project', 'dataset', 'dataset_version')
-    LOOP
+  FOR r IN
+    SELECT indexname FROM pg_indexes
+    WHERE (indexdef ILIKE '%USING gin%' OR indexdef ILIKE '%USING pgroonga%')
+    AND tablename IN ('workflow', 'user', 'project', 'dataset', 'dataset_version')
+  LOOP
     EXECUTE format('DROP INDEX IF EXISTS %I;', r.indexname);
-END LOOP;
+  END LOOP;
 
   -- Check if TokenFilterStem plugin is registered
-WITH plugin_registration AS (
+  WITH plugin_registration AS (
     SELECT pgroonga_command('plugin_register token_filters/stem') AS result
-)
-SELECT
+  )
+  SELECT
     CASE
-        WHEN result::jsonb @> '[true]' THEN 'Plugin registered successfully'
-        ELSE 'Plugin registration failed'
-        END INTO plugin_status
-FROM plugin_registration;
+      WHEN result::jsonb @> '[true]' THEN 'Plugin registered successfully'
+      ELSE 'Plugin registration failed'
+    END INTO plugin_status
+  FROM plugin_registration;
 
--- Set the stem_filter based on plugin status
-IF plugin_status = 'Plugin registered successfully' THEN
+  -- Set the stem_filter based on plugin status
+  IF plugin_status = 'Plugin registered successfully' THEN
     stem_filter := ', plugins=''token_filters/stem'', token_filters=''TokenFilterStem''';
     RAISE NOTICE 'Using TokenMecab + TokenFilterStem';
-ELSE
+  ELSE
     RAISE NOTICE 'Using TokenMecab only';
-END IF;
+  END IF;
 
   -- Create PGroonga indexes dynamically with correct TokenFilterStem usage
-FOR r IN
-SELECT tablename,
-       CASE
-           WHEN tablename = 'workflow' THEN
+  FOR r IN
+    SELECT tablename,
+           CASE
+             WHEN tablename = 'workflow' THEN
                '(COALESCE(name, '''') || '' '' || COALESCE(description, '''') || '' '' || COALESCE(content, ''''))'
-           WHEN tablename IN ('project', 'dataset') THEN
+             WHEN tablename IN ('project', 'dataset') THEN
                '(COALESCE(name, '''') || '' '' || COALESCE(description, ''''))'
-           ELSE
+             ELSE
                'COALESCE(name, '''')'
            END AS index_column
-FROM (VALUES ('workflow'), ('user'), ('project'), ('dataset'), ('dataset_version')) AS t(tablename)
-    LOOP
+    FROM (VALUES ('workflow'), ('user'), ('project'), ('dataset'), ('dataset_version')) AS t(tablename)
+  LOOP
     -- Create PGroonga index with proper TokenFilterStem usage
     EXECUTE format(
       'CREATE INDEX idx_%s_pgroonga ON %I USING pgroonga (%s) WITH (tokenizer = ''TokenMecab''%s);',
       r.tablename, r.tablename, r.index_column, stem_filter
     );
-END LOOP;
+  END LOOP;
 END $$;
 
 -- END Fulltext search index creation (DO NOT EDIT THIS LINE)
