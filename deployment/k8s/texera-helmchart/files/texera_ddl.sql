@@ -15,6 +15,42 @@
 -- specific language governing permissions and limitations
 -- under the License.
 
+-- CREATE LakeFS db
+DROP DATABASE IF EXISTS texera_lakefs;
+CREATE DATABASE texera_lakefs;
+
+-- CREATE iceberg catalog db
+
+\c postgres
+
+DO $$
+BEGIN
+        IF NOT EXISTS (
+            SELECT FROM pg_catalog.pg_roles WHERE rolname = 'texera'
+        ) THEN
+CREATE ROLE texera LOGIN PASSWORD 'password';
+END IF;
+END
+$$;
+
+-- Drop and recreate the database
+DROP DATABASE IF EXISTS texera_iceberg_catalog;
+CREATE DATABASE texera_iceberg_catalog;
+
+-- Grant and change ownership
+GRANT ALL PRIVILEGES ON DATABASE texera_iceberg_catalog TO texera;
+ALTER DATABASE texera_iceberg_catalog OWNER TO texera;
+
+-- Reconnect to the new database
+\c texera_iceberg_catalog
+
+-- Grant schema access
+GRANT ALL ON SCHEMA public TO texera;
+
+
+-- CREATE texera_db
+
+
 -- ============================================
 -- 1. Drop and recreate the database (psql only)
 --    Remove if you already created texera_db
