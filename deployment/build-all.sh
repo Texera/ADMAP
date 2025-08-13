@@ -16,18 +16,9 @@
 # specific language governing permissions and limitations
 # under the License.
 
-
 set -e
 
-# Prompt for base tag
-DEFAULT_TAG="latest"
-read -p "Enter the base tag for the images [${DEFAULT_TAG}]: " BASE_TAG
-BASE_TAG=${BASE_TAG:-$DEFAULT_TAG}
-
-# Prompt for which services to build
-DEFAULT_SERVICES="*"
-read -p "Enter services to build (comma-separated, '*' for all) [${DEFAULT_SERVICES}]: " SERVICES_INPUT
-SERVICES_INPUT=${SERVICES_INPUT:-$DEFAULT_SERVICES}
+SERVICES_INPUT="*"
 
 # Convert the user input into an array for easy lookup
 IFS=',' read -ra SELECTED_SERVICES <<< "$SERVICES_INPUT"
@@ -49,21 +40,8 @@ should_build() {
   return 1
 }
 
-# Detect platform
-ARCH=$(uname -m)
-if [[ "$ARCH" == "x86_64" ]]; then
-  PLATFORM="linux/amd64"
-  TAG_SUFFIX="amd64"
-elif [[ "$ARCH" == "arm64" || "$ARCH" == "aarch64" ]]; then
-  PLATFORM="linux/arm64"
-  TAG_SUFFIX="arm64"
-else
-  echo "❌ Unsupported architecture: $ARCH"
-  exit 1
-fi
-
-FULL_TAG="${BASE_TAG}-${TAG_SUFFIX}"
-echo "🔍 Detected architecture: $ARCH -> Building for $PLATFORM with tag :$FULL_TAG"
+PLATFORM="linux/amd64"
+FULL_TAG="admap-deployment-arm64"
 
 # Ensure Buildx is ready
 docker buildx create --name texera-builder --use --bootstrap > /dev/null 2>&1 || docker buildx use texera-builder
@@ -100,29 +78,5 @@ for dockerfile in "${dockerfiles[@]}"; do
     --push \
     ..
 done
-
-# Build pylsp service (directory: pylsp)
-if should_build "pylsp"; then
-  image="texera/pylsp:$FULL_TAG"
-  echo "👉 Building $image from pylsp/Dockerfile"
-  docker buildx build \
-    --platform "$PLATFORM" \
-    -f "pylsp/Dockerfile" \
-    -t "$image" \
-    --push \
-    ./pylsp
-fi
-
-# Build y-websocket-server service (directory: y-websocket-server, image: y-websocket-server)
-if should_build "y-websocket-server"; then
-  image="texera/y-websocket-server:$FULL_TAG"
-  echo "👉 Building $image from y-websocket-server/Dockerfile"
-  docker buildx build \
-    --platform "$PLATFORM" \
-    -f "y-websocket-server/Dockerfile" \
-    -t "$image" \
-    --push \
-    ./y-websocket-server
-fi
 
 echo "✅ All images built and pushed with tag :$FULL_TAG"
