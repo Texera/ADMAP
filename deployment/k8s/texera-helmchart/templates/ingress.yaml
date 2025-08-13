@@ -23,8 +23,12 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    cert-manager.io/issuer: "letsencrypt-prod"
+    {{- if or .Values.ingressPaths.tlsSecretName .Values.ingressPaths.issuer }}
+    nginx.ingress.kubernetes.io/ssl-redirect: {{ or .Values.ingressPaths.tlsSecretName .Values.ingressPaths.issuer | quote}}
+    {{- end }}
+    {{- if .Values.ingressPaths.issuer }}
+    cert-manager.io/issuer: {{ .Values.ingressPaths.issuer }}
+    {{- end }}
 spec:
   ingressClassName: {{ .Values.ingressPaths.ingressClassName }}
   {{- if or .Values.ingressPaths.tlsSecretName .Values.ingressPaths.issuer }}
