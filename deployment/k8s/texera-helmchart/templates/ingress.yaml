@@ -23,9 +23,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-    {{- if or .Values.ingressPaths.tlsSecretName .Values.ingressPaths.issuer }}
-    nginx.ingress.kubernetes.io/ssl-redirect: {{ or .Values.ingressPaths.tlsSecretName .Values.ingressPaths.issuer | quote}}
-    {{- end }}
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     {{- if .Values.ingressPaths.issuer }}
     cert-manager.io/issuer: {{ .Values.ingressPaths.issuer }}
     {{- end }}
