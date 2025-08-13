@@ -209,6 +209,23 @@ ingress-nginx:
   rbac:
     create: true
 
+# Metrics Server configuration
+metrics-server:
+  enabled: false
+  args:
+    - --kubelet-insecure-tls
+    - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+    - --metric-resolution=15s
+  resources:
+    requests:
+      cpu: 200m
+      memory: 400Mi
+  rbac:
+    create: true
+  serviceAccount:
+    create: true
+  priorityClassName: system-cluster-critical
+
 # Custom Ingress resource configs
 ingressPaths:
   enabled: true
