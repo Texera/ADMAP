@@ -41,7 +41,7 @@ should_build() {
 }
 
 PLATFORM="linux/amd64"
-FULL_TAG="admap-deployment-arm64"
+FULL_TAG="admap-deployment-amd64"
 
 # Ensure Buildx is ready
 docker buildx create --name texera-builder --use --bootstrap > /dev/null 2>&1 || docker buildx use texera-builder
