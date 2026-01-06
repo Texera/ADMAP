@@ -44,7 +44,22 @@ PLATFORM="linux/amd64"
 FULL_TAG="admap-deployment-amd64"
 
 # Ensure Buildx is ready
-docker buildx create --name texera-builder --use --bootstrap > /dev/null 2>&1 || docker buildx use texera-builder
+# Define builder name
+BUILDER_NAME="texera-builder"
+
+# Check if builder exists
+if ! docker buildx inspect "$BUILDER_NAME" > /dev/null 2>&1; then
+    echo "Creating new builder: $BUILDER_NAME"
+    docker buildx create --name "$BUILDER_NAME" --use --bootstrap
+else
+    echo "Using existing builder: $BUILDER_NAME"
+    # Try to use it; if it fails (due to corruption), remove and recreate
+    if ! docker buildx use "$BUILDER_NAME" 2>/dev/null; then
+        echo "⚠️  Builder corrupted. Recreating..."
+        docker buildx rm "$BUILDER_NAME" --force
+        docker buildx create --name "$BUILDER_NAME" --use --bootstrap
+    fi
+fi
 
 cd "$(dirname "$0")"
 
