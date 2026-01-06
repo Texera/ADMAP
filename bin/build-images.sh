@@ -67,7 +67,7 @@ for dockerfile in "${dockerfiles[@]}"; do
     continue
   fi
 
-  image="texera/$service_name:$FULL_TAG"
+  image="alirisheh876/$service_name:$FULL_TAG"
 
   echo "👉 Building $image from $dockerfile"
 
