@@ -703,6 +703,28 @@ export class DatasetDetailComponent implements OnInit {
     this.displayPreciseViewCount = !this.displayPreciseViewCount;
   }
 
+  onSetCoverImage(filePath: string): void {
+    if (!this.did || !this.selectedVersion) {
+      return;
+    }
+
+    this.datasetService
+      .updateDatasetCoverImage(this.did, `${this.selectedVersion.name}/${filePath}`)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: () => {
+          this.notificationService.success("Cover image set successfully");
+        },
+        error: (err: unknown) => {
+          this.notificationService.error(
+            err instanceof HttpErrorResponse
+              ? err.error?.message || "Failed to set cover image"
+              : "Failed to set cover image"
+          );
+        },
+      });
+  }
+
   /** Open modal to add a new contributor */
   onAddContributor(): void {
     const modal = this.modalService.create({
