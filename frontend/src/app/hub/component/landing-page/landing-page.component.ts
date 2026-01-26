@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, forkJoin } from "rxjs";
 import { ActionType, EntityType, HubService } from "../../service/hub.service";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { Router } from "@angular/router";
@@ -28,8 +28,11 @@ import {
   DASHBOARD_HOME,
   DASHBOARD_HUB_DATASET_RESULT,
   DASHBOARD_HUB_WORKFLOW_RESULT,
+  DASHBOARD_USER_DATASET,
+  DASHBOARD_ABOUT,
 } from "../../../app-routing.constant";
 import { UserService } from "../../../common/service/user/user.service";
+import { AdminSettingsService } from "../../../dashboard/service/admin/settings/admin-settings.service";
 
 @UntilDestroy()
 @Component({
@@ -46,11 +49,17 @@ export class LandingPageComponent implements OnInit {
   public topClonedWorkflows: DashboardEntry[] = [];
   public topLovedDatasets: DashboardEntry[] = [];
 
+  public wholeBrainDatasetIds: number[] = [];
+  public u24DatasetIds: number[] = [];
+  public merfishDatasetIds: number[] = [];
+  public mriDatasetIds: number[] = [];
+
   constructor(
     private hubService: HubService,
     private router: Router,
     private searchService: SearchService,
-    private userService: UserService
+    private userService: UserService,
+    private adminSettingsService: AdminSettingsService
   ) {
     this.userService
       .userChanged()
@@ -64,6 +73,7 @@ export class LandingPageComponent implements OnInit {
   ngOnInit(): void {
     this.getWorkflowCount();
     this.loadTops();
+    this.loadShowcaseDataset();
   }
 
   async loadTops() {
@@ -122,10 +132,40 @@ export class LandingPageComponent implements OnInit {
       case "dataset":
         path = DASHBOARD_HUB_DATASET_RESULT;
         break;
+      case "your-work":
+        path = DASHBOARD_USER_DATASET;
+        break;
+      case "about":
+        path = DASHBOARD_ABOUT;
+        break;
       default:
         path = DASHBOARD_HOME;
     }
 
     this.router.navigate([path]);
+  }
+
+  private parseIds(value: string | null): number[] {
+    if (!value?.trim()) return [];
+    return value
+      .split(",")
+      .map(id => parseInt(id.trim()))
+      .filter(id => !isNaN(id) && id > 0);
+  }
+
+  private loadShowcaseDataset(): void {
+    forkJoin({
+      wholeBrain: this.adminSettingsService.getSetting("whole_brain_imaging_dataset_ids"),
+      u24: this.adminSettingsService.getSetting("u24_dataset_ids"),
+      merfish: this.adminSettingsService.getSetting("merfish_dataset_ids"),
+      mri: this.adminSettingsService.getSetting("mri_dataset_ids"),
+    })
+      .pipe(untilDestroyed(this))
+      .subscribe(res => {
+        this.wholeBrainDatasetIds = this.parseIds(res.wholeBrain);
+        this.u24DatasetIds = this.parseIds(res.u24);
+        this.merfishDatasetIds = this.parseIds(res.merfish);
+        this.mriDatasetIds = this.parseIds(res.mri);
+      });
   }
 }

@@ -21,7 +21,7 @@ import { ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges }
 import { DashboardEntry } from "../../../dashboard/type/dashboard-entry";
 import { WorkflowPersistService } from "../../../common/service/workflow-persist/workflow-persist.service";
 import { DatasetService } from "../../../dashboard/service/user/dataset/dataset.service";
-import { UntilDestroy } from "@ngneat/until-destroy";
+import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import {
   DASHBOARD_HUB_DATASET_RESULT_DETAIL,
   DASHBOARD_HUB_WORKFLOW_RESULT_DETAIL,
@@ -29,6 +29,8 @@ import {
   DASHBOARD_USER_WORKSPACE,
 } from "../../../app-routing.constant";
 import { AppSettings } from "../../../common/app-setting";
+import { catchError, forkJoin, of } from "rxjs";
+import { DashboardDataset } from "../../../dashboard/type/dashboard-dataset.interface";
 
 @UntilDestroy()
 @Component({
@@ -40,6 +42,8 @@ export class BrowseSectionComponent implements OnInit, OnChanges {
   @Input() entities: DashboardEntry[] = [];
   @Input() sectionTitle: string = "";
   @Input() currentUid: number | undefined;
+  @Input() datasetIds: number[] = [];
+  @Input() sectionDescription: string = "";
 
   defaultBackground: string = "../../../../../assets/card_background.jpg";
   protected readonly DASHBOARD_HUB_WORKFLOW_RESULT_DETAIL = DASHBOARD_HUB_WORKFLOW_RESULT_DETAIL;
@@ -57,17 +61,18 @@ export class BrowseSectionComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
-    this.entities.forEach(entity => {
-      this.initializeEntry(entity);
-    });
-    this.loadCoverImages();
+    if (this.datasetIds?.length > 0) {
+      this.loadDatasetsByIds(this.datasetIds);
+    } else {
+      this.entities.forEach(entity => this.initializeEntry(entity));
+      this.loadCoverImages();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.entities.forEach(entity => {
-      this.initializeEntry(entity);
-    });
-    this.loadCoverImages();
+    if (changes["datasetIds"]?.currentValue?.length > 0) {
+      this.loadDatasetsByIds(this.datasetIds);
+    }
   }
 
   private initializeEntry(entity: DashboardEntry): void {
@@ -114,5 +119,39 @@ export class BrowseSectionComponent implements OnInit, OnChanges {
 
   getCoverImage(entity: DashboardEntry): string {
     return this.coverImageUrls.get(entity.id!) || this.defaultBackground;
+  }
+
+  private loadDatasetsByIds(ids: number[]): void {
+    if (!ids?.length) {
+      this.entities = [];
+      return;
+    }
+
+    forkJoin(ids.map(id => this.datasetService.getDataset(id, false).pipe(catchError(() => of(null)))))
+      .pipe(untilDestroyed(this))
+      .subscribe(results => {
+        const entries = results
+          .filter((result): result is DashboardDataset => result !== null)
+          .map(
+            result =>
+              ({
+                id: result.dataset.did,
+                name: result.dataset.name,
+                description: result.dataset.description,
+                type: "dataset" as const,
+                ownerEmail: result.ownerEmail,
+                coverImageUrl: result.dataset.coverImage,
+                lastModifiedTime: result.dataset.creationTime,
+                accessibleUserIds: [result.dataset.ownerUid],
+                ownerName: result.ownerEmail,
+              }) as DashboardEntry
+          );
+
+        this.entities = entries;
+        this.entityRoutes = {};
+        entries.forEach(e => this.initializeEntry(e));
+        this.loadCoverImages();
+        this.cdr.detectChanges();
+      });
   }
 }

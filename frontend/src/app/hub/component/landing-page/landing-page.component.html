@@ -18,153 +18,117 @@
 -->
 
 <div class="landing-page-container">
-  <div class="section-intro">
-    <div>
-      <h1 class="hero-title">ADMAP</h1>
-      <p class="hero-subtitle">A comprehensive web portal for uploading, browsing, downloading, and sharing datasets</p>
+  <div class="simple-nav">
+    <div class="nav-left">
+      <img
+        src="assets/logos/cncm_logo.png"
+        alt="Logo" />
+      <span>ADMAP</span>
     </div>
-    <img
-      class="hero-image"
-      src="../../../../../assets/svg/hub_icon.svg"
-      alt="hub icon" />
+
+    <div class="nav-center">
+      <a (click)="navigateToSearch('dataset')">Datasets</a>
+      <a
+        *ngIf="isLogin"
+        (click)="navigateToSearch('your-work')"
+        >Your work</a
+      >
+      <a (click)="navigateToSearch('about')">About</a>
+    </div>
+
+    <div class="nav-right">
+      <texera-user-icon *ngIf="isLogin"></texera-user-icon>
+      <asl-google-signin-button
+        *ngIf="!isLogin"
+        type="standard"
+        size="large"
+        [width]="200"></asl-google-signin-button>
+    </div>
   </div>
 
-  <div class="features-section">
-    <h2 class="section-title">Platform Features</h2>
+  <div class="hero-section">
+    <div class="hero-content">
+      <p class="hero-title">ADMAP</p>
+      <p class="hero-subtitle">
+        The ADMAP Data Repository is a centralized, scalable neuroscience data archive that enables standardized data
+        upload, interactive exploration, and controlled data access, enabling efficient data sharing and coordinated
+        data management across research teams.
+      </p>
+    </div>
+  </div>
 
-    <nz-row [nzGutter]="[24, 24]">
-      <nz-col
-        [nzXs]="24"
-        [nzMd]="8">
-        <nz-card class="feature-card">
-          <div class="feature-icon">
-            <span
-              nz-icon
-              nzType="database"
-              nzTheme="outline"></span>
-          </div>
-          <h3>Dataset Management</h3>
-          <ul class="feature-list">
-            <li>
-              <span
-                nz-icon
-                nzType="check-circle"
-                nzTheme="fill"></span>
-              Create and edit metadata
-            </li>
-            <li>
-              <span
-                nz-icon
-                nzType="check-circle"
-                nzTheme="fill"></span>
-              Browse and search datasets
-            </li>
-            <li>
-              <span
-                nz-icon
-                nzType="check-circle"
-                nzTheme="fill"></span>
-              Version control and history
-            </li>
-            <li>
-              <span
-                nz-icon
-                nzType="check-circle"
-                nzTheme="fill"></span>
-              Public/private visibility
-            </li>
-          </ul>
-        </nz-card>
-      </nz-col>
-
-      <nz-col
-        [nzXs]="24"
-        [nzMd]="8">
-        <nz-card class="feature-card">
-          <div class="feature-icon">
-            <span
-              nz-icon
-              nzType="folder-open"
-              nzTheme="outline"></span>
-          </div>
-          <h3>File Management</h3>
-          <ul class="feature-list">
-            <li>
-              <span
-                nz-icon
-                nzType="check-circle"
-                nzTheme="fill"></span>
-              Upload files
-            </li>
-            <li>
-              <span
-                nz-icon
-                nzType="check-circle"
-                nzTheme="fill"></span>
-              Browse and preview
-            </li>
-            <li>
-              <span
-                nz-icon
-                nzType="check-circle"
-                nzTheme="fill"></span>
-              Bulk download as ZIP
-            </li>
-            <li>
-              <span
-                nz-icon
-                nzType="check-circle"
-                nzTheme="fill"></span>
-              Version-specific retrieval
-            </li>
-          </ul>
-        </nz-card>
-      </nz-col>
-
-      <nz-col
-        [nzXs]="24"
-        [nzMd]="8">
-        <nz-card class="feature-card">
-          <div class="feature-icon">
-            <span
-              nz-icon
-              nzType="team"
-              nzTheme="outline"></span>
-          </div>
-          <h3>Collaboration & Access</h3>
-          <ul class="feature-list">
-            <li>
-              <span
-                nz-icon
-                nzType="check-circle"
-                nzTheme="fill"></span>
-              Community datasets
-            </li>
-            <li>
-              <span
-                nz-icon
-                nzType="check-circle"
-                nzTheme="fill"></span>
-              Dataset sharing
-            </li>
-            <li>
-              <span
-                nz-icon
-                nzType="check-circle"
-                nzTheme="fill"></span>
-              Role-based access control
-            </li>
-            <li>
-              <span
-                nz-icon
-                nzType="check-circle"
-                nzTheme="fill"></span>
-              User management
-            </li>
-          </ul>
-        </nz-card>
-      </nz-col>
-    </nz-row>
+  <h2 class="section-title">Collaborative Research Projects</h2>
+  <div class="tag-cloud">
+    <a
+      class="project-chip"
+      href="https://reporter.nih.gov/search/lfoNFPSsjUeLllO1Hk6Jzw/project-details/11136235"
+      target="_blank"
+      title="Center for Multiomic Human Brain Cell Atlas">
+      Multiomic Brain Cell Atlas
+    </a>
+    <a
+      class="project-chip"
+      href="https://reporter.nih.gov/search/lfoNFPSsjUeLllO1Hk6Jzw/project-details/10875780"
+      target="_blank"
+      title="Neural circuit mechanisms underlying AD-related memory impairments">
+      Neural Circuit Mechanisms
+    </a>
+    <a
+      class="project-chip"
+      href="https://reporter.nih.gov/search/lfoNFPSsjUeLllO1Hk6Jzw/project-details/11051809"
+      target="_blank"
+      title="Single-cell transcriptomic and epigenomic analysis of brain cell vulnerabilities to tauopathies">
+      Transcriptomic Analysis
+    </a>
+    <a
+      class="project-chip"
+      href="https://reporter.nih.gov/search/lfoNFPSsjUeLllO1Hk6Jzw/project-details/11205642"
+      target="_blank"
+      title="Enhancer AAV-based genetic access and manipulation of specific brain cell types">
+      AAV Genetic Access
+    </a>
+    <a
+      class="project-chip"
+      href="https://reporter.nih.gov/search/lfoNFPSsjUeLllO1Hk6Jzw/project-details/11111740"
+      target="_blank"
+      title="Cell-type-specific and spatial proteogenomics analysis of aberrant RNA splicing">
+      Spatial Proteogenomics
+    </a>
+    <a
+      class="project-chip"
+      href="https://reporter.nih.gov/search/lfoNFPSsjUeLllO1Hk6Jzw/project-details/10997309"
+      target="_blank"
+      title="Neural activity-dependent modulation of cortical microvascular restoration">
+      Microvascular Restoration
+    </a>
+    <a
+      class="project-chip"
+      href="https://reporter.nih.gov/search/lfoNFPSsjUeLllO1Hk6Jzw/project-details/11082340"
+      target="_blank"
+      title="UC Irvine Center for the production and distribution of cell-type-specific viral targeting reagents">
+      Viral Targeting Reagents
+    </a>
+    <a
+      class="project-chip"
+      href="https://reporter.nih.gov/search/lfoNFPSsjUeLllO1Hk6Jzw/project-details/11092733"
+      target="_blank"
+      title="Cell-type-specific neural circuit connectomes in mouse models of aging and Alzheimer's disease">
+      Neural Circuit Connectomes
+    </a>
+    <a
+      class="project-chip"
+      href="https://reporter.nih.gov/search/lfoNFPSsjUeLllO1Hk6Jzw/project-details/11094884"
+      target="_blank"
+      title="The UC Irvine Center for Neural Circuit Mapping training program in Alzheimer's disease research">
+      Training Program
+    </a>
+    <a
+      class="project-chip"
+      href="https://reporter.nih.gov/search/lfoNFPSsjUeLllO1Hk6Jzw/project-details/11074890"
+      target="_blank"
+      title="UC Irvine Center for Neural Circuit Mapping 2025 Conference: The Changing Brain">
+      CNCM Conference
+    </a>
   </div>
 
   <h2 class="section-title">Explore Datasets</h2>
@@ -178,11 +142,57 @@
     provided by ADMAP's community.
   </p>
 
-  <div>
-    <texera-browse-section
-      [entities]="topLovedDatasets"
-      sectionTitle="Top Loved Datasets"
-      [currentUid]="currentUid">
-    </texera-browse-section>
-  </div>
+  <texera-browse-section
+    [datasetIds]="wholeBrainDatasetIds"
+    [currentUid]="currentUid"
+    sectionTitle="Whole-brain imaging (Light-sheet and TissueCyte)"
+    sectionDescription="Whole-brain volumetric imaging datasets captured using light-sheet microscopy and the TissueCyte pipeline for 3D tissue visualization and analysis.">
+  </texera-browse-section>
+
+  <texera-browse-section
+    [datasetIds]="u24DatasetIds"
+    [currentUid]="currentUid"
+    sectionTitle="U24 Microscopic Data"
+    sectionDescription="Microscopic imaging data from U24 collaborative projects.">
+  </texera-browse-section>
+
+  <texera-browse-section
+    [datasetIds]="merfishDatasetIds"
+    [currentUid]="currentUid"
+    sectionTitle="MERFISH"
+    sectionDescription="Multiplexed Error-Robust Fluorescence In Situ Hybridization data for spatial transcriptomics analysis.">
+  </texera-browse-section>
+
+  <texera-browse-section
+    [datasetIds]="mriDatasetIds"
+    [currentUid]="currentUid"
+    sectionTitle="MRI"
+    sectionDescription="Magnetic Resonance Imaging data for non-invasive brain structure analysis.">
+  </texera-browse-section>
+
+  <texera-browse-section
+    [entities]="topLovedDatasets"
+    sectionTitle="Top Loved Datasets"
+    [currentUid]="currentUid">
+  </texera-browse-section>
+
+  <footer class="cncm-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <div class="footer-title">CNCM</div>
+        <div class="footer-text">UCI Center for Neural Circuit Mapping</div>
+        <div class="footer-text">Falling Leaves Foundation Medical Innovation Building (4th Floor)</div>
+        <div class="footer-text">847 Health Sciences Rd, Irvine, CA 92617</div>
+        <a
+          class="footer-link"
+          href="mailto:cncm@uci.edu"
+          >cncm@uci.edu</a
+        >
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2025 UC Irvine Center for Neural Circuit Mapping</span>
+    </div>
+  </footer>
 </div>

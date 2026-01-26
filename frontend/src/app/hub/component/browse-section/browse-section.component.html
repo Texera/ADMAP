@@ -21,6 +21,7 @@
   *ngIf="entities && entities.length > 0"
   class="results-container">
   <h2 class="results-title">{{ sectionTitle }}</h2>
+  <p *ngIf="sectionDescription" class="results-description">{{ sectionDescription }}</p>
   <div class="entity-cards">
     <nz-card
       nzHoverable

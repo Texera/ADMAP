@@ -340,3 +340,116 @@
     </button>
   </div>
 </nz-card>
+
+<nz-card nzTitle="Landing Page - Showcase Dataset">
+  <div class="settings-row">
+    <span>Whole-brain imaging</span>
+    <nz-select
+      class="dataset-select"
+      nzMode="multiple"
+      nzShowSearch
+      nzAllowClear
+      nzPlaceHolder="Select datasets"
+      [(ngModel)]="wholeBrainDatasetIds"
+      [nzMaxTagCount]="5">
+      <nz-option
+        *ngFor="let dataset of availableDatasets"
+        [nzValue]="dataset.dataset.did"
+        [nzLabel]="dataset.dataset.did ?? null"
+        [nzCustomContent]="true">
+        <div class="dataset-option">
+          <div class="dataset-id-container">{{ dataset.dataset.did }}</div>
+          <span class="dataset-name">{{ dataset.dataset.name }}</span>
+        </div>
+      </nz-option>
+    </nz-select>
+  </div>
+  <div class="help-text-number">Whole-brain volumetric imaging datasets (Light-sheet and TissueCyte).</div>
+
+  <div class="settings-row landing-dataset-row">
+    <span>U24 Microscopic Data</span>
+    <nz-select
+      class="dataset-select"
+      nzMode="multiple"
+      nzShowSearch
+      nzAllowClear
+      nzPlaceHolder="Select datasets"
+      [(ngModel)]="u24DatasetIds"
+      [nzMaxTagCount]="5">
+      <nz-option
+        *ngFor="let dataset of availableDatasets"
+        [nzValue]="dataset.dataset.did"
+        [nzLabel]="dataset.dataset.did ?? null"
+        [nzCustomContent]="true">
+        <div class="dataset-option">
+          <div class="dataset-id-container">{{ dataset.dataset.did }}</div>
+          <span class="dataset-name">{{ dataset.dataset.name }}</span>
+        </div>
+      </nz-option>
+    </nz-select>
+  </div>
+  <div class="help-text-number">Microscopic imaging data from U24 projects.</div>
+
+  <div class="settings-row landing-dataset-row">
+    <span>MERFISH</span>
+    <nz-select
+      class="dataset-select"
+      nzMode="multiple"
+      nzShowSearch
+      nzAllowClear
+      nzPlaceHolder="Select datasets"
+      [(ngModel)]="merfishDatasetIds"
+      [nzMaxTagCount]="5">
+      <nz-option
+        *ngFor="let dataset of availableDatasets"
+        [nzValue]="dataset.dataset.did"
+        [nzLabel]="dataset.dataset.did ?? null"
+        [nzCustomContent]="true">
+        <div class="dataset-option">
+          <div class="dataset-id-container">{{ dataset.dataset.did }}</div>
+          <span class="dataset-name">{{ dataset.dataset.name }}</span>
+        </div>
+      </nz-option>
+    </nz-select>
+  </div>
+  <div class="help-text-number">Spatial transcriptomics data.</div>
+
+  <div class="settings-row">
+    <span>MRI</span>
+    <nz-select
+      class="dataset-select"
+      nzMode="multiple"
+      nzShowSearch
+      nzAllowClear
+      nzPlaceHolder="Select datasets"
+      [(ngModel)]="mriDatasetIds"
+      [nzMaxTagCount]="5">
+      <nz-option
+        *ngFor="let dataset of availableDatasets"
+        [nzValue]="dataset.dataset.did"
+        [nzLabel]="dataset.dataset.did ?? null"
+        [nzCustomContent]="true">
+        <div class="dataset-option">
+          <div class="dataset-id-container">{{ dataset.dataset.did }}</div>
+          <span class="dataset-name">{{ dataset.dataset.name }}</span>
+        </div>
+      </nz-option>
+    </nz-select>
+  </div>
+  <div class="help-text-number">Magnetic Resonance Imaging data.</div>
+
+  <div class="button-row">
+    <button
+      nz-button
+      nzType="primary"
+      (click)="saveShowcaseDataset()">
+      Save
+    </button>
+    <button
+      nz-button
+      nzType="default"
+      (click)="resetShowcaseDataset()">
+      Reset
+    </button>
+  </div>
+</nz-card>
