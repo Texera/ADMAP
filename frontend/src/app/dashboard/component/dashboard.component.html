@@ -195,7 +195,7 @@
   <div class="page-container">
     <nz-layout class="page-content-layout">
       <div
-        [hidden]="!displayNavbar"
+        [hidden]="!displayNavbar || isLandingPage"
         id="nav">
         <texera-search-bar></texera-search-bar>
         <ng-container *ngIf="isLogin">

@@ -80,6 +80,8 @@ export class DashboardComponent implements OnInit {
   affiliationInput: string = "";
   affiliationSaving = false;
 
+  isLandingPage: boolean = false;
+
   protected readonly DASHBOARD_USER_PROJECT = DASHBOARD_USER_PROJECT;
   protected readonly DASHBOARD_USER_WORKFLOW = DASHBOARD_USER_WORKFLOW;
   protected readonly DASHBOARD_USER_DATASET = DASHBOARD_USER_DATASET;
@@ -264,6 +266,7 @@ export class DashboardComponent implements OnInit {
   checkRoute() {
     const currentRoute = this.router.url;
     this.displayNavbar = this.isNavbarEnabled(currentRoute);
+    this.isLandingPage = currentRoute === "/" || currentRoute === "/home" || currentRoute === "/dashboard/home";
   }
 
   isNavbarEnabled(currentRoute: string) {

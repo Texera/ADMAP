@@ -101,3 +101,31 @@ details[open] .arrow {
 .icon-info {
   margin-left: 6px;
 }
+
+.dataset-option {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dataset-id-container {
+  background-color: grey;
+  color: white;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  margin-right: 5px;
+}
+
+.dataset-select {
+  width: 100%;
+
+  ::ng-deep .ant-select-selector {
+    height: 40px !important;
+  }
+}

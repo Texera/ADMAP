@@ -23,6 +23,8 @@ import { NzMessageService } from "ng-zorro-antd/message";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { SidebarTabs } from "../../../../common/type/gui-config";
 import { forkJoin } from "rxjs";
+import { DatasetService } from "../../../service/user/dataset/dataset.service";
+import { DashboardDataset } from "../../../type/dashboard-dataset.interface";
 
 @UntilDestroy()
 @Component({
@@ -61,14 +63,23 @@ export class AdminSettingsComponent implements OnInit {
 
   private readonly RELOAD_DELAY = 1000;
 
+  availableDatasets: DashboardDataset[] = [];
+  wholeBrainDatasetIds: number[] = [];
+  u24DatasetIds: number[] = [];
+  merfishDatasetIds: number[] = [];
+  mriDatasetIds: number[] = [];
+
   constructor(
     private adminSettingsService: AdminSettingsService,
-    private message: NzMessageService
+    private message: NzMessageService,
+    private datasetService: DatasetService
   ) {}
   ngOnInit(): void {
     this.loadBranding();
     this.loadTabs();
     this.loadDatasetSettings();
+    this.loadShowcaseDataset();
+    this.loadAvailableDatasets();
   }
 
   private loadBranding(): void {
@@ -114,6 +125,31 @@ export class AdminSettingsComponent implements OnInit {
       .getSetting("multipart_upload_chunk_size_mib")
       .pipe(untilDestroyed(this))
       .subscribe(value => (this.chunkSizeMiB = parseInt(value)));
+  }
+
+  private loadShowcaseDataset(): void {
+    forkJoin({
+      wholeBrain: this.adminSettingsService.getSetting("whole_brain_imaging_dataset_ids"),
+      u24: this.adminSettingsService.getSetting("u24_dataset_ids"),
+      merfish: this.adminSettingsService.getSetting("merfish_dataset_ids"),
+      mri: this.adminSettingsService.getSetting("mri_dataset_ids"),
+    })
+      .pipe(untilDestroyed(this))
+      .subscribe(res => {
+        this.wholeBrainDatasetIds = this.parseIds(res.wholeBrain);
+        this.u24DatasetIds = this.parseIds(res.u24);
+        this.merfishDatasetIds = this.parseIds(res.merfish);
+        this.mriDatasetIds = this.parseIds(res.mri);
+      });
+  }
+
+  private loadAvailableDatasets(): void {
+    this.datasetService
+      .retrieveAccessibleDatasets()
+      .pipe(untilDestroyed(this))
+      .subscribe(datasets => {
+        this.availableDatasets = datasets;
+      });
   }
 
   onFileChange(type: "logo" | "mini_logo" | "favicon", event: Event): void {
@@ -256,6 +292,49 @@ export class AdminSettingsComponent implements OnInit {
     ].forEach(setting => this.adminSettingsService.resetSetting(setting).pipe(untilDestroyed(this)).subscribe({}));
 
     this.message.info("Resetting dataset settings...");
+    setTimeout(() => window.location.reload(), this.RELOAD_DELAY);
+  }
+
+  private parseIds(value: string | null): number[] {
+    if (!value?.trim()) return [];
+    return value
+      .split(",")
+      .map(id => parseInt(id.trim()))
+      .filter(id => !isNaN(id) && id > 0);
+  }
+
+  private idsToString(ids: number[]): string {
+    return ids.join(",");
+  }
+
+  saveShowcaseDataset(): void {
+    const saveRequests = [
+      this.adminSettingsService.updateSetting(
+        "whole_brain_imaging_dataset_ids",
+        this.idsToString(this.wholeBrainDatasetIds)
+      ),
+      this.adminSettingsService.updateSetting("u24_dataset_ids", this.idsToString(this.u24DatasetIds)),
+      this.adminSettingsService.updateSetting("merfish_dataset_ids", this.idsToString(this.merfishDatasetIds)),
+      this.adminSettingsService.updateSetting("mri_dataset_ids", this.idsToString(this.mriDatasetIds)),
+    ];
+
+    forkJoin(saveRequests)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: () => {
+          this.message.success("Landing page datasets saved successfully.");
+          setTimeout(() => window.location.reload(), this.RELOAD_DELAY);
+        },
+        error: () => this.message.error("Failed to save datasets."),
+      });
+  }
+
+  resetShowcaseDataset(): void {
+    ["whole_brain_imaging_dataset_ids", "u24_dataset_ids", "merfish_dataset_ids", "mri_dataset_ids"].forEach(setting =>
+      this.adminSettingsService.resetSetting(setting).pipe(untilDestroyed(this)).subscribe({})
+    );
+
+    this.message.info("Resetting landing page dataset IDs...");
     setTimeout(() => window.location.reload(), this.RELOAD_DELAY);
   }
 }
