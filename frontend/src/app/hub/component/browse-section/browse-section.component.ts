@@ -72,6 +72,9 @@ export class BrowseSectionComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["datasetIds"]?.currentValue?.length > 0) {
       this.loadDatasetsByIds(this.datasetIds);
+    } else if (changes["entities"]) {
+      this.entities.forEach(entity => this.initializeEntry(entity));
+      this.loadCoverImages();
     }
   }
 
