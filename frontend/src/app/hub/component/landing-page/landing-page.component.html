@@ -27,12 +27,7 @@
     </div>
 
     <div class="nav-center">
-      <a (click)="navigateToSearch('dataset')">Datasets</a>
-      <a
-        *ngIf="isLogin"
-        (click)="navigateToSearch('your-work')"
-        >Your work</a
-      >
+      <a (click)="navigateToSearch('dataset')">Public Datasets</a>
       <a (click)="navigateToSearch('about')">About</a>
     </div>
 

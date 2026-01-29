@@ -28,7 +28,6 @@ import {
   DASHBOARD_HOME,
   DASHBOARD_HUB_DATASET_RESULT,
   DASHBOARD_HUB_WORKFLOW_RESULT,
-  DASHBOARD_USER_DATASET,
   DASHBOARD_ABOUT,
 } from "../../../app-routing.constant";
 import { UserService } from "../../../common/service/user/user.service";
@@ -131,9 +130,6 @@ export class LandingPageComponent implements OnInit {
         break;
       case "dataset":
         path = DASHBOARD_HUB_DATASET_RESULT;
-        break;
-      case "your-work":
-        path = DASHBOARD_USER_DATASET;
         break;
       case "about":
         path = DASHBOARD_ABOUT;
