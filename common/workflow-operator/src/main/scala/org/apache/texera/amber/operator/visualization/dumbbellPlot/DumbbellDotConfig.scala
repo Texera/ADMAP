@@ -21,7 +21,6 @@ package org.apache.texera.amber.operator.visualization.dumbbellPlot
 
 import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.{JsonSchemaInject, JsonSchemaTitle}
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 
 import javax.validation.constraints.NotNull
@@ -42,6 +41,6 @@ class DumbbellDotConfig {
   @JsonPropertyDescription("value for dot axis")
   @AutofillAttributeName
   @NotNull(message = "Dot Column Value cannot be empty")
-  var dotValue: EncodableString = ""
+  var dotValue: String = ""
 
 }

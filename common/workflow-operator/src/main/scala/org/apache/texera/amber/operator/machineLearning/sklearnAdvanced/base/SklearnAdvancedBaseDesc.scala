@@ -22,8 +22,6 @@ package org.apache.texera.amber.operator.machineLearning.sklearnAdvanced.base
 import com.fasterxml.jackson.annotation.{JsonIgnore, JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{Attribute, AttributeType, Schema}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.{
@@ -31,7 +29,6 @@ import org.apache.texera.amber.operator.metadata.annotations.{
   AutofillAttributeNameList
 }
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 trait ParamClass {
   def getName: String
 
@@ -53,53 +50,64 @@ abstract class SklearnMLOperatorDescriptor[T <: ParamClass] extends PythonOperat
   @JsonSchemaTitle("Ground Truth Attribute Column")
   @JsonPropertyDescription("Ground truth attribute column")
   @AutofillAttributeName
-  var groundTruthAttribute: EncodableString = ""
+  var groundTruthAttribute: String = ""
 
   @JsonProperty(value = "Selected Features", required = true)
   @JsonSchemaTitle("Selected Features")
   @JsonPropertyDescription("Features used to train the model")
   @AutofillAttributeNameList
-  var selectedFeatures: List[EncodableString] = _
+  var selectedFeatures: List[String] = _
 
-  private def getLoopTimes(paraList: List[HyperParameters[T]]): PythonTemplateBuilder = {
+  private def getLoopTimes(paraList: List[HyperParameters[T]]): String = {
     for (ele <- paraList) {
       if (ele.parametersSource) {
-        return pyb"""table[${ele.attribute}].values.shape[0]"""
+        return s"""table[\"${ele.attribute}\"].values.shape[0]"""
       }
     }
-    pyb"1"
+    "1"
   }
 
-  def getParameter(paraList: List[HyperParameters[T]]): List[PythonTemplateBuilder] = {
-    var workflowParam = s"";
-    var portParam = pyb"";
-    var paramString = pyb""
+  def getParameter(paraList: List[HyperParameters[T]]): List[String] = {
+    var workflowParam = "";
+    var portParam = "";
+    var paramString = ""
     for (ele <- paraList) {
       if (ele.parametersSource) {
-        workflowParam = s"$workflowParam${ele.parameter.getName} = {},"
+        workflowParam = workflowParam + String.format("%s = {},", ele.parameter.getName)
         portParam =
-          portParam + pyb"${ele.parameter.getType}(table[${ele.attribute}].values[i]),"
-        paramString =
-          pyb"$paramString${ele.parameter.getName} = ${ele.parameter.getType}(table[${ele.attribute}].values[i]),"
+          portParam + String.format(
+            "%s(table['%s'].values[i]),",
+            ele.parameter.getType,
+            ele.attribute
+          )
+        paramString = paramString + String.format(
+          "%s = %s(table['%s'].values[i]),",
+          ele.parameter.getName,
+          ele.parameter.getType,
+          ele.attribute
+        )
       } else {
-        workflowParam = s"$workflowParam${ele.parameter.getName} = {},"
-        portParam = pyb"$portParam${ele.parameter.getType} (${ele.value}),"
-        paramString =
-          pyb"$paramString${ele.parameter.getName} = ${ele.parameter.getType} (${ele.value}),"
+        workflowParam = workflowParam + String.format("%s = {},", ele.parameter.getName)
+        portParam = portParam + String.format("%s ('%s'),", ele.parameter.getType, ele.value)
+        paramString = paramString + String.format(
+          "%s = %s ('%s'),",
+          ele.parameter.getName,
+          ele.parameter.getType,
+          ele.value
+        )
       }
     }
-    List(pyb""""$workflowParam".format($portParam)""", paramString)
-
+    List(String.format("\"%s\".format(%s)", workflowParam, portParam), paramString)
   }
 
   override def generatePythonCode(): String = {
-    val listFeatures = selectedFeatures.map(feature => pyb"""$feature""").mkString(",")
+    val listFeatures = selectedFeatures.map(feature => s""""$feature"""").mkString(",")
     val trainingName = getImportStatements.split(" ").last
     val stringList = getParameter(paraList)
     val trainingParam = stringList(1)
     val paramString = stringList(0)
     val finalCode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import pandas as pd
@@ -117,7 +125,7 @@ abstract class SklearnMLOperatorDescriptor[T <: ParamClass] extends PythonOperat
          |      self.dataset = table
          |
          |    if port == 1 :
-         |      y_train = self.dataset[$groundTruthAttribute]
+         |      y_train = self.dataset["$groundTruthAttribute"]
          |      X_train = self.dataset[features]
          |      loop_times = ${getLoopTimes(paraList)}
          |
@@ -135,8 +143,8 @@ abstract class SklearnMLOperatorDescriptor[T <: ParamClass] extends PythonOperat
          |      df = pd.DataFrame(data)
          |      yield df
          |
-         |"""
-    finalCode.encode
+         |""".stripMargin
+    finalCode
   }
 
   override def operatorInfo: OperatorInfo = {

@@ -27,19 +27,16 @@ import com.kjetland.jackson.jsonSchema.annotations.{
 }
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
 import org.apache.texera.amber.operator.visualization.ImageUtility
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 class WordCloudOpDesc extends PythonOperatorDescriptor {
   @JsonProperty(required = true)
   @JsonSchemaTitle("Text column")
   @AutofillAttributeName
-  var textColumn: EncodableString = ""
+  var textColumn: String = ""
 
   @JsonProperty(defaultValue = "100")
   @JsonSchemaTitle("Number of most frequent words")
@@ -64,16 +61,16 @@ class WordCloudOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  def manipulateTable(): PythonTemplateBuilder = {
-    pyb"""
-       |        table.dropna(subset = [$textColumn], inplace = True) #remove missing values
-       |        table = table[table[$textColumn].str.contains(r'\\w', regex=True)]
-       |"""
+  def manipulateTable(): String = {
+    s"""
+       |        table.dropna(subset = ['$textColumn'], inplace = True) #remove missing values
+       |        table = table[table['$textColumn'].str.contains(r'\\w', regex=True)]
+       |""".stripMargin
   }
 
-  def createWordCloudFigure(): PythonTemplateBuilder = {
-    pyb"""
-       |        text = ' '.join(table[$textColumn])
+  def createWordCloudFigure(): String = {
+    s"""
+       |        text = ' '.join(table['$textColumn'])
        |
        |        # Generate an image in a FHD resolution
        |        from wordcloud import WordCloud, STOPWORDS
@@ -83,11 +80,12 @@ class WordCloudOpDesc extends PythonOperatorDescriptor {
        |        image_stream = BytesIO()
        |        wordcloud.to_image().save(image_stream, format='PNG')
        |        binary_image_data = image_stream.getvalue()
-       |"""
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
-    pyb"""
+    val finalCode =
+      s"""
          |from pytexera import *
          |
          |class ProcessTableOperator(UDFTableOperator):
@@ -110,6 +108,9 @@ class WordCloudOpDesc extends PythonOperatorDescriptor {
          |        ${createWordCloudFigure()}
          |        ${ImageUtility.encodeImageToHTML()}
          |        yield {'html-content': html}
-         |""".encode
+         |""".stripMargin
+
+    print(finalCode)
+    finalCode
   }
 }

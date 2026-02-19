@@ -23,13 +23,10 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 
 import javax.validation.constraints.NotNull
 
@@ -40,26 +37,26 @@ class FilledAreaPlotOpDesc extends PythonOperatorDescriptor {
   @JsonPropertyDescription("The attribute for your x-axis")
   @AutofillAttributeName
   @NotNull(message = "X-axis Attribute cannot be empty")
-  var x: EncodableString = ""
+  var x: String = ""
 
   @JsonProperty(required = true)
   @JsonSchemaTitle("Y-axis Attribute")
   @JsonPropertyDescription("The attribute for your y-axis")
   @AutofillAttributeName
   @NotNull(message = "Y-axis Attribute cannot be empty")
-  var y: EncodableString = ""
+  var y: String = ""
 
   @JsonProperty(required = false)
   @JsonSchemaTitle("Line Group")
   @JsonPropertyDescription("The attribute for group of each line")
   @AutofillAttributeName
-  var lineGroup: EncodableString = ""
+  var lineGroup: String = ""
 
   @JsonProperty(required = false)
   @JsonSchemaTitle("Color")
   @JsonPropertyDescription("Choose an attribute to color the plot")
   @AutofillAttributeName
-  var color: EncodableString = ""
+  var color: String = ""
 
   @JsonProperty(required = true)
   @JsonSchemaTitle("Split Plot by  Line Group")
@@ -70,7 +67,7 @@ class FilledAreaPlotOpDesc extends PythonOperatorDescriptor {
   @JsonSchemaTitle("Pattern")
   @JsonPropertyDescription("Add texture to the chart based on an attribute")
   @AutofillAttributeName
-  var pattern: EncodableString = ""
+  var pattern: String = ""
 
   override def getOutputSchemas(
       inputSchemas: Map[PortIdentity, Schema]
@@ -90,7 +87,7 @@ class FilledAreaPlotOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  def createPlotlyFigure(): PythonTemplateBuilder = {
+  def createPlotlyFigure(): String = {
     assert(x.nonEmpty)
     assert(y.nonEmpty)
 
@@ -98,24 +95,24 @@ class FilledAreaPlotOpDesc extends PythonOperatorDescriptor {
       assert(lineGroup.nonEmpty)
     }
 
-    val colorArg = if (color.nonEmpty) pyb""", color=$color""" else ""
-    val facetColumnArg = if (facetColumn) pyb""", facet_col=$lineGroup""" else ""
-    val lineGroupArg = if (lineGroup.nonEmpty) pyb""", line_group=$lineGroup""" else ""
-    val patternParam = if (pattern.nonEmpty) pyb""", pattern_shape=$pattern""" else ""
+    val colorArg = if (color.nonEmpty) s""", color="$color"""" else ""
+    val facetColumnArg = if (facetColumn) s""", facet_col="$lineGroup"""" else ""
+    val lineGroupArg = if (lineGroup.nonEmpty) s""", line_group="$lineGroup"""" else ""
+    val patternParam = if (pattern.nonEmpty) s""", pattern_shape="$pattern"""" else ""
 
-    pyb"""
-       |            fig = px.area(table, x=$x, y=$y$colorArg$facetColumnArg$lineGroupArg$patternParam)
-       |"""
+    s"""
+       |            fig = px.area(table, x="$x", y="$y"$colorArg$facetColumnArg$lineGroupArg$patternParam)
+       |""".stripMargin
   }
 
   // The function below checks whether there are more than 5 percents of the groups have disjoint sets of x attributes.
-  def performTableCheck(): PythonTemplateBuilder = {
-    pyb"""
+  def performTableCheck(): String = {
+    s"""
        |        error = ""
-       |        if $x not in columns or $y not in columns:
+       |        if "$x" not in columns or "$y" not in columns:
        |            error = "missing attributes"
-       |        elif $lineGroup != "":
-       |            grouped = table.groupby($lineGroup)
+       |        elif "$lineGroup" != "":
+       |            grouped = table.groupby("$lineGroup")
        |            x_values = None
        |
        |            tolerance = (len(grouped) // 100) * 5
@@ -123,19 +120,19 @@ class FilledAreaPlotOpDesc extends PythonOperatorDescriptor {
        |
        |            for _, group in grouped:
        |                if x_values == None:
-       |                    x_values = set(group[$x].unique())
-       |                elif set(group[$x].unique()).intersection(x_values):
-       |                    X_values = x_values.union(set(group[$x].unique()))
-       |                elif not set(group[$x].unique()).intersection(x_values):
+       |                    x_values = set(group["$x"].unique())
+       |                elif set(group["$x"].unique()).intersection(x_values):
+       |                    X_values = x_values.union(set(group["$x"].unique()))
+       |                elif not set(group["$x"].unique()).intersection(x_values):
        |                    count += 1
        |                    if count > tolerance:
        |                        error = "X attributes not shared across groups"
-       |"""
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
     val finalCode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import plotly
@@ -170,8 +167,8 @@ class FilledAreaPlotOpDesc extends PythonOperatorDescriptor {
          |                      </ul>'''
          |
          |            yield {'html-content': html}
-         |"""
-    finalCode.encode
+         |""".stripMargin
+    finalCode
   }
 
 }

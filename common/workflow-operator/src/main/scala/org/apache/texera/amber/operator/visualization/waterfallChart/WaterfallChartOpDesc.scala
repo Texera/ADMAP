@@ -23,13 +23,10 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 
 class WaterfallChartOpDesc extends PythonOperatorDescriptor {
 
@@ -37,13 +34,13 @@ class WaterfallChartOpDesc extends PythonOperatorDescriptor {
   @JsonSchemaTitle("X Axis Values")
   @JsonPropertyDescription("The column representing categories or stages")
   @AutofillAttributeName
-  var xColumn: EncodableString = _
+  var xColumn: String = _
 
   @JsonProperty(value = "yColumn", required = true)
   @JsonSchemaTitle("Y Axis Values")
   @JsonPropertyDescription("The column representing numeric values for each stage")
   @AutofillAttributeName
-  var yColumn: EncodableString = _
+  var yColumn: String = _
 
   override def getOutputSchemas(
       inputSchemas: Map[PortIdentity, Schema]
@@ -63,10 +60,10 @@ class WaterfallChartOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  def createPlotlyFigure(): PythonTemplateBuilder = {
-    pyb"""
-       |        x_values = table[$xColumn]
-       |        y_values = table[$yColumn]
+  def createPlotlyFigure(): String = {
+    s"""
+       |        x_values = table['$xColumn']
+       |        y_values = table['$yColumn']
        |
        |        fig = go.Figure(go.Waterfall(
        |            name="Waterfall", orientation="v",
@@ -79,12 +76,12 @@ class WaterfallChartOpDesc extends PythonOperatorDescriptor {
        |        ))
        |
        |        fig.update_layout(showlegend=True, waterfallgap=0.3)
-       |"""
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
     val finalCode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import plotly.graph_objects as go
@@ -106,8 +103,8 @@ class WaterfallChartOpDesc extends PythonOperatorDescriptor {
          |        ${createPlotlyFigure()}
          |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
          |        yield {'html-content': html}
-         |"""
-    finalCode.encode
+         |""".stripMargin
+    finalCode
   }
 
 }

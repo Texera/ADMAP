@@ -38,11 +38,10 @@ import scala.util.{Failure, Success, Try}
 case class EmailMessage(receiver: String, subject: String, content: String)
 
 object GmailResource {
-  private def context =
-    SqlServer
-      .getInstance()
-      .createDSLContext()
-  private def userDao = new UserDao(context.configuration)
+  final private lazy val context = SqlServer
+    .getInstance()
+    .createDSLContext()
+  final private lazy val userDao = new UserDao(context.configuration)
 
   private lazy val senderGmail: String = UserSystemConfig.gmail
   private val smtpProperties = Map(

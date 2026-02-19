@@ -41,10 +41,9 @@ import javax.ws.rs._
 import javax.ws.rs.core.MediaType
 
 object ProjectAccessResource {
-  private def context: DSLContext =
-    SqlServer
-      .getInstance()
-      .createDSLContext()
+  final private val context: DSLContext = SqlServer
+    .getInstance()
+    .createDSLContext()
 
   def userHasWriteAccess(pid: Integer, uid: Integer): Boolean = {
     getProjectAccessPrivilege(pid, uid) == PrivilegeEnum.WRITE
@@ -69,13 +68,12 @@ object ProjectAccessResource {
 @RolesAllowed(Array("REGULAR", "ADMIN"))
 @Path("/access/project")
 class ProjectAccessResource() {
-  private def context: DSLContext =
-    SqlServer
-      .getInstance()
-      .createDSLContext()
-  private def userDao = new UserDao(context.configuration())
-  private def projectDao = new ProjectDao(context.configuration)
-  private def projectUserAccessDao = new ProjectUserAccessDao(context.configuration)
+  final private val context: DSLContext = SqlServer
+    .getInstance()
+    .createDSLContext()
+  final private val userDao = new UserDao(context.configuration())
+  final private val projectDao = new ProjectDao(context.configuration)
+  final private val projectUserAccessDao = new ProjectUserAccessDao(context.configuration)
 
   /**
     * This method returns the owner of a project

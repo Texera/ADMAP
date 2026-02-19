@@ -37,15 +37,8 @@ lazy val AccessControlService = (project in file("access-control-service"))
   )
   .configs(Test)
   .dependsOn(DAO % "test->test", Auth % "test->test")
-
-//This Scala module defines a pyb"..." macro-based DSL for composing Python code templates as an immutable PythonTemplateBuilder.
-//Used mainly for Python Native Operators
-lazy val PyBuilder = (project in file("common/pybuilder"))
-  .configs(Test)
-  .dependsOn(DAO % "test->test") // test scope dependency
-
 lazy val WorkflowCore = (project in file("common/workflow-core"))
-  .dependsOn(DAO, Config, PyBuilder)
+  .dependsOn(DAO, Config)
   .configs(Test)
   .dependsOn(DAO % "test->test") // test scope dependency
 lazy val ComputingUnitManagingService = (project in file("computing-unit-managing-service"))

@@ -33,7 +33,6 @@ import org.apache.texera.dao.jooq.generated.tables.pojos.WorkflowUserAccess
 import org.apache.texera.web.model.common.AccessEntry
 import org.apache.texera.web.resource.dashboard.user.workflow.WorkflowAccessResource.{
   context,
-  getPrivilege,
   hasWriteAccess
 }
 import org.jooq.DSLContext
@@ -44,10 +43,9 @@ import javax.ws.rs._
 import javax.ws.rs.core.MediaType
 
 object WorkflowAccessResource {
-  private def context: DSLContext =
-    SqlServer
-      .getInstance()
-      .createDSLContext()
+  final private val context: DSLContext = SqlServer
+    .getInstance()
+    .createDSLContext()
 
   /**
     * Identifies whether the given user has read-only access over the given workflow
@@ -176,16 +174,10 @@ class WorkflowAccessResource() {
       @PathParam("privilege") privilege: String,
       @Auth user: SessionUser
   ): Unit = {
-    val isModifyingOwnAccess = email.equals(user.getEmail)
-    val currentPrivilege = getPrivilege(wid, user.getUid)
-    val hasExistingAccess = !currentPrivilege.eq(PrivilegeEnum.NONE)
-
-    // Users can only modify their own access if they already have access
-    if (isModifyingOwnAccess && !hasExistingAccess) {
+    if (email.equals(user.getEmail)) {
       throw new BadRequestException("You cannot grant access to yourself!")
     }
 
-    // Must have write access to modify access levels (including your own)
     if (!hasWriteAccess(wid, user.getUid)) {
       throw new ForbiddenException(s"You do not have permission to modify workflow $wid")
     }

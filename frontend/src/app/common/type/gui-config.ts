@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ExecutionMode } from "./workflow";
 
 // Please refer to core/config/src/main/resources/gui.conf for the definition of each config item
 export interface GuiConfig {
@@ -34,7 +33,6 @@ export interface GuiConfig {
   productionSharedEditingServer: boolean;
   pythonLanguageServerPort: string;
   defaultDataTransferBatchSize: number;
-  defaultExecutionMode: ExecutionMode;
   workflowEmailNotificationEnabled: boolean;
   sharingComputingUnitEnabled: boolean;
   operatorConsoleMessageBufferSize: number;

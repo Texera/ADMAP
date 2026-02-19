@@ -23,13 +23,10 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.{JsonSchemaInject, JsonSchemaTitle}
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 
 import javax.validation.constraints.{NotEmpty, NotNull}
 
@@ -63,7 +60,7 @@ class HierarchyChartOpDesc extends PythonOperatorDescriptor {
   @JsonPropertyDescription("The value associated with the size of each sector in the chart")
   @AutofillAttributeName
   @NotNull(message = "Value column cannot be empty")
-  var value: EncodableString = ""
+  var value: String = ""
 
   override def getOutputSchemas(
       inputSchemas: Map[PortIdentity, Schema]
@@ -84,30 +81,30 @@ class HierarchyChartOpDesc extends PythonOperatorDescriptor {
     )
 
   private def getHierarchyAttributesInPython: String =
-    hierarchy.map(c => pyb"${c.attributeName}").mkString(",")
+    hierarchy.map(_.attributeName).mkString("'", "','", "'")
 
-  def manipulateTable(): PythonTemplateBuilder = {
+  def manipulateTable(): String = {
     assert(value.nonEmpty)
     val attributes = getHierarchyAttributesInPython
-    pyb"""
-       |        table[$value] = table[table[$value] > 0][$value] # remove non-positive numbers from the data
+    s"""
+       |        table['$value'] = table[table['$value'] > 0]['$value'] # remove non-positive numbers from the data
        |        table.dropna(subset = [$attributes], inplace = True) #remove missing values
-       |"""
+       |""".stripMargin
   }
 
-  def createPlotlyFigure(): PythonTemplateBuilder = {
+  def createPlotlyFigure(): String = {
     assert(hierarchy.nonEmpty)
     val attributes = getHierarchyAttributesInPython
-    pyb"""
-       |        fig = px.${hierarchyChartType.getPlotlyExpressApiName}(table, path=[$attributes], values=$value,
-       |                                                               color=$value, hover_data=[$attributes],
+    s"""
+       |        fig = px.${hierarchyChartType.getPlotlyExpressApiName}(table, path=[$attributes], values='$value',
+       |                                                               color='$value', hover_data=[$attributes],
        |                                                               color_continuous_scale='RdBu')
-       |"""
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
     val finalCode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import plotly.express as px
@@ -137,8 +134,8 @@ class HierarchyChartOpDesc extends PythonOperatorDescriptor {
          |        fig.update_layout(margin=dict(l=0, r=0, b=0, t=0))
          |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
          |        yield {'html-content': html}
-         |"""
-    finalCode.encode
+         |""".stripMargin
+    finalCode
   }
 
 }

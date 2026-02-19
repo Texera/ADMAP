@@ -23,8 +23,6 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
@@ -36,31 +34,31 @@ class CandlestickChartOpDesc extends PythonOperatorDescriptor {
   @JsonSchemaTitle("Date Column")
   @JsonPropertyDescription("the date of the candlestick")
   @AutofillAttributeName
-  var date: EncodableString = ""
+  var date: String = ""
 
   @JsonProperty(value = "open", required = true)
   @JsonSchemaTitle("Opening Price Column")
   @JsonPropertyDescription("the opening price of the candlestick")
   @AutofillAttributeName
-  var open: EncodableString = ""
+  var open: String = ""
 
   @JsonProperty(value = "high", required = true)
   @JsonSchemaTitle("Highest Price Column")
   @JsonPropertyDescription("the highest price of the candlestick")
   @AutofillAttributeName
-  var high: EncodableString = ""
+  var high: String = ""
 
   @JsonProperty(value = "low", required = true)
   @JsonSchemaTitle("Lowest Price Column")
   @JsonPropertyDescription("the lowest price of the candlestick")
   @AutofillAttributeName
-  var low: EncodableString = ""
+  var low: String = ""
 
   @JsonProperty(value = "close", required = true)
   @JsonSchemaTitle("Closing Price Column")
   @JsonPropertyDescription("the closing price of the candlestick")
   @AutofillAttributeName
-  var close: EncodableString = ""
+  var close: String = ""
 
   override def getOutputSchemas(
       inputSchemas: Map[PortIdentity, Schema]
@@ -81,7 +79,7 @@ class CandlestickChartOpDesc extends PythonOperatorDescriptor {
     )
 
   override def generatePythonCode(): String = {
-    pyb"""
+    s"""
        |from pytexera import *
        |
        |import plotly.graph_objects as go
@@ -98,16 +96,16 @@ class CandlestickChartOpDesc extends PythonOperatorDescriptor {
        |        df = pd.DataFrame(table_dict)
        |
        |        fig = go.Figure(data=[go.Candlestick(
-       |            x=df[$date],
-       |            open=df[$open],
-       |            high=df[$high],
-       |            low=df[$low],
-       |            close=df[$close]
+       |            x=df['$date'],
+       |            open=df['$open'],
+       |            high=df['$high'],
+       |            low=df['$low'],
+       |            close=df['$close']
        |        )])
        |        fig.update_layout(title='Candlestick Chart')
        |        html = fig.to_html(include_plotlyjs='cdn', full_html=False)
        |        yield {'html-content': html}
-       |""".encode
+       |""".stripMargin
   }
 
 }

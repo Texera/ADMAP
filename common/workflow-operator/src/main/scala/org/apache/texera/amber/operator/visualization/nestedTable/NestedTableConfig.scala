@@ -20,20 +20,19 @@ package org.apache.texera.amber.operator.visualization.nestedTable
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 
 class NestedTableConfig {
   @JsonProperty(required = true)
   @JsonSchemaTitle("Attribute group")
-  var attributeGroup: EncodableString = ""
+  var attributeGroup: String = ""
 
   @JsonProperty(required = true)
   @JsonSchemaTitle("Original attribute Name")
   @AutofillAttributeName
-  var originalName: EncodableString = ""
+  var originalName: String = ""
 
   @JsonProperty(value = "name", required = false)
   @JsonSchemaTitle("New Attribute Name")
-  var newName: EncodableString = ""
+  var newName: String = ""
 }

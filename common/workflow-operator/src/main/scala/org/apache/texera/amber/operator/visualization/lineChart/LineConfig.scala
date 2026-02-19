@@ -21,7 +21,6 @@ package org.apache.texera.amber.operator.visualization.lineChart
 
 import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.{JsonSchemaInject, JsonSchemaTitle}
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 
 import javax.validation.constraints.NotNull
@@ -46,14 +45,14 @@ class LineConfig {
   @JsonPropertyDescription("value for y axis")
   @AutofillAttributeName
   @NotNull(message = "Y Value cannot be empty")
-  var yValue: EncodableString = ""
+  var yValue: String = ""
 
   @JsonProperty(value = "x", required = true)
   @JsonSchemaTitle("X Value")
   @JsonPropertyDescription("value for x axis")
   @AutofillAttributeName
   @NotNull(message = "X Value cannot be empty")
-  var xValue: EncodableString = ""
+  var xValue: String = ""
 
   @JsonProperty(
     value = "mode",
@@ -66,11 +65,11 @@ class LineConfig {
 
   @JsonProperty(value = "name", required = false)
   @JsonSchemaTitle("Line Name")
-  var name: EncodableString = ""
+  var name: String = ""
 
   @JsonProperty(value = "color", required = false)
   @JsonSchemaTitle("Line Color")
   @JsonPropertyDescription("must be a valid CSS color or hex color string")
-  var color: EncodableString = ""
+  var color: String = ""
 
 }

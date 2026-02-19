@@ -42,10 +42,9 @@ import org.jooq.{DSLContext, EnumType}
 import javax.ws.rs.ForbiddenException
 
 object DatasetAccessResource {
-  private def context: DSLContext =
-    SqlServer
-      .getInstance()
-      .createDSLContext()
+  private lazy val context: DSLContext = SqlServer
+    .getInstance()
+    .createDSLContext()
 
   def isDatasetPublic(ctx: DSLContext, did: Integer): Boolean = {
     val datasetDao = new DatasetDao(ctx.configuration())

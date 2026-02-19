@@ -21,24 +21,21 @@ package org.apache.texera.amber.operator.huggingFace
 
 import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-
 class HuggingFaceIrisLogisticRegressionOpDesc extends PythonOperatorDescriptor {
 
   @JsonProperty(value = "petalLengthCmAttribute", required = true)
   @JsonPropertyDescription("attribute in your dataset corresponding to PetalLengthCm")
   @AutofillAttributeName
-  var petalLengthCmAttribute: EncodableString = _
+  var petalLengthCmAttribute: String = _
 
   @JsonProperty(value = "petalWidthCmAttribute", required = true)
   @JsonPropertyDescription("attribute in your dataset corresponding to PetalWidthCm")
   @AutofillAttributeName
-  var petalWidthCmAttribute: EncodableString = _
+  var petalWidthCmAttribute: String = _
 
   @JsonProperty(
     value = "prediction class name",
@@ -46,7 +43,7 @@ class HuggingFaceIrisLogisticRegressionOpDesc extends PythonOperatorDescriptor {
     defaultValue = "Species_prediction"
   )
   @JsonPropertyDescription("output attribute name for the predicted class of species")
-  var predictionClassName: EncodableString = _
+  var predictionClassName: String = _
 
   @JsonProperty(
     value = "prediction probability name",
@@ -56,7 +53,7 @@ class HuggingFaceIrisLogisticRegressionOpDesc extends PythonOperatorDescriptor {
   @JsonPropertyDescription(
     "output attribute name for the prediction's probability of being a Iris-setosa"
   )
-  var predictionProbabilityName: EncodableString = _
+  var predictionProbabilityName: String = _
 
   /**
     * Python code to apply a pre-trained liner regression model on the Iris dataset.
@@ -65,7 +62,7 @@ class HuggingFaceIrisLogisticRegressionOpDesc extends PythonOperatorDescriptor {
     * @return a String representation of the executable Python source code.
     */
   override def generatePythonCode(): String = {
-    pyb"""from pytexera import *
+    s"""from pytexera import *
        |import numpy as np
        |import torch
        |import torch.nn as nn
@@ -89,8 +86,8 @@ class HuggingFaceIrisLogisticRegressionOpDesc extends PythonOperatorDescriptor {
        |    def process_tuple(self, tuple_: Tuple, port: int) -> Iterator[Optional[TupleLike]]:
        |        training_features_means = [3.72666667, 1.17619048]
        |        training_features_stds = [1.72528903, 0.73788937]
-       |        length = tuple_[$petalLengthCmAttribute]
-       |        width = tuple_[$petalWidthCmAttribute]
+       |        length = tuple_["$petalLengthCmAttribute"]
+       |        width = tuple_["$petalWidthCmAttribute"]
        |        features = np.array([[length, width]])
        |        features = ((features - training_features_means) / training_features_stds)
        |        features = torch.from_numpy(features).float()
@@ -98,9 +95,9 @@ class HuggingFaceIrisLogisticRegressionOpDesc extends PythonOperatorDescriptor {
        |            logits = self.model(features)
        |        proba = torch.sigmoid(logits.squeeze())
        |        preds = (proba > 0.5).long()
-       |        tuple_[$predictionProbabilityName] = float(proba)
-       |        tuple_[$predictionClassName] = "Iris-setosa" if preds == 1 else "Not Iris-setosa"
-       |        yield tuple_""".encode
+       |        tuple_["$predictionProbabilityName"] = float(proba)
+       |        tuple_["$predictionClassName"] = "Iris-setosa" if preds == 1 else "Not Iris-setosa"
+       |        yield tuple_""".stripMargin
   }
 
   override def operatorInfo: OperatorInfo =

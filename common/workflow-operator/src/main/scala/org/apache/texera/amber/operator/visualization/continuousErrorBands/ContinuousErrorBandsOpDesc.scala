@@ -23,12 +23,9 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 
 import java.util
 import scala.jdk.CollectionConverters.ListHasAsScala
@@ -37,12 +34,12 @@ class ContinuousErrorBandsOpDesc extends PythonOperatorDescriptor {
   @JsonProperty(value = "xLabel", required = false, defaultValue = "X Axis")
   @JsonSchemaTitle("X Label")
   @JsonPropertyDescription("Label used for x axis")
-  var xLabel: EncodableString = ""
+  var xLabel: String = ""
 
   @JsonProperty(value = "yLabel", required = false, defaultValue = "Y Axis")
   @JsonSchemaTitle("Y Label")
   @JsonPropertyDescription("Label used for y axis")
-  var yLabel: EncodableString = ""
+  var yLabel: String = ""
 
   @JsonProperty(value = "bands", required = true)
   var bands: util.List[BandConfig] = _
@@ -65,30 +62,30 @@ class ContinuousErrorBandsOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  def createPlotlyFigure(): PythonTemplateBuilder = {
+  def createPlotlyFigure(): String = {
     val bandsPart = bands.asScala
       .map { bandConf =>
         val colorPart = if (bandConf.color != "") {
-          pyb"line={'color':${bandConf.color}}, marker={'color':${bandConf.color}}, "
+          s"line={'color':'${bandConf.color}'}, marker={'color':'${bandConf.color}'}, "
         } else {
           ""
         }
 
         val fillColorPart = if (bandConf.fillColor != "") {
-          pyb"fillcolor=${bandConf.fillColor}, "
+          s"fillcolor='${bandConf.fillColor}', "
         } else {
           ""
         }
 
         val namePart = if (bandConf.name != "") {
-          pyb"name=${bandConf.name}"
+          s"name='${bandConf.name}'"
         } else {
-          pyb"name=${bandConf.yValue}"
+          s"name='${bandConf.yValue}'"
         }
 
-        pyb"""fig.add_trace(go.Scatter(
-            x=table[${bandConf.xValue}],
-            y=table[${bandConf.yUpper}],
+        s"""fig.add_trace(go.Scatter(
+            x=table['${bandConf.xValue}'],
+            y=table['${bandConf.yUpper}'],
             mode='lines',
             marker=dict(color="#444"),
             line=dict(width=0),
@@ -96,8 +93,8 @@ class ContinuousErrorBandsOpDesc extends PythonOperatorDescriptor {
             $namePart
           ))
         fig.add_trace(go.Scatter(
-            x=table[${bandConf.xValue}],
-            y=table[${bandConf.yLower}],
+            x=table['${bandConf.xValue}'],
+            y=table['${bandConf.yLower}'],
             mode='lines',
             marker=dict(color="#444"),
             line=dict(width=0),
@@ -107,27 +104,27 @@ class ContinuousErrorBandsOpDesc extends PythonOperatorDescriptor {
             $namePart
           ))
         fig.add_trace(go.Scatter(
-            x=table[${bandConf.xValue}],
-            y=table[${bandConf.yValue}],
-            mode=${bandConf.mode.getModeInPlotly},
+            x=table['${bandConf.xValue}'],
+            y=table['${bandConf.yValue}'],
+            mode='${bandConf.mode.getModeInPlotly}',
             $colorPart
             $namePart
           ))"""
       }
 
-    pyb"""
+    s"""
        |        fig = go.Figure()
        |        ${bandsPart.mkString("\n        ")}
        |        fig.update_layout(margin=dict(t=0, b=0, l=0, r=0),
-       |                          xaxis_title=$xLabel,
-       |                          yaxis_title=$yLabel,
+       |                          xaxis_title='$xLabel',
+       |                          yaxis_title='$yLabel',
        |                          hovermode="x")
-       |"""
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
     val finalCode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import plotly.express as px
@@ -151,7 +148,7 @@ class ContinuousErrorBandsOpDesc extends PythonOperatorDescriptor {
          |        # convert fig to html content
          |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
          |        yield {'html-content': html}
-         |"""
-    finalCode.encode
+         |""".stripMargin
+    finalCode
   }
 }

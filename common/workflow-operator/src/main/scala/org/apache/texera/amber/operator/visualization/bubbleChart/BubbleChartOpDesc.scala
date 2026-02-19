@@ -23,13 +23,10 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 
 import javax.validation.constraints.NotNull
 
@@ -47,21 +44,21 @@ class BubbleChartOpDesc extends PythonOperatorDescriptor {
   @JsonPropertyDescription("Data column for the x-axis")
   @AutofillAttributeName
   @NotNull(message = "xValue column cannot be empty")
-  var xValue: EncodableString = ""
+  var xValue: String = ""
 
   @JsonProperty(value = "yValue", required = true)
   @JsonSchemaTitle("Y-Column")
   @JsonPropertyDescription("Data column for the y-axis")
   @AutofillAttributeName
   @NotNull(message = "yValue column cannot be empty")
-  var yValue: EncodableString = ""
+  var yValue: String = ""
 
   @JsonProperty(value = "zValue", required = true)
   @JsonSchemaTitle("Z-Column")
   @JsonPropertyDescription("Data column to determine bubble size")
   @AutofillAttributeName
   @NotNull(message = "zValue column cannot be empty")
-  var zValue: EncodableString = ""
+  var zValue: String = ""
 
   @JsonProperty(value = "enableColor", defaultValue = "false")
   @JsonSchemaTitle("Enable Color")
@@ -73,7 +70,7 @@ class BubbleChartOpDesc extends PythonOperatorDescriptor {
   @JsonPropertyDescription("Picks data column to color bubbles with if color is enabled")
   @AutofillAttributeName
   @NotNull(message = "colorCategory column cannot be empty")
-  var colorCategory: EncodableString = ""
+  var colorCategory: String = ""
 
   override def getOutputSchemas(
       inputSchemas: Map[PortIdentity, Schema]
@@ -93,28 +90,28 @@ class BubbleChartOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  def manipulateTable(): PythonTemplateBuilder = {
+  def manipulateTable(): String = {
     assert(xValue.nonEmpty && yValue.nonEmpty && zValue.nonEmpty)
-    pyb"""
+    s"""
        |        # drops rows with missing values pertaining to relevant columns
-       |        table.dropna(subset=[$xValue, $yValue, $zValue], inplace = True)
+       |        table.dropna(subset=['$xValue', '$yValue', '$zValue'], inplace = True)
        |
-       |"""
+       |""".stripMargin
   }
 
-  def createPlotlyFigure(): PythonTemplateBuilder = {
+  def createPlotlyFigure(): String = {
     assert(xValue.nonEmpty && yValue.nonEmpty && zValue.nonEmpty)
-    pyb"""
-         |        if $enableColor == 'true':
-         |            fig = go.Figure(px.scatter(table, x=$xValue, y=$yValue, size=$zValue, size_max=100, color=$colorCategory))
-         |        else:
-         |            fig = go.Figure(px.scatter(table, x=$xValue, y=$yValue, size=$zValue, size_max=100))
-         |"""
+    s"""
+       |        if '$enableColor' == 'true':
+       |            fig = go.Figure(px.scatter(table, x='$xValue', y='$yValue', size='$zValue', size_max=100, color='$colorCategory'))
+       |        else:
+       |            fig = go.Figure(px.scatter(table, x='$xValue', y='$yValue', size='$zValue', size_max=100))
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
     val finalCode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import plotly.express as px
@@ -143,7 +140,7 @@ class BubbleChartOpDesc extends PythonOperatorDescriptor {
          |        fig.update_layout(margin=dict(l=0, r=0, b=0, t=0))
          |        html = plotly.io.to_html(fig, include_plotlyjs = 'cdn', auto_play = False)
          |        yield {'html-content':html}
-         |"""
-    finalCode.encode
+         |""".stripMargin
+    finalCode
   }
 }
