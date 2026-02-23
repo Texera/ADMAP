@@ -79,6 +79,8 @@ When reviewing, please check:
 [ ] No unexpected binary files
 [ ] Source tarball matches the Git tag
 [ ] Can compile from source successfully
+[ ] Docker Compose bundle deploys successfully with the published images
+[ ] Helm chart deploys successfully (if applicable)
 
 Thanks,
 [Your Name]
