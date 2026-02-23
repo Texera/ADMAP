@@ -23,13 +23,10 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.{JsonSchemaInject, JsonSchemaTitle}
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 
 import javax.validation.constraints.NotNull
 
@@ -50,14 +47,14 @@ class PieChartOpDesc extends PythonOperatorDescriptor {
   @JsonPropertyDescription("The value associated with slice of pie")
   @AutofillAttributeName
   @NotNull(message = "Value column cannot be empty")
-  var value: EncodableString = ""
+  var value: String = ""
 
   @JsonProperty(value = "name", required = true)
   @JsonSchemaTitle("Name Column")
   @JsonPropertyDescription("The name of the slice of pie")
   @AutofillAttributeName
   @NotNull(message = "Name column cannot be empty")
-  var name: EncodableString = ""
+  var name: String = ""
 
   override def getOutputSchemas(
       inputSchemas: Map[PortIdentity, Schema]
@@ -77,25 +74,25 @@ class PieChartOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  def manipulateTable(): PythonTemplateBuilder = {
+  def manipulateTable(): String = {
     assert(value.nonEmpty)
-    pyb"""
-         |        table.dropna(subset = [$value, $name], inplace = True) #remove missing values
-         |"""
+    s"""
+       |        table.dropna(subset = ['$value', '$name'], inplace = True) #remove missing values
+       |""".stripMargin
   }
 
-  def createPlotlyFigure(): PythonTemplateBuilder = {
+  def createPlotlyFigure(): String = {
     assert(value.nonEmpty)
-    pyb"""
-       |        fig = px.pie(table, names=$name, values=$value)
+    s"""
+       |        fig = px.pie(table, names='$name', values='$value')
        |        fig.update_traces(textposition='inside', textinfo='percent+label')
        |        fig.update_layout(margin=dict(t=0, b=0, l=0, r=0))
-       |"""
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
     val finalcode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import plotly.express as px
@@ -119,7 +116,7 @@ class PieChartOpDesc extends PythonOperatorDescriptor {
          |        if table.empty:
          |           yield {'html-content': self.render_error("value column contains only non-positive numbers.")}
          |           return
-         |        duplicates = table.duplicated(subset=[$name])
+         |        duplicates = table.duplicated(subset=['$name'])
          |        if duplicates.any():
          |           yield {'html-content': self.render_error("duplicates in name column, need to aggregate")}
          |           return
@@ -128,8 +125,8 @@ class PieChartOpDesc extends PythonOperatorDescriptor {
          |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
          |        yield {'html-content': html}
          |
-         |"""
-    finalcode.encode
+         |""".stripMargin
+    finalcode
   }
 
 }

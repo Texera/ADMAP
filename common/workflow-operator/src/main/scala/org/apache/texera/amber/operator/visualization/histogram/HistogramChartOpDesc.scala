@@ -23,42 +23,39 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 class HistogramChartOpDesc extends PythonOperatorDescriptor {
   @JsonProperty(value = "value", required = true)
   @JsonSchemaTitle("Value Column")
   @JsonPropertyDescription("Column for counting values.")
   @AutofillAttributeName
-  var value: EncodableString = ""
+  var value: String = ""
 
   @JsonProperty(required = false)
   @JsonSchemaTitle("Color Column")
   @JsonPropertyDescription("Column for differentiating data by its value.")
   @AutofillAttributeName
-  var color: EncodableString = ""
+  var color: String = ""
 
   @JsonProperty(required = false)
   @JsonSchemaTitle("SeparateBy Column")
   @JsonPropertyDescription("Column for separating histogram chart by its value.")
   @AutofillAttributeName
-  var separateBy: EncodableString = ""
+  var separateBy: String = ""
 
   @JsonProperty(required = false, defaultValue = "")
   @JsonSchemaTitle("Distribution Type")
   @JsonPropertyDescription("Distribution type (rug, box, violin).")
-  var marginal: EncodableString = ""
+  var marginal: String = ""
 
   @JsonProperty(required = false)
   @JsonSchemaTitle("Pattern")
   @JsonPropertyDescription("Add texture to the chart based on an attribute")
   @AutofillAttributeName
-  var pattern: EncodableString = ""
+  var pattern: String = ""
 
   override def operatorInfo: OperatorInfo =
     OperatorInfo(
@@ -69,26 +66,26 @@ class HistogramChartOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  def createPlotlyFigure(): PythonTemplateBuilder = {
+  def createPlotlyFigure(): String = {
     assert(value.nonEmpty)
-    var colorParam = pyb""
-    var categoryParam = pyb""
-    var marginalParam = pyb""
-    var patternParam = pyb""
-    if (color.nonEmpty) colorParam = pyb", color = $color"
-    if (separateBy.nonEmpty) categoryParam = pyb", facet_col = $separateBy"
-    if (marginal.nonEmpty) marginalParam = pyb", marginal=$marginal"
-    if (pattern != "") patternParam = pyb", pattern_shape=$pattern"
+    var colorParam = ""
+    var categoryParam = ""
+    var marginalParam = ""
+    var patternParam = ""
+    if (color.nonEmpty) colorParam = s", color = '$color'"
+    if (separateBy.nonEmpty) categoryParam = s", facet_col = '$separateBy'"
+    if (marginal.nonEmpty) marginalParam = s", marginal='$marginal'"
+    if (pattern != "") patternParam = s", pattern_shape='$pattern'"
 
-    pyb"""
-         |        fig = px.histogram(table, x = $value, text_auto = True $colorParam $categoryParam $marginalParam $patternParam)
-         |        fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-         |"""
+    s"""
+       |        fig = px.histogram(table, x = '$value', text_auto = True $colorParam $categoryParam $marginalParam $patternParam)
+       |        fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
     val finalCode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import plotly.express as px
@@ -112,8 +109,8 @@ class HistogramChartOpDesc extends PythonOperatorDescriptor {
          |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
          |        yield {'html-content': html}
          |
-         |"""
-    finalCode.encode
+         |""".stripMargin
+    finalCode
   }
 
   override def getOutputSchemas(

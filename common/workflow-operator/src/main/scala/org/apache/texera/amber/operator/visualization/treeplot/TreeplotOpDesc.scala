@@ -23,8 +23,6 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
@@ -43,7 +41,7 @@ class TreePlotOpDesc extends PythonOperatorDescriptor {
   @JsonSchemaTitle("Edge List Column")
   @JsonPropertyDescription("Column with [parent, child] pairs")
   @AutofillAttributeName
-  var edgeListColumn: EncodableString = ""
+  var edgeListColumn: String = ""
 
   override def operatorInfo: OperatorInfo =
     OperatorInfo(
@@ -67,7 +65,7 @@ class TreePlotOpDesc extends PythonOperatorDescriptor {
   override def generatePythonCode(): String = {
     assert(edgeListColumn.nonEmpty)
 
-    pyb"""
+    s"""
        |from pytexera import *
        |
        |import plotly.graph_objects as go
@@ -115,7 +113,7 @@ class TreePlotOpDesc extends PythonOperatorDescriptor {
        |            return
        |
        |        edges = []
-       |        for item in table[$edgeListColumn].dropna():
+       |        for item in table['$edgeListColumn'].dropna():
        |            try:
        |                edge = ast.literal_eval(str(item))
        |                if isinstance(edge, (list, tuple)) and len(edge) == 2:
@@ -124,7 +122,7 @@ class TreePlotOpDesc extends PythonOperatorDescriptor {
        |                pass
        |
        |        if not edges:
-       |            yield {'html-content': self.render_error("No valid [parent, child] pairs found in column " + $edgeListColumn + ".")}
+       |            yield {'html-content': self.render_error("No valid [parent, child] pairs found in column '$edgeListColumn'.")}
        |            return
        |
        |        G = Graph.TupleList(edges, directed=True)
@@ -186,6 +184,6 @@ class TreePlotOpDesc extends PythonOperatorDescriptor {
        |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
        |        yield {'html-content': html}
        |
-       |""".encode
+       |""".stripMargin
   }
 }

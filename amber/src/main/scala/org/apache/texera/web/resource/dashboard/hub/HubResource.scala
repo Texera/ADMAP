@@ -83,10 +83,9 @@ object HubResource {
       counts: java.util.Map[ActionType, Int]
   )
 
-  private def context =
-    SqlServer
-      .getInstance()
-      .createDSLContext()
+  final private lazy val context = SqlServer
+    .getInstance()
+    .createDSLContext()
 
   final private val ipv4Pattern: Pattern = Pattern.compile(
     "^([0-9]{1,3}\\.){3}[0-9]{1,3}$"
@@ -326,10 +325,9 @@ object HubResource {
 @Produces(Array(MediaType.APPLICATION_JSON))
 @Path("/hub")
 class HubResource {
-  private def context =
-    SqlServer
-      .getInstance()
-      .createDSLContext()
+  final private lazy val context = SqlServer
+    .getInstance()
+    .createDSLContext()
 
   @GET
   @Path("/count")

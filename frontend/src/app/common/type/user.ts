@@ -47,7 +47,6 @@ export interface User
     lastLogin?: number;
     accountCreation?: Second;
     affiliation?: string;
-    joiningReason: string;
   }> {}
 
 export interface File

@@ -27,8 +27,6 @@ import com.kjetland.jackson.jsonSchema.annotations.{
   JsonSchemaTitle
 }
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.{
@@ -44,7 +42,7 @@ class SklearnTrainingOpDesc extends PythonOperatorDescriptor {
   @JsonPropertyDescription("Attribute in your dataset corresponding to target.")
   @JsonProperty(required = true)
   @AutofillAttributeName
-  var target: EncodableString = _
+  var target: String = _
 
   @JsonSchemaTitle("Count Vectorizer")
   @JsonPropertyDescription("Convert a collection of text documents to a matrix of token counts.")
@@ -67,7 +65,7 @@ class SklearnTrainingOpDesc extends PythonOperatorDescriptor {
       new JsonSchemaInt(path = CommonOpDescAnnotation.autofillAttributeOnPort, value = 0)
     )
   )
-  var text: EncodableString = _
+  var text: String = _
 
   @JsonSchemaTitle("Tfidf Transformer")
   @JsonPropertyDescription("Transform a count matrix to a normalized tf or tf-idf representation.")
@@ -88,7 +86,7 @@ class SklearnTrainingOpDesc extends PythonOperatorDescriptor {
   def getUserFriendlyModelName = "RandomForest Training"
 
   override def generatePythonCode(): String =
-    pyb"""$getImportStatements
+    s"""$getImportStatements
        |from sklearn.pipeline import make_pipeline
        |from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
        |import numpy as np
@@ -96,16 +94,16 @@ class SklearnTrainingOpDesc extends PythonOperatorDescriptor {
        |class ProcessTableOperator(UDFTableOperator):
        |    @overrides
        |    def process_table(self, table: Table, port: int) -> Iterator[Optional[TableLike]]:
-       |        Y = table[$target]
-       |        X = table.drop($target, axis=1)
-       |        X = ${if (countVectorizer) "X[" + text + "]" else "X"}
+       |        Y = table["$target"]
+       |        X = table.drop("$target", axis=1)
+       |        X = ${if (countVectorizer) "X['" + text + "']" else "X"}
        |        model = make_pipeline(${if (countVectorizer) "CountVectorizer()," else ""} ${if (
       tfidfTransformer
     ) "TfidfTransformer(),"
     else ""} ${getImportStatements.split(" ").last}()).fit(X, Y)
        |        yield {"model_name" : "$getUserFriendlyModelName", "model" : model}
        |
-       |        """.encode
+       |        """.stripMargin
 
   override def operatorInfo: OperatorInfo =
     OperatorInfo(

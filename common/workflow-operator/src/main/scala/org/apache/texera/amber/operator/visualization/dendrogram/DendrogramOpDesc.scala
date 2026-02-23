@@ -23,37 +23,34 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 
 class DendrogramOpDesc extends PythonOperatorDescriptor {
   @JsonProperty(value = "xVal", required = true)
   @JsonSchemaTitle("Value X Column")
   @JsonPropertyDescription("The x values of points in dendrogram")
   @AutofillAttributeName
-  var xVal: EncodableString = ""
+  var xVal: String = ""
 
   @JsonProperty(value = "yVal", required = true)
   @JsonSchemaTitle("Value Y Column")
   @JsonPropertyDescription("The y value of points in dendrogram")
   @AutofillAttributeName
-  var yVal: EncodableString = ""
+  var yVal: String = ""
 
   @JsonProperty(value = "Labels", required = true)
   @JsonSchemaTitle("Labels")
   @JsonPropertyDescription("The label of points in dendrogram")
   @AutofillAttributeName
-  var labels: EncodableString = ""
+  var labels: String = ""
 
   @JsonProperty(defaultValue = "", required = false)
   @JsonSchemaTitle("Color Threshold")
   @JsonPropertyDescription("Value at which separation of clusters will be made")
-  var threshold: EncodableString = ""
+  var threshold: String = ""
 
   override def getOutputSchemas(
       inputSchemas: Map[PortIdentity, Schema]
@@ -72,28 +69,28 @@ class DendrogramOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  private def createDendrogram(): PythonTemplateBuilder = {
+  private def createDendrogram(): String = {
     assert(xVal.nonEmpty)
     assert(yVal.nonEmpty)
     assert(labels.nonEmpty)
-    val strippedThreshold: EncodableString = threshold.trim
+    val strippedThreshold = threshold.trim
     val isThreshold =
-      if (strippedThreshold.nonEmpty) pyb"color_threshold=$strippedThreshold"
+      if (strippedThreshold.nonEmpty) s"color_threshold=$strippedThreshold"
       else "color_threshold=None"
-    pyb"""
-       |        x = np.array(table[$xVal])
-       |        y = np.array(table[$yVal])
+    s"""
+       |        x = np.array(table["$xVal"])
+       |        y = np.array(table["$yVal"])
        |        data = np.column_stack((x, y))
-       |        labels = table[$labels].tolist()
+       |        labels = table["$labels"].tolist()
        |
        |        fig = ff.create_dendrogram(data, labels=labels, $isThreshold)
        |        fig.update_layout(yaxis_title="Linkage Distance", margin=dict(l=0, r=0, b=0, t=0))
-       |"""
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
     val finalcode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import plotly.express as px
@@ -118,7 +115,7 @@ class DendrogramOpDesc extends PythonOperatorDescriptor {
          |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
          |        yield {'html-content': html}
          |
-         |"""
-    finalcode.encode
+         |""".stripMargin
+    finalcode
   }
 }

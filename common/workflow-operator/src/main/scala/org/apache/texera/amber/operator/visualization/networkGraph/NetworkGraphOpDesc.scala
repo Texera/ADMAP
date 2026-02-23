@@ -23,30 +23,27 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 
 class NetworkGraphOpDesc extends PythonOperatorDescriptor {
   @JsonProperty(required = true)
   @JsonSchemaTitle("Source Column")
   @JsonPropertyDescription("Source node for edge in graph")
   @AutofillAttributeName
-  var source: EncodableString = ""
+  var source: String = ""
 
   @JsonProperty(required = true)
   @JsonSchemaTitle("Destination Column")
   @JsonPropertyDescription("Destination node for edge in graph")
   @AutofillAttributeName
-  var destination: EncodableString = ""
+  var destination: String = ""
 
   @JsonProperty(defaultValue = "Network Graph")
   @JsonSchemaTitle("Title")
-  var title: EncodableString = ""
+  var title: String = ""
 
   override def getOutputSchemas(
       inputSchemas: Map[PortIdentity, Schema]
@@ -65,19 +62,18 @@ class NetworkGraphOpDesc extends PythonOperatorDescriptor {
       inputPorts = List(InputPort()),
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
-
-  def manipulateTable(): PythonTemplateBuilder = {
+  def manipulateTable(): String = {
     assert(source.nonEmpty)
     assert(destination.nonEmpty)
-    pyb"""
-         |        table = table.dropna(subset = [$source]) #remove missing values
-         |        table = table.dropna(subset = [$destination]) #remove missing values
-         |"""
+    s"""
+       |        table = table.dropna(subset = ['$source']) #remove missing values
+       |        table = table.dropna(subset = ['$destination']) #remove missing values
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
     val finalCode =
-      pyb"""
+      s"""
          |from pytexera import *
          |import pandas as pd
          |import plotly.graph_objects as go
@@ -96,14 +92,14 @@ class NetworkGraphOpDesc extends PythonOperatorDescriptor {
          |    @overrides
          |    def process_table(self, table: Table, port: int) -> Iterator[Optional[TableLike]]:
          |        if not table.empty:
-         |            sources = table[$source]
-         |            destinations = table[$destination]
+         |            sources = table['$source']
+         |            destinations = table['$destination']
          |            nodes = set(sources + destinations)
          |            G = nx.Graph()
          |            for node in nodes:
          |                G.add_node(node)
          |            for i, j in table.iterrows():
-         |                G.add_edges_from([(j[$source], j[$destination])])
+         |                G.add_edges_from([(j['$source'], j['$destination'])])
          |            pos = nx.spring_layout(G, k=0.5, iterations=50)
          |            for n, p in pos.items():
          |                G.nodes[n]['pos'] = p
@@ -161,7 +157,7 @@ class NetworkGraphOpDesc extends PythonOperatorDescriptor {
          |            fig = go.Figure(
          |                data=[edge_trace, node_trace],
          |                layout=go.Layout(
-         |                    title='<br>'+$title,
+         |                    title='<br>$title',
          |                    hovermode='closest',
          |                    showlegend=False,
          |                    margin=dict(b=20, l=5, r=5, t=40),
@@ -191,8 +187,8 @@ class NetworkGraphOpDesc extends PythonOperatorDescriptor {
          |
          |        yield {'html-content': html}
          |
-         |"""
-    finalCode.encode
+         |""".stripMargin
+    finalCode
   }
 
 }

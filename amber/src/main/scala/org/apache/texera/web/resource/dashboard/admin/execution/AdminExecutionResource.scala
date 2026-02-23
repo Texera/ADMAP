@@ -36,10 +36,9 @@ import scala.jdk.CollectionConverters._
   */
 
 object AdminExecutionResource {
-  private def context =
-    SqlServer
-      .getInstance()
-      .createDSLContext()
+  final private lazy val context = SqlServer
+    .getInstance()
+    .createDSLContext()
 
   case class dashboardExecution(
       workflowName: String,

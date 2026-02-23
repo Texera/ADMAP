@@ -40,10 +40,9 @@ import org.jooq.{DSLContext, EnumType}
 import scala.jdk.CollectionConverters._
 
 object ComputingUnitAccessResource {
-  private def context: DSLContext =
-    SqlServer
-      .getInstance()
-      .createDSLContext()
+  private lazy val context: DSLContext = SqlServer
+    .getInstance()
+    .createDSLContext()
 
   /**
     * Identifies whether the given user has read-only access over the given computing unit

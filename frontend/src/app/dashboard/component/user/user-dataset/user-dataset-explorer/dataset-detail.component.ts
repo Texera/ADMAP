@@ -108,8 +108,6 @@ export class DatasetDetailComponent implements OnInit {
   versionName: string = "";
   isCreatingVersion: boolean = false;
 
-  public activeMultipartFilePaths: string[] = [];
-
   //  List of upload tasks – each task tracked by its filePath
   public uploadTasks: Array<
     MultipartUploadProgress & {
@@ -434,8 +432,7 @@ export class DatasetDetailComponent implements OnInit {
                 file.name,
                 file.file,
                 this.chunkSizeMiB * 1024 * 1024,
-                this.maxConcurrentChunks,
-                file.restart
+                this.maxConcurrentChunks
               )
               .pipe(untilDestroyed(this))
               .subscribe({
@@ -461,24 +458,15 @@ export class DatasetDetailComponent implements OnInit {
                     }
                   }
                 },
-                error: (res: unknown) => {
-                  const err = res as HttpErrorResponse;
-
-                  if (err?.status === HttpStatusCode.Conflict) {
-                    this.notificationService.error(
-                      "Upload blocked (409). Another upload is likely in progress for this file (another tab/browser), or the server is finalizing a previous upload. Please retry in a moment."
-                    );
-                  } else {
-                    this.notificationService.error("Upload failed. Please retry.");
-                  }
+                error: () => {
                   // Handle upload error
                   const taskIndex = this.uploadTasks.findIndex(t => t.filePath === file.name);
 
                   if (taskIndex !== -1) {
                     this.uploadTasks[taskIndex] = {
                       ...this.uploadTasks[taskIndex],
-                      percentage: this.uploadTasks[taskIndex].percentage ?? 0, // was 100
-                      status: "failed",
+                      percentage: 100,
+                      status: "aborted",
                     };
                     this.scheduleHide(taskIndex);
                   }
@@ -609,6 +597,7 @@ export class DatasetDetailComponent implements OnInit {
           },
           error: (res: unknown) => {
             const err = res as HttpErrorResponse;
+
             // Already gone, treat as done
             if (err.status === 404) {
               done();
@@ -629,17 +618,13 @@ export class DatasetDetailComponent implements OnInit {
 
     abortWithRetry(0);
 
-    const idx = this.uploadTasks.findIndex(t => t.filePath === task.filePath);
-    if (idx !== -1) {
-      this.uploadTasks[idx] = { ...this.uploadTasks[idx], status: "aborted" };
-      this.scheduleHide(idx);
-    }
+    this.uploadTasks = this.uploadTasks.filter(t => t.filePath !== task.filePath);
   }
 
-  getUploadStatus(status: MultipartUploadProgress["status"]): "active" | "exception" | "success" {
+  getUploadStatus(status: "initializing" | "uploading" | "finished" | "aborted"): "active" | "exception" | "success" {
     return status === "uploading" || status === "initializing"
       ? "active"
-      : status === "aborted" || status === "failed"
+      : status === "aborted"
         ? "exception"
         : "success";
   }

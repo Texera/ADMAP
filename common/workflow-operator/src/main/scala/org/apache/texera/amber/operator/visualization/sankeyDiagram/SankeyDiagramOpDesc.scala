@@ -23,13 +23,10 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 
 import javax.validation.constraints.NotNull
 
@@ -40,21 +37,21 @@ class SankeyDiagramOpDesc extends PythonOperatorDescriptor {
   @JsonPropertyDescription("The source node of the Sankey diagram")
   @AutofillAttributeName
   @NotNull(message = "Source Attribute cannot be empty")
-  var sourceAttribute: EncodableString = ""
+  var sourceAttribute: String = ""
 
   @JsonProperty(value = "Target Attribute", required = true)
   @JsonSchemaTitle("Target Attribute")
   @JsonPropertyDescription("The target node of the Sankey diagram")
   @AutofillAttributeName
   @NotNull(message = "Target Attribute cannot be empty")
-  var targetAttribute: EncodableString = ""
+  var targetAttribute: String = ""
 
   @JsonProperty(value = "Value Attribute", required = true)
   @JsonSchemaTitle("Value Attribute")
   @JsonPropertyDescription("The value/volume of the flow between source and target")
   @AutofillAttributeName
   @NotNull(message = "Value Attribute cannot be empty")
-  var valueAttribute: EncodableString = ""
+  var valueAttribute: String = ""
 
   override def getOutputSchemas(
       inputSchemas: Map[PortIdentity, Schema]
@@ -74,41 +71,41 @@ class SankeyDiagramOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  def createPlotlyFigure(): PythonTemplateBuilder = {
-    pyb"""
-         |        # Grouping source, target, and summing value for the Sankey diagram
-         |        table = table.groupby([$sourceAttribute, $targetAttribute])[$valueAttribute].sum().reset_index(name='value')
-         |
-         |        # Create a list of unique labels from both source and target
-         |        labels = pd.concat([table[$sourceAttribute], table[$targetAttribute]]).unique().tolist()
-         |
-         |        # Create indices for source and target from the label list
-         |        table['source_index'] = table[$sourceAttribute].apply(lambda x: labels.index(x))
-         |        table['target_index'] = table[$targetAttribute].apply(lambda x: labels.index(x))
-         |
-         |        # Create the Sankey diagram
-         |        fig = go.Figure(data=[go.Sankey(
-         |            node=dict(
-         |                pad=15,
-         |                thickness=20,
-         |                line=dict(color="black", width=0.5),
-         |                label=labels,
-         |                color="blue"
-         |            ),
-         |            link=dict(
-         |                source=table['source_index'].tolist(),
-         |                target=table['target_index'].tolist(),
-         |                value=table['value'].tolist()
-         |            )
-         |        )])
-         |
-         |        fig.update_layout(title_text="Sankey Diagram", font_size=10)
-         |"""
+  def createPlotlyFigure(): String = {
+    s"""
+       |        # Grouping source, target, and summing value for the Sankey diagram
+       |        table = table.groupby(['$sourceAttribute', '$targetAttribute'])['$valueAttribute'].sum().reset_index(name='value')
+       |
+       |        # Create a list of unique labels from both source and target
+       |        labels = pd.concat([table['$sourceAttribute'], table['$targetAttribute']]).unique().tolist()
+       |
+       |        # Create indices for source and target from the label list
+       |        table['source_index'] = table['$sourceAttribute'].apply(lambda x: labels.index(x))
+       |        table['target_index'] = table['$targetAttribute'].apply(lambda x: labels.index(x))
+       |
+       |        # Create the Sankey diagram
+       |        fig = go.Figure(data=[go.Sankey(
+       |            node=dict(
+       |                pad=15,
+       |                thickness=20,
+       |                line=dict(color="black", width=0.5),
+       |                label=labels,
+       |                color="blue"
+       |            ),
+       |            link=dict(
+       |                source=table['source_index'].tolist(),
+       |                target=table['target_index'].tolist(),
+       |                value=table['value'].tolist()
+       |            )
+       |        )])
+       |
+       |        fig.update_layout(title_text="Sankey Diagram", font_size=10)
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
     val finalCode =
-      pyb"""
+      s"""
          |from pytexera import *
          |import plotly.graph_objects as go
          |import plotly.io
@@ -133,7 +130,7 @@ class SankeyDiagramOpDesc extends PythonOperatorDescriptor {
          |        # convert fig to html content
          |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
          |        yield {'html-content': html}
-         |"""
-    finalCode.encode
+         |""".stripMargin
+    finalCode
   }
 }

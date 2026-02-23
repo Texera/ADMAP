@@ -23,13 +23,10 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 
 import javax.validation.constraints.NotNull
 
@@ -40,7 +37,7 @@ class DotPlotOpDesc extends PythonOperatorDescriptor {
   @JsonPropertyDescription("the attribute for the counting of the dot plot")
   @AutofillAttributeName
   @NotNull(message = "Count Attribute column cannot be empty")
-  var countAttribute: EncodableString = ""
+  var countAttribute: String = ""
 
   override def getOutputSchemas(
       inputSchemas: Map[PortIdentity, Schema]
@@ -60,21 +57,21 @@ class DotPlotOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  def createPlotlyFigure(): PythonTemplateBuilder = {
-    pyb"""
-       |        table = table.groupby([$countAttribute])[$countAttribute].count().reset_index(name='counts')
-       |        fig = px.strip(table, x='counts', y=$countAttribute, orientation='h', color=$countAttribute,
+  def createPlotlyFigure(): String = {
+    s"""
+       |        table = table.groupby(['$countAttribute'])['$countAttribute'].count().reset_index(name='counts')
+       |        fig = px.strip(table, x='counts', y='$countAttribute', orientation='h', color='$countAttribute',
        |               color_discrete_sequence=px.colors.qualitative.Dark2)
        |
        |        fig.update_traces(marker=dict(size=12, line=dict(width=2, color='DarkSlateGrey')))
        |
        |        fig.update_layout(margin=dict(t=0, b=0, l=0, r=0))
-       |"""
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
     val finalCode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import plotly.express as px
@@ -100,8 +97,8 @@ class DotPlotOpDesc extends PythonOperatorDescriptor {
          |        # convert fig to html content
          |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
          |        yield {'html-content': html}
-         |"""
-    finalCode.encode
+         |""".stripMargin
+    finalCode
   }
 
 }

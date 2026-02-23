@@ -24,8 +24,6 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
@@ -36,17 +34,17 @@ class GaugeChartOpDesc extends PythonOperatorDescriptor {
   @JsonSchemaTitle("Gauge Value")
   @JsonPropertyDescription("The primary value displayed on the gauge chart")
   @AutofillAttributeName
-  var value: EncodableString = ""
+  var value: String = ""
 
   @JsonProperty(value = "delta", required = false)
   @JsonSchemaTitle("Delta")
   @JsonPropertyDescription("The baseline value used to calculate the delta from the gauge value")
-  var delta: EncodableString = ""
+  var delta: String = ""
 
   @JsonProperty(value = "threshold", required = false)
   @JsonSchemaTitle("Threshold Value")
   @JsonPropertyDescription("Defines a boundary or target value shown on the gauge chart")
-  var threshold: EncodableString = ""
+  var threshold: String = ""
 
   @JsonProperty(value = "steps", required = false)
   @JsonSchemaTitle("Steps")
@@ -77,9 +75,9 @@ class GaugeChartOpDesc extends PythonOperatorDescriptor {
   }
 
   override def generatePythonCode(): String = {
-    val stepsStr: EncodableString = serializeSteps(steps)
+    val stepsStr: String = serializeSteps(steps)
 
-    pyb"""
+    s"""
          |from pytexera import *
          |import plotly.graph_objects as go
          |import plotly.io as pio
@@ -105,13 +103,13 @@ class GaugeChartOpDesc extends PythonOperatorDescriptor {
          |            return
          |
          |        try:
-         |            gauge_value = $value
+         |            gauge_value = "$value"
          |            try:
-         |                delta_ref = float($delta) if $delta.strip() else None
+         |                delta_ref = float("$delta") if "$delta".strip() else None
          |            except ValueError:
          |                delta_ref = None
          |            try:
-         |                threshold_val = float($threshold) if $threshold.strip() else None
+         |                threshold_val = float("$threshold") if "$threshold".strip() else None
          |            except ValueError:
          |                threshold_val = None
          |
@@ -121,7 +119,7 @@ class GaugeChartOpDesc extends PythonOperatorDescriptor {
          |                return
          |
          |            try:
-         |                valid_steps = json.loads($stepsStr)
+         |                valid_steps = json.loads('''$stepsStr''')
          |                step_colors = self.generate_gray_gradient(len(valid_steps))
          |                steps_list = []
          |                for index, step_data in enumerate(valid_steps):
@@ -186,6 +184,6 @@ class GaugeChartOpDesc extends PythonOperatorDescriptor {
          |
          |        except Exception as e:
          |            yield {'html-content': self.render_error(f"General error: {str(e)}")}
-         |""".encode
+         |""".stripMargin
   }
 }

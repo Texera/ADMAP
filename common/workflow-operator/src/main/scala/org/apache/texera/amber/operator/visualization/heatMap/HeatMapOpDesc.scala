@@ -23,32 +23,29 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 class HeatMapOpDesc extends PythonOperatorDescriptor {
 
   @JsonProperty(value = "x", required = true)
   @JsonSchemaTitle("Value X Column")
   @JsonPropertyDescription("the values along the x-axis")
   @AutofillAttributeName
-  var x: EncodableString = ""
+  var x: String = ""
 
   @JsonProperty(value = "y", required = true)
   @JsonSchemaTitle("Value Y Column")
   @JsonPropertyDescription("the values along the y-axis")
   @AutofillAttributeName
-  var y: EncodableString = ""
+  var y: String = ""
 
   @JsonProperty(value = "Values", required = true)
   @JsonSchemaTitle("Values")
   @JsonPropertyDescription("the values of the heatmap")
   @AutofillAttributeName
-  var value: EncodableString = ""
+  var value: String = ""
 
   override def getOutputSchemas(
       inputSchemas: Map[PortIdentity, Schema]
@@ -68,20 +65,20 @@ class HeatMapOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  private def createHeatMap(): PythonTemplateBuilder = {
+  private def createHeatMap(): String = {
     assert(x.nonEmpty)
     assert(y.nonEmpty)
     assert(value.nonEmpty)
-    pyb"""
-       |        heatmap = go.Heatmap(z=table[$value],x=table[$x],y=table[$y])
+    s"""
+       |        heatmap = go.Heatmap(z=table["$value"],x=table["$x"],y=table["$y"])
        |        layout = go.Layout(margin=dict(l=0, r=0, b=0, t=0))
        |        fig = go.Figure(data=[heatmap], layout=layout)
-       |"""
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
     val finalcode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import plotly.express as px
@@ -106,8 +103,8 @@ class HeatMapOpDesc extends PythonOperatorDescriptor {
          |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
          |        yield {'html-content': html}
          |
-         |"""
-    finalcode.encode
+         |""".stripMargin
+    finalcode
   }
 
 }

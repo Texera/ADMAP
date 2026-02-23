@@ -29,7 +29,9 @@ import org.apache.texera.amber.core.workflow.WorkflowContext.{
 object WorkflowContext {
   val DEFAULT_EXECUTION_ID: ExecutionIdentity = ExecutionIdentity(1L)
   val DEFAULT_WORKFLOW_ID: WorkflowIdentity = WorkflowIdentity(1L)
-  val DEFAULT_WORKFLOW_SETTINGS: WorkflowSettings = WorkflowSettings()
+  val DEFAULT_WORKFLOW_SETTINGS: WorkflowSettings = WorkflowSettings(
+    dataTransferBatchSize = 400 // TODO: make this configurable
+  )
 }
 class WorkflowContext(
     var workflowId: WorkflowIdentity = DEFAULT_WORKFLOW_ID,

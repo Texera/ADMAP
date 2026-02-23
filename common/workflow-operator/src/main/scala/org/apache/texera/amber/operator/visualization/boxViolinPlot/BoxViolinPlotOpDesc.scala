@@ -23,13 +23,10 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription, 
 import com.kjetland.jackson.jsonSchema.annotations.{JsonSchemaInject, JsonSchemaTitle}
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 
 @JsonPropertyOrder(Array("value", "quartileType", "horizontalOrientation", "violinPlot"))
 @JsonSchemaInject(json = """
@@ -47,7 +44,7 @@ class BoxViolinPlotOpDesc extends PythonOperatorDescriptor {
   @JsonSchemaTitle("Value Column")
   @JsonPropertyDescription("Data column for box plot")
   @AutofillAttributeName
-  var value: EncodableString = ""
+  var value: String = ""
 
   @JsonProperty(
     value = "Quartile Method",
@@ -86,38 +83,38 @@ class BoxViolinPlotOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  def manipulateTable(): PythonTemplateBuilder = {
+  def manipulateTable(): String = {
     assert(value.nonEmpty)
 
-    pyb"""
-         |        table = table.dropna(subset = [$value]) #remove missing values
-         |
-         |"""
+    s"""
+       |        table = table.dropna(subset = ['$value']) #remove missing values
+       |
+       |""".stripMargin
   }
 
-  def createPlotlyFigure(): PythonTemplateBuilder = {
+  def createPlotlyFigure(): String = {
     val horizontal = if (horizontalOrientation) "True" else "False"
     val violin = if (violinPlot) "True" else "False"
-    pyb"""
+    s"""
        |        if($violin):
        |            if ($horizontal):
-       |                fig = px.violin(table, x=$value, box=True, points='all')
+       |                fig = px.violin(table, x='$value', box=True, points='all')
        |            else:
-       |                fig = px.violin(table, y=$value, box=True, points='all')
+       |                fig = px.violin(table, y='$value', box=True, points='all')
        |        else:
        |            if($horizontal):
-       |                fig = px.box(table, x=$value,boxmode="overlay", points='all')
+       |                fig = px.box(table, x='$value',boxmode="overlay", points='all')
        |            else:
-       |                fig = px.box(table, y=$value,boxmode="overlay", points='all')
+       |                fig = px.box(table, y='$value',boxmode="overlay", points='all')
        |        fig.update_traces(quartilemethod="${quartileType.getQuartiletype}", col=1)
        |        fig.update_layout(margin=dict(t=0, b=0, l=0, r=0))
-       |"""
+       |""".stripMargin
   }
 
   override def generatePythonCode(): String = {
 
     val finalCode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import plotly.express as px
@@ -149,8 +146,8 @@ class BoxViolinPlotOpDesc extends PythonOperatorDescriptor {
          |        # convert fig to html content
          |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
          |        yield {'html-content': html}
-         |        """
-    finalCode.encode
+         |        """.stripMargin
+    finalCode
   }
 
 }

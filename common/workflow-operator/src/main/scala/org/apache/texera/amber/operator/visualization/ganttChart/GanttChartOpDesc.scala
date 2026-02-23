@@ -23,13 +23,10 @@ import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
 import com.kjetland.jackson.jsonSchema.annotations.{JsonSchemaInject, JsonSchemaTitle}
 import org.apache.texera.amber.core.tuple.{AttributeType, Schema}
 import org.apache.texera.amber.core.workflow.OutputPort.OutputMode
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder.PythonTemplateBuilderStringContext
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 import org.apache.texera.amber.core.workflow.{InputPort, OutputPort, PortIdentity}
 import org.apache.texera.amber.operator.PythonOperatorDescriptor
 import org.apache.texera.amber.operator.metadata.annotations.AutofillAttributeName
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
-import org.apache.texera.amber.pybuilder.PythonTemplateBuilder
 
 import javax.validation.constraints.NotNull
 
@@ -52,33 +49,33 @@ class GanttChartOpDesc extends PythonOperatorDescriptor {
   @JsonPropertyDescription("the start timestamp of the task")
   @AutofillAttributeName
   @NotNull(message = "Start Datetime Column cannot be empty")
-  var start: EncodableString = ""
+  var start: String = ""
 
   @JsonProperty(value = "finish", required = true)
   @JsonSchemaTitle("Finish Datetime Column")
   @JsonPropertyDescription("the end timestamp of the task")
   @AutofillAttributeName
   @NotNull(message = "Finish Datetime Column cannot be empty")
-  var finish: EncodableString = ""
+  var finish: String = ""
 
   @JsonProperty(value = "task", required = true)
   @JsonSchemaTitle("Task Column")
   @JsonPropertyDescription("the name of the task")
   @AutofillAttributeName
   @NotNull(message = "Task Column cannot be empty")
-  var task: EncodableString = ""
+  var task: String = ""
 
   @JsonProperty(value = "color", required = false)
   @JsonSchemaTitle("Color Column")
   @JsonPropertyDescription("column to color tasks")
   @AutofillAttributeName
-  var color: EncodableString = ""
+  var color: String = ""
 
   @JsonProperty(required = false)
   @JsonSchemaTitle("Pattern")
   @JsonPropertyDescription("Add texture to the chart based on an attribute")
   @AutofillAttributeName
-  var pattern: EncodableString = ""
+  var pattern: String = ""
 
   override def getOutputSchemas(
       inputSchemas: Map[PortIdentity, Schema]
@@ -98,28 +95,28 @@ class GanttChartOpDesc extends PythonOperatorDescriptor {
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
     )
 
-  def manipulateTable(): PythonTemplateBuilder = {
-    val optionalFilterTable = if (color.nonEmpty) pyb"&(table[$color].notnull())" else ""
-    pyb"""
-       |        table = table[(table[$start].notnull())&(table[$finish].notnull())&(table[$finish].notnull())$optionalFilterTable].copy()
-       |"""
+  def manipulateTable(): String = {
+    val optionalFilterTable = if (color.nonEmpty) s"&(table['$color'].notnull())" else ""
+    s"""
+       |        table = table[(table["$start"].notnull())&(table["$finish"].notnull())&(table["$finish"].notnull())$optionalFilterTable].copy()
+       |""".stripMargin
   }
 
-  def createPlotlyFigure(): PythonTemplateBuilder = {
-    val colorSetting = if (color.nonEmpty) pyb", color=$color" else pyb""
-    val patternParam = if (pattern.nonEmpty) pyb", pattern_shape=$pattern" else pyb""
+  def createPlotlyFigure(): String = {
+    val colorSetting = if (color.nonEmpty) s", color='$color'" else ""
+    val patternParam = if (pattern.nonEmpty) s", pattern_shape='$pattern'" else ""
 
-    pyb"""
-       |        fig = px.timeline(table, x_start=$start, x_end=$finish, y=$task $colorSetting $patternParam)
+    s"""
+       |        fig = px.timeline(table, x_start='$start', x_end='$finish', y='$task' $colorSetting $patternParam)
        |        fig.update_yaxes(autorange='reversed')
        |        fig.update_layout(margin=dict(t=0, b=0, l=0, r=0))
-       |"""
+       |""".stripMargin
 
   }
 
   override def generatePythonCode(): String = {
     val finalCode =
-      pyb"""
+      s"""
          |from pytexera import *
          |
          |import plotly.express as px
@@ -146,7 +143,7 @@ class GanttChartOpDesc extends PythonOperatorDescriptor {
          |        # convert fig to html content
          |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
          |        yield {'html-content': html}
-         |"""
-    finalCode.encode
+         |""".stripMargin
+    finalCode
   }
 }

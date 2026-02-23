@@ -20,14 +20,13 @@ package org.apache.texera.amber.operator.visualization.gaugeChart
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaTitle
-import org.apache.texera.amber.pybuilder.PyStringTypes.EncodableString
 
 class GaugeChartSteps {
   @JsonProperty("start")
   @JsonSchemaTitle("Start")
-  var start: EncodableString = ""
+  var start: String = ""
 
   @JsonProperty("end")
   @JsonSchemaTitle("End")
-  var end: EncodableString = ""
+  var end: String = ""
 }

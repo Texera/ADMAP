@@ -43,12 +43,11 @@ case class DashboardPublicProject(
 @Path("/public/project")
 class PublicProjectResource {
 
-  private def context: DSLContext =
-    SqlServer
-      .getInstance()
-      .createDSLContext()
-  private def publicProjectDao = new PublicProjectDao(context.configuration)
-  private def projectUserAccessDao = new ProjectUserAccessDao(context.configuration)
+  final private val context: DSLContext = SqlServer
+    .getInstance()
+    .createDSLContext()
+  final private lazy val publicProjectDao = new PublicProjectDao(context.configuration)
+  final private val projectUserAccessDao = new ProjectUserAccessDao(context.configuration)
 
   @GET
   @RolesAllowed(Array("ADMIN"))
