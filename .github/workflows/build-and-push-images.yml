@@ -99,7 +99,7 @@ jobs:
 
             # If image_tag is empty, resolve to the short commit hash of the branch
             if [[ -z "$IMAGE_TAG" ]]; then
-              COMMIT_SHORT=$(gh api "repos/${{ github.repository }}/commits/${BRANCH}" --jq '.sha[:7]')
+              COMMIT_SHORT=$(gh api "repos/${{ github.repository }}/commits/${BRANCH}" --jq '.sha[:9]')
               IMAGE_TAG="$COMMIT_SHORT"
               echo "No image tag specified - using short commit hash: $IMAGE_TAG"
             fi
@@ -160,7 +160,7 @@ jobs:
           PGPASSWORD=postgres psql -h localhost -U postgres -f sql/texera_lakefs.sql
 
       - name: Generate JOOQ code
-        run: sbt "DAO/runMain org.apache.texera.dao.JooqCodeGenerator"
+        run: sbt DAO/jooqGenerate
 
       - name: Upload JOOQ generated code
         uses: actions/upload-artifact@v4

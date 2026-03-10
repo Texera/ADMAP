@@ -32,7 +32,11 @@
         </span>
       </ng-template>
     </nz-card-meta>
-    <texera-markdown-description [description]="datasetDescription"> </texera-markdown-description>
+    <texera-markdown-description
+      [description]="datasetDescription"
+      [editable]="userDatasetAccessLevel === 'WRITE'"
+      (descriptionChange)="onDatasetDescriptionChange($event)">
+    </texera-markdown-description>
     <!-- Contributor's section -->
     <nz-card [nzBordered]="false">
       <h3 style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center">
