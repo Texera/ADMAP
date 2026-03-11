@@ -90,6 +90,7 @@ export class DatasetDetailComponent implements OnInit {
   public displayPreciseViewCount = false;
 
   public datasetContributors: any[] = [];
+  public aavGalleryUrl: string = "";
 
   userHasPendingChanges: boolean = false;
   pendingChangesCount: number = 0;
@@ -367,6 +368,7 @@ export class DatasetDetailComponent implements OnInit {
             currentNode = currentNode.children[0];
           }
           this.loadFileContent(currentNode);
+          this.updateAavGalleryUrl();
         });
   }
 
@@ -804,5 +806,48 @@ export class DatasetDetailComponent implements OnInit {
         next: () => this.notificationService.success("Contributors updated"),
         error: () => this.notificationService.error("Failed to update contributors"),
       });
+  }
+
+  onClickOpenAavGallery(): void {
+    if (!this.aavGalleryUrl) {
+      this.notificationService.warning("AAV gallery is unavailable for this dataset version.");
+      return;
+    }
+    window.open(this.aavGalleryUrl, "_blank", "noopener,noreferrer");
+  }
+
+  private updateAavGalleryUrl(): void {
+    if (!this.ownerEmail || !this.datasetName || !this.selectedVersion?.name) {
+      this.aavGalleryUrl = "";
+      return;
+    }
+
+    const AAV_REQUIRED = ["images.json", "images", "thumbs"];
+    const hasLayout = (nodes: ReadonlyArray<DatasetFileNode>) =>
+      AAV_REQUIRED.every(name => nodes.some(n => n.name === name));
+
+    let datasetRoot = "";
+    if (hasLayout(this.fileTreeNodeList)) {
+      datasetRoot = "";
+    } else {
+      const rootDir = this.fileTreeNodeList.find(
+        n => n.type === "directory" && n.children && hasLayout(n.children)
+      )?.name;
+      if (!rootDir) {
+        this.aavGalleryUrl = "";
+        return;
+      }
+      datasetRoot = rootDir;
+    }
+
+    const params = new URLSearchParams({
+      owner: this.ownerEmail,
+      dataset: this.datasetName,
+      version: this.selectedVersion.name,
+    });
+
+    if (datasetRoot) params.set("datasetRoot", datasetRoot);
+
+    this.aavGalleryUrl = `/assets/enhancer-aav-website/index.html?${params.toString()}`;
   }
 }

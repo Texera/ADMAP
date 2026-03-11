@@ -2207,6 +2207,7 @@ class DatasetResource {
       Response.temporaryRedirect(new URI(presignedUrl)).build()
     }
   }
+
   @PUT
   @Path("/{did}/contributors")
   @RolesAllowed(Array("REGULAR", "ADMIN"))
@@ -2243,6 +2244,21 @@ class DatasetResource {
       }
 
       Response.ok().build()
+    }
+  }
+
+  @GET
+  @Path("/public-file")
+  def getPublicFileRedirect(
+      @QueryParam("filePath") encodedUrl: String,
+      @QueryParam("repositoryName") repositoryName: String,
+      @QueryParam("commitHash") commitHash: String
+  ): Response = {
+    resolveDatasetAndPath(encodedUrl, repositoryName, commitHash, null) match {
+      case Left(errorResponse) => errorResponse
+      case Right((repo, commit, path)) =>
+        val url = LakeFSStorageClient.getFilePresignedUrl(repo, commit, path)
+        Response.temporaryRedirect(URI.create(url)).build()
     }
   }
 }
