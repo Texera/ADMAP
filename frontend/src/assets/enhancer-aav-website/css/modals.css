@@ -1,0 +1,191 @@
+/* ================================================================
+   modals.css  --  README modal & Video modal
+   ================================================================ */
+
+/*
+   Both modals share the same structural pattern.
+   Shared rules come first, then modal-specific overrides.
+*/
+
+/* ---------- Shared modal base ---------- */
+
+.readme-modal,
+.video-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.readme-modal.visible,
+.video-modal.visible {
+  display: flex;
+}
+
+.readme-modal {
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10001;
+}
+
+.video-modal {
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 10002;
+}
+
+/* ---------- Shared modal content ---------- */
+
+.readme-modal-content,
+.video-modal-content {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  width: 100%;
+  max-height: 90vh;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.readme-modal-content {
+  max-width: 600px;
+  overflow-y: auto;
+}
+
+.video-modal-content {
+  max-width: 900px;
+  overflow: hidden;
+}
+
+/* ---------- Shared modal header ---------- */
+
+.readme-modal-header,
+.video-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  background: rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.readme-modal-header {
+  padding: 20px;
+  position: sticky;
+  top: 0;
+}
+
+.video-modal-header {
+  padding: 16px 20px;
+}
+
+.readme-modal-header h2,
+.video-modal-header h2 {
+  margin: 0;
+  color: #ffffff;
+}
+
+.readme-modal-header h2 {
+  font-size: 22px;
+}
+
+.video-modal-header h2 {
+  font-size: 20px;
+}
+
+/* ---------- Shared close button ---------- */
+
+.readme-modal-close,
+.video-modal-close {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: var(--btn-transition);
+}
+
+.readme-modal-close:hover,
+.video-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* ---------- README modal body ---------- */
+
+.readme-modal-body {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.readme-section {
+  margin-bottom: 24px;
+}
+
+.readme-section:last-child {
+  margin-bottom: 0;
+}
+
+.readme-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #4dabf7;
+  font-weight: 600;
+}
+
+.readme-section ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.readme-section li {
+  margin-bottom: 8px;
+  color: #e8e8e8;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.readme-section li:last-child {
+  margin-bottom: 0;
+}
+
+.readme-section strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ---------- Video modal body ---------- */
+
+.video-modal-body {
+  padding: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}

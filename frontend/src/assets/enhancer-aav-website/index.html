@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>AAV Gallery</title>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/folders.css" />
+    <link rel="stylesheet" href="css/gallery.css" />
+    <link rel="stylesheet" href="css/lightbox.css" />
+    <link rel="stylesheet" href="css/channels.css" />
+    <link rel="stylesheet" href="css/panels.css" />
+    <link rel="stylesheet" href="css/modals.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1 id="title">AAV Gallery</h1>
+        <button class="view-switcher" id="viewSwitcher">
+          <span id="viewText">Grid View</span>
+        </button>
+      </header>
+      <nav class="crumbs" id="crumbs"></nav>
+
+      <!-- Return to AAV Catalog on main page -->
+      <div class="catalog-button-main" id="catalogButtonMain">
+        <a href="https://cncm.medschool.uci.edu/aav-catalog#enhancer-aavs" class="nav-btn">
+          ← Return to AAV Catalog
+        </a>
+      </div>
+
+      <!-- Navigation and catalog buttons wrapper -->
+      <div class="nav-buttons-wrapper" id="navButtonsWrapper">
+        <!-- Navigation buttons below breadcrumbs, above subtitle -->
+        <div class="navigation-buttons" id="navigationButtons">
+          <!-- Return to AAV Catalog on same row as Back -->
+          <a href="https://cncm.medschool.uci.edu/aav-catalog#enhancer-aavs" class="nav-btn">
+            ← Return to AAV Catalog
+          </a>
+
+          <!-- README/Help Button -->
+          <button class="nav-btn" id="readmeBtn" title="How to use the image viewer">
+            Instructions
+          </button>
+
+          <!-- Video Tutorial Button -->
+          <button class="nav-btn" id="videoBtn" title="Watch a video tutorial">
+            ▶ Video Tutorial
+          </button>
+        </div>
+
+        <!-- Swap button below other navigation -->
+        <button class="swap-folder-btn" id="pageSwapBtn" title="Swap to corresponding in vivo/in vitro folder">
+          ⇄ Swap
+        </button>
+      </div>
+
+      <p class="muted" id="subtitle">Choose a folder to view its images.</p>
+
+      <div id="foldersView" class="folders" aria-live="polite"></div>
+      <div
+        id="imagesView"
+        class="gallery"
+        aria-live="polite"
+        style="display: none"
+      ></div>
+    </div>
+
+    <!-- Lightbox -->
+    <div
+      class="lightbox"
+      id="lightbox"
+      aria-hidden="true"
+      role="dialog"
+      aria-modal="true"
+    >
+      <!-- Protective overlay for toolbar gap area -->
+      <div class="toolbar-gap-overlay" id="toolbarGapOverlay"></div>
+      
+      <div class="lb-stage">
+        <!-- Wrapper for image and overlay - transforms applied here for sync -->
+        <div class="lb-img-wrapper" id="lbImgWrapper">
+          <img class="lb-img" id="lbImg" alt="" />
+          <!-- Canvas overlay for brain region boundaries on the main image -->
+          <canvas id="regionsOverlayCanvas" class="regions-overlay-canvas"></canvas>
+        </div>
+        <!-- Floating tooltip for region info on main image -->
+        <div id="regionTooltip" class="region-tooltip">
+          <div class="region-tooltip-name" id="regionTooltipName"></div>
+          <div class="region-tooltip-details" id="regionTooltipDetails"></div>
+        </div>
+        <!-- Brain template panel (left side) -->
+        <div class="brain-template-panel" id="brainTemplatePanel">
+          <div class="panel-header">
+            <button class="panel-back-btn" id="atlasBackBtn" aria-label="Back to CCF position">←</button>
+            <h4 id="atlasPanelTitle">Location in Atlas</h4>
+            <button class="panel-close-btn" id="atlasCloseBtn" aria-label="Close atlas panel">✕</button>
+          </div>
+          <div class="brain-template-content">
+            <div class="brain-template-info">
+              <div class="brain-position-display" id="brainPositionDisplay">
+                <!-- Position info shown dynamically -->
+              </div>
+            </div>
+            <div class="brain-template-image">
+              <!-- CCF slice preview image (shows corresponding CCF slice when available) -->
+              <img id="ccfSliceImage" alt="Allen CCF Slice" class="ccf-slice-image">
+              <!-- Atlas canvas for registered brain with annotation overlay (hidden until CCF slice clicked) -->
+              <canvas id="atlasCanvas"></canvas>
+              <!-- Fallback Allen CCF placeholder image -->
+              <img id="atlasBrainImage" alt="Allen Common Coordinate Framework Brain Atlas" class="brain-placeholder">
+            </div>
+            <!-- Region info display -->
+            <div class="atlas-region-info" id="atlasRegionInfo">
+              <div class="placeholder-text">Hover over a region to see details.</div>
+            </div>
+          </div>
+        </div>
+        <!-- Mobile gesture hint -->
+        <div class="gesture-hint" id="gestureHint">
+          Swipe ← → to navigate • Swipe ↓ to close • Pinch to zoom • Tap to zoom
+        </div>
+
+        <!-- Toolbar restore button (independent, appears at top center when toolbar is hidden) -->
+        <button class="toolbar-restore-indicator" id="toolbarRestoreIndicator" aria-label="Show Toolbar">▼</button>
+
+        <div class="lb-top">
+          <div class="lb-top-content">
+            <!-- First row: Title, Swap button, Channel controls, and Close -->
+            <div class="lb-buttons-row">
+              <div class="lb-title-row">
+                <span class="lb-title" id="lbTitle" title=""></span>
+                <button
+                  class="iconbtn swap-folder-btn"
+                  id="swapFolderBtn"
+                  title="Swap to corresponding in vivo/in vitro folder"
+                >
+                  ⇄ Swap
+                </button>
+              </div>
+              <!-- Channel controls - toggles for mobile, sliders for desktop -->
+              <div
+                class="channel-controls"
+                id="channelControls"
+              >
+                <!-- RGB Toggle Group (shown on small screens) -->
+                <div class="rgb-toggle-group" id="rgbToggleGroup">
+                  <button class="channel-btn" data-channel="red" title="Toggle Red Channel">R</button>
+                  <button class="channel-btn" data-channel="green" title="Toggle Green Channel">G</button>
+                  <button class="channel-btn" data-channel="blue" title="Toggle Blue Channel">B</button>
+                </div>
+
+                <!-- Slider Group (shown on large screens) -->
+                <div class="slider-group" id="sliderGroup">
+                  <div class="channel-slider">
+                    <label>Red</label>
+                    <input
+                      type="range"
+                      id="redSlider"
+                      min="0"
+                      max="100"
+                      value="100"
+                      class="slider red-slider"
+                    />
+                    <span id="redValue">100%</span>
+                  </div>
+                  <div class="channel-slider">
+                    <label>Green</label>
+                    <input
+                      type="range"
+                      id="greenSlider"
+                      min="0"
+                      max="100"
+                      value="100"
+                      class="slider green-slider"
+                    />
+                    <span id="greenValue">100%</span>
+                  </div>
+                  <div class="channel-slider">
+                    <label>Blue</label>
+                    <input
+                      type="range"
+                      id="blueSlider"
+                      min="0"
+                      max="100"
+                      value="100"
+                      class="slider blue-slider"
+                    />
+                    <span id="blueValue">100%</span>
+                  </div>
+                  <div class="channel-slider">
+                    <label>Gain</label>
+                    <input
+                      type="range"
+                      id="gainSlider"
+                      min="0"
+                      max="500"
+                      value="100"
+                      class="slider gain-slider"
+                    />
+                    <span id="gainValue">100%</span>
+                  </div>
+                </div>
+
+                <button
+                  class="iconbtn reset-btn"
+                  id="resetChannels"
+                  title="Reset All Channels"
+                >
+                  Reset
+                </button>
+                <button
+                  class="iconbtn grayscale-btn"
+                  id="grayscaleToggle"
+                  title="Toggle Grayscale"
+                >
+                  Grayscale
+                </button>
+              </div>
+              <div class="lb-controls">
+                <button class="iconbtn" id="lbHideToolbar" aria-label="Hide Toolbar" title="Hide Toolbar (H)">
+                  ▲
+                </button>
+                <button class="iconbtn" id="lbClose" aria-label="Close (Esc)">
+                  Close ✕
+                </button>
+              </div>
+            </div>
+            <!-- Second row: Action buttons -->
+            <div class="lb-buttons-row">
+              <div class="lb-buttons-left">
+                <button
+                  class="atlas-toggle active"
+                  id="brainTemplateToggle"
+                  title="Toggle brain atlas panel"
+                >
+                  Show Atlas Position
+                </button>
+                <button
+                  class="legend-toggle"
+                  id="channelLegendToggle"
+                  title="Toggle channel legend"
+                >
+                  Show Legend
+                </button>
+                <button
+                  class="metadata-toggle active"
+                  id="metadataToggle"
+                  title="Toggle metadata panel"
+                >
+                  Show Metadata
+                </button>
+                <button
+                  class="regions-toggle"
+                  id="regionsOverlayToggle"
+                  title="Toggle brain region boundaries overlay on image"
+                >
+                  Show Regions
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom navigation controls -->
+        <div class="lb-bottom-controls">
+          <button class="lb-prev iconbtn" id="lbPrev" aria-label="Previous (←)">
+            ←
+          </button>
+          <div class="lb-counter" id="lbCounter"></div>
+          <button class="lb-next iconbtn" id="lbNext" aria-label="Next (→)">
+            →
+          </button>
+        </div>
+
+        <!-- Zoom display centered above navigation controls -->
+        <div class="zoom-display" id="zoomDisplay">100%</div>
+
+        <!-- Metadata panel -->
+        <div class="metadata-panel" id="metadataPanel">
+          <div class="panel-header">
+            <h4>Image Info</h4>
+            <button class="panel-close-btn" id="metadataCloseBtn" aria-label="Close metadata panel">✕</button>
+          </div>
+          <div class="metadata-row">
+            <span class="metadata-label">Dimensions:</span>
+            <span class="metadata-value" id="metaDimensions">—</span>
+          </div>
+          <div class="metadata-row">
+            <span class="metadata-label">File Size:</span>
+            <span class="metadata-value" id="metaFileSize">—</span>
+          </div>
+          <div class="metadata-row">
+            <span class="metadata-label">Format:</span>
+            <span class="metadata-value" id="metaFormat">—</span>
+          </div>
+          <div class="metadata-row">
+            <span class="metadata-label">Modified:</span>
+            <span class="metadata-value" id="metaModified">—</span>
+          </div>
+          <div class="metadata-row">
+            <span class="metadata-label">Zoom:</span>
+            <span class="metadata-value" id="metaZoom">100%</span>
+          </div>
+
+          <!-- Biological metadata section -->
+          <div id="biologicalMetadata">
+            <h4 id="biologicalMetadataTitle">Experimental Data</h4>
+            <div class="metadata-row" id="metaMouseIdRow">
+              <span class="metadata-label">Donor ID:</span>
+              <span class="metadata-value" id="metaMouseId">—</span>
+            </div>
+            <div class="metadata-row" id="metaGenotypeRow">
+              <span class="metadata-label">Genotype:</span>
+              <span class="metadata-value" id="metaGenotype">—</span>
+            </div>
+            <div class="metadata-row" id="metaEnhancerRow">
+              <span class="metadata-label">Enhancer:</span>
+              <span class="metadata-value" id="metaEnhancer">—</span>
+            </div>
+            <div class="metadata-row" id="metaVirusRow">
+              <span class="metadata-label" id="metaVirusLabel">Vector:</span>
+              <span class="metadata-value virus-name" id="metaVirus">—</span>
+            </div>
+            <div class="metadata-row" id="metaTargetedCellsRow">
+              <span class="metadata-label">Targeted Population:</span>
+              <span class="metadata-value" id="metaTargetedCells">—</span>
+            </div>
+            <!-- In vitro specific fields -->
+            <div
+              class="metadata-row hidden"
+              id="metaValidationMethodRow"
+            >
+              <span class="metadata-label">Validation Method:</span>
+              <span class="metadata-value" id="metaValidationMethod">—</span>
+            </div>
+            <div
+              class="metadata-row hidden"
+              id="metaInfectionRow"
+            >
+              <span class="metadata-label">Cell Type:</span>
+              <span class="metadata-value" id="metaInfection">—</span>
+            </div>
+            <div class="metadata-row hidden" id="metaMOIRow">
+              <span class="metadata-label">MOI:</span>
+              <span class="metadata-value" id="metaMOI">—</span>
+            </div>
+            <div
+              class="metadata-row hidden"
+              id="metaIncubationRow"
+            >
+              <span class="metadata-label">Incubation:</span>
+              <span class="metadata-value" id="metaIncubation">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Channel Legend positioned independently -->
+      <div class="channel-legend" id="channelLegend">
+        <div class="legend-header">
+          <div class="legend-title">Channel Legend</div>
+          <button class="panel-close-btn" id="legendCloseBtn" aria-label="Close legend">✕</button>
+        </div>
+        <div class="legend-item red-legend">
+          <span class="legend-color red-color"></span>
+          <span class="legend-label" id="redLegendLabel">Red Channel</span>
+        </div>
+        <div class="legend-item green-legend">
+          <span class="legend-color green-color"></span>
+          <span class="legend-label" id="greenLegendLabel">Green Channel</span>
+        </div>
+        <div class="legend-item blue-legend">
+          <span class="legend-color blue-color"></span>
+          <span class="legend-label" id="blueLegendLabel">Blue Channel</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Tutorial Modal -->
+    <div class="video-modal" id="videoModal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="video-modal-content">
+        <div class="video-modal-header">
+          <h2>Video Tutorial</h2>
+          <button class="video-modal-close" id="videoModalClose" aria-label="Close video">✕</button>
+        </div>
+        <div class="video-modal-body">
+          <div class="video-container">
+            <iframe 
+              id="tutorialVideo"
+              src="" 
+              title="AAV Gallery Tutorial"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- README Modal -->
+    <div class="readme-modal" id="readmeModal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="readme-modal-content">
+        <div class="readme-modal-header">
+          <h2>How to Use the Image Viewer</h2>
+          <button class="readme-modal-close" id="readmeModalClose" aria-label="Close help">✕</button>
+        </div>
+        <div class="readme-modal-body">
+          <div class="readme-section">
+            <h3>Navigation</h3>
+            <ul>
+              <li><strong>Arrow Keys</strong> - Navigate between images (← Previous | Next →)</li>
+              <li><strong>Escape</strong> - Close the image viewer</li>
+              <li><strong>Swipe Left/Right</strong> - Navigate on mobile devices</li>
+            </ul>
+          </div>
+
+          <div class="readme-section">
+            <h3>Zoom & Pan</h3>
+            <ul>
+              <li><strong>Scroll Wheel</strong> - Zoom in/out</li>
+              <li><strong>+/- Keys</strong> - Zoom in/out</li>
+              <li><strong>Click & Drag</strong> - Pan around when zoomed</li>
+              <li><strong>Pinch</strong> - Zoom on touch devices</li>
+              <li><strong>Double-click</strong> - Toggle fit/fill zoom</li>
+            </ul>
+          </div>
+
+          <div class="readme-section">
+            <h3>Channel Controls</h3>
+            <ul>
+              <li><strong>RGB Sliders</strong> - Adjust individual channel intensity (0-100%)</li>
+              <li><strong>Gain Control</strong> - Amplify all channels together (0-500%)</li>
+              <li><strong>Grayscale Button</strong> - View as grayscale</li>
+              <li><strong>Reset Button</strong> - Return to default channel settings</li>
+              <li><strong>Show Legend</strong> - Toggle channel information display</li>
+            </ul>
+          </div>
+
+          <div class="readme-section">
+            <h3>Information Panels</h3>
+            <ul>
+              <li><strong>Show Metadata</strong> - Display experimental information (genotype, vector, etc.)</li>
+              <li><strong>Show Atlas Position</strong> - View location in Allen Brain Atlas template</li>
+              <li><strong>Channel Legend</strong> - See what each color channel represents</li>
+            </ul>
+          </div>
+
+          <div class="readme-section">
+            <h3>Keyboard Shortcuts</h3>
+            <ul>
+              <li><strong>H</strong> - Toggle toolbar visibility</li>
+              <li><strong>M</strong> - Toggle metadata panel</li>
+              <li><strong>A</strong> - Toggle atlas panel</li>
+              <li><strong>L</strong> - Toggle legend panel</li>
+              <li><strong>G</strong> - Toggle grayscale</li>
+              <li><strong>R</strong> - Reset channel settings</li>
+              <li><strong>Esc</strong> - Close viewer</li>
+            </ul>
+          </div>
+
+          <div class="readme-section">
+            <h3>Tips</h3>
+            <ul>
+              <li>Use channel sliders to highlight different structures in the tissue</li>
+              <li>The legend shows which channels contain which markers (AAV, immunostaining, DAPI)</li>
+              <li>Hover over buttons to see more detailed information</li>
+              <li>On mobile, use the simplified toolbar with essential controls</li>
+              <li>The atlas panel helps locate structures within the mouse brain</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>

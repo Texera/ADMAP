@@ -1,0 +1,48 @@
+/* ================================================================
+   base.css  --  CSS custom properties, reset, body, typography, utilities
+   ================================================================ */
+
+:root {
+  --gap: 12px;
+  --thumb-radius: 10px;
+  --overlay-bg: rgba(0, 0, 0, 0.9);
+  --chrome-bg: rgba(0, 0, 0, 0.5);
+  --chrome-blur: 8px;
+  --maxw: 1200px;
+  --ink: #1b1f26;
+
+  /* Shared button token */
+  --btn-transition: all 0.2s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Utility: hidden by default, shown via JS */
+.hidden {
+  display: none;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  background: #0b0c10;
+  color: #e8e8e8;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.muted {
+  color: #c9c9c9;
+}
