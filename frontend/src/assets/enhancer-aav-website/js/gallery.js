@@ -2,27 +2,35 @@
 // Folder cards, image grid/list rendering, breadcrumbs, navigation,
 // view switching, and in-vivo/in-vitro folder swapping.
 
-import { ASSETS_BASE_URL, FOLDER_ICON_SVG, FOLDER_IN_VITRO, FOLDER_IN_VIVO } from './config.js';
-import { encodeFilePath, removeExtension, formatFileSize } from './utils.js';
+import { ASSETS_BASE_URL, FOLDER_ICON_SVG, FOLDER_IN_VITRO, FOLDER_IN_VIVO } from "./config.js";
+import { encodeFilePath, removeExtension, formatFileSize } from "./utils.js";
 import {
-  foldersView, imagesView, titleEl, subtitleEl, crumbsEl,
-  backBtn, viewSwitcher, viewText, pageSwapBtn
-} from './dom.js';
-import { viewState, lightboxState } from './state.js';
-import {
-  byFolder, getChildFolders,
-  getFolderMetadata, addFolderMetadataPanel, createMetadataDisplay
-} from './data.js';
+  foldersView,
+  imagesView,
+  titleEl,
+  subtitleEl,
+  crumbsEl,
+  backBtn,
+  viewSwitcher,
+  viewText,
+  pageSwapBtn,
+} from "./dom.js";
+import { viewState, lightboxState } from "./state.js";
+import { byFolder, getChildFolders, getFolderMetadata, addFolderMetadataPanel, createMetadataDisplay } from "./data.js";
 
 // Circular: only accessed at runtime (click handlers)
-import { openAt, close as closeLightbox } from './lightbox.js';
+import { openAt, close as closeLightbox } from "./lightbox.js";
 
 // ─── Hash Helpers ──────────────────────────────────────────────────
 
 export function currentFolderFromHash() {
   if (!location.hash.startsWith("#folder=")) return "";
   const val = location.hash.slice("#folder=".length);
-  try { return decodeURIComponent(val); } catch { return val; }
+  try {
+    return decodeURIComponent(val);
+  } catch {
+    return val;
+  }
 }
 
 // ─── Breadcrumbs ───────────────────────────────────────────────────
@@ -31,14 +39,18 @@ export function renderCrumbs(folderPath) {
   crumbsEl.innerHTML = "";
   const frag = document.createDocumentFragment();
 
-  const sep = () => frag.appendChild(
-    Object.assign(document.createElement("span"), { className: "sep", textContent: "›" })
-  );
+  const sep = () =>
+    frag.appendChild(Object.assign(document.createElement("span"), { className: "sep", textContent: "›" }));
 
   const home = Object.assign(document.createElement("a"), {
-    href: "#", className: "crumb", textContent: "Home"
+    href: "#",
+    className: "crumb",
+    textContent: "Home",
   });
-  home.addEventListener("click", (e) => { e.preventDefault(); showFolders(""); });
+  home.addEventListener("click", e => {
+    e.preventDefault();
+    showFolders("");
+  });
   frag.appendChild(home);
 
   if (folderPath) {
@@ -50,9 +62,10 @@ export function renderCrumbs(folderPath) {
       const currentPath = accum;
       const link = Object.assign(document.createElement("a"), {
         href: "#folder=" + encodeURIComponent(currentPath),
-        className: "crumb", textContent: part
+        className: "crumb",
+        textContent: part,
       });
-      link.addEventListener("click", (e) => {
+      link.addEventListener("click", e => {
         e.preventDefault();
         const imgs = byFolder.get(currentPath) || [];
         const childFolders = getChildFolders(currentPath);
@@ -73,7 +86,10 @@ export function folderCard(folderPath, count, isContainer = false) {
   const card = document.createElement("button");
   card.type = "button";
   card.className = viewState.isRowView ? "folder row-view" : "folder";
-  card.addEventListener("click", (e) => { e.preventDefault(); showFolder(folderPath); });
+  card.addEventListener("click", e => {
+    e.preventDefault();
+    showFolder(folderPath);
+  });
 
   const thumb = document.createElement("div");
   thumb.className = "thumb";
@@ -98,16 +114,22 @@ export function folderCard(folderPath, count, isContainer = false) {
   meta.className = "meta";
 
   const displayName = folderPath ? folderPath.split("/").pop() : "(root)";
-  meta.appendChild(Object.assign(document.createElement("div"), {
-    className: "name", textContent: displayName
-  }));
+  meta.appendChild(
+    Object.assign(document.createElement("div"), {
+      className: "name",
+      textContent: displayName,
+    })
+  );
 
   const countText = isContainer
     ? `${count} subfolder${count === 1 ? "" : "s"}`
     : `${count} image${count === 1 ? "" : "s"}`;
-  meta.appendChild(Object.assign(document.createElement("div"), {
-    className: "count", textContent: countText
-  }));
+  meta.appendChild(
+    Object.assign(document.createElement("div"), {
+      className: "count",
+      textContent: countText,
+    })
+  );
 
   const metadata = getFolderMetadata(folderPath);
   if (metadata) {
@@ -129,7 +151,7 @@ export function renderFolders(currentPath = "") {
 
   const childFolders = getChildFolders(currentPath);
 
-  childFolders.forEach((childPath) => {
+  childFolders.forEach(childPath => {
     const imgs = byFolder.get(childPath) || [];
     if (imgs.length > 0) {
       frag.appendChild(folderCard(childPath, imgs.length, false));
@@ -153,7 +175,7 @@ export function renderImages(imgs) {
   imagesView.className = viewState.isRowView ? "gallery row-view" : "gallery";
   const frag = document.createDocumentFragment();
 
-  imgs.forEach((img) => {
+  imgs.forEach(img => {
     const fig = document.createElement("figure");
     fig.className = viewState.isRowView ? "card row-view" : "card";
 
@@ -166,7 +188,10 @@ export function renderImages(imgs) {
     const im = document.createElement("img");
     im.loading = "lazy";
     im.decoding = "async";
-    if (img.t_width && img.t_height) { im.width = img.t_width; im.height = img.t_height; }
+    if (img.t_width && img.t_height) {
+      im.width = img.t_width;
+      im.height = img.t_height;
+    }
     const thumbPath = img.thumb || img.src;
     im.src = encodeFilePath(ASSETS_BASE_URL + "thumbs/" + thumbPath);
     im.alt = img.name || "image";
@@ -191,9 +216,7 @@ export function renderImages(imgs) {
 
       const lastModified = document.createElement("div");
       lastModified.className = "last-modified";
-      lastModified.textContent = img.mtime
-        ? new Date(img.mtime * 1000).toLocaleDateString()
-        : "—";
+      lastModified.textContent = img.mtime ? new Date(img.mtime * 1000).toLocaleDateString() : "—";
 
       details.appendChild(filename);
       details.appendChild(dimensions);
@@ -236,7 +259,7 @@ export function showFolders(folderPath = "") {
   if (existingPanel) existingPanel.remove();
 
   const childFolders = getChildFolders(displayPath);
-  const validChildren = childFolders.filter((childPath) => {
+  const validChildren = childFolders.filter(childPath => {
     const imgs = byFolder.get(childPath) || [];
     if (imgs.length > 0) return true;
     const subfolders = getChildFolders(childPath);
@@ -311,8 +334,7 @@ export function updateSwapButtonState(button, folderPath = null) {
     let isInVitro = false;
     let isInVivo = false;
 
-    if (currentFolderPath.startsWith(FOLDER_IN_VITRO) ||
-        currentFolderPath.includes("/" + FOLDER_IN_VITRO)) {
+    if (currentFolderPath.startsWith(FOLDER_IN_VITRO) || currentFolderPath.includes("/" + FOLDER_IN_VITRO)) {
       isInVitro = true;
       const parts = currentFolderPath.split("/");
       const vitroIndex = parts.indexOf(FOLDER_IN_VITRO);
@@ -323,8 +345,7 @@ export function updateSwapButtonState(button, folderPath = null) {
           hasCorrespondingFolder = true;
         }
       }
-    } else if (currentFolderPath.startsWith(FOLDER_IN_VIVO) ||
-               currentFolderPath.includes("/" + FOLDER_IN_VIVO)) {
+    } else if (currentFolderPath.startsWith(FOLDER_IN_VIVO) || currentFolderPath.includes("/" + FOLDER_IN_VIVO)) {
       isInVivo = true;
       const parts = currentFolderPath.split("/");
       const vivoIndex = parts.indexOf(FOLDER_IN_VIVO);

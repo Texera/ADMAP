@@ -1,23 +1,23 @@
 // ── Shared Mutable Application State ──
 // All state is exported as objects so importers can read and mutate properties.
 
-import { CHANNEL_DEFAULT } from './config.js';
+import { CHANNEL_DEFAULT } from "./config.js";
 
 // Atlas panel state (hover interaction, annotation data)
 export const atlasState = {
   registeredImg: null,
-  annotation16bit: null,       // Uint16Array of 16-bit label values
+  annotation16bit: null, // Uint16Array of 16-bit label values
   annotationWidth: 0,
   annotationHeight: 0,
   canvasWidth: 0,
   canvasHeight: 0,
   boundaryPixels: [],
   currentHoverRegion: null,
-  currentCcfIndex: null,       // Current CCF slice index
+  currentCcfIndex: null, // Current CCF slice index
   currentRegisteredData: null, // { forward_image, forward_annotation, inverse_annotation }
-  interactiveMode: false,      // Showing interactive canvas vs static CCF image
-  brainRegionMap: null,        // Map: parcellation_index → region info
-  brainRegionIdMap: null       // Map: id to region info (for parent lookups)
+  interactiveMode: false, // Showing interactive canvas vs static CCF image
+  brainRegionMap: null, // Map: parcellation_index → region info
+  brainRegionIdMap: null, // Map: id to region info (for parent lookups)
 };
 
 // Regions overlay state (boundaries on the main lightbox image)
@@ -38,7 +38,7 @@ export const regionsOverlayState = {
   downsampledHeight: 0,
   // Cache dims to avoid recompute on toggle
   cachedCanvasWidth: 0,
-  cachedCanvasHeight: 0
+  cachedCanvasHeight: 0,
 };
 
 // Channel slider state (intensity 0-100, gain 0-500)
@@ -46,20 +46,20 @@ export const channelState = {
   red: CHANNEL_DEFAULT,
   green: CHANNEL_DEFAULT,
   blue: CHANNEL_DEFAULT,
-  gain: CHANNEL_DEFAULT
+  gain: CHANNEL_DEFAULT,
 };
 
 // View / UI state
 export const viewState = {
-  isRowView: true,       // default to detail view
-  isGrayscale: false
+  isRowView: true, // default to detail view
+  isGrayscale: false,
 };
 
 // Lightbox navigation state
 export const lightboxState = {
-  items: [],        // card or button elements in current images view
+  items: [], // card or button elements in current images view
   idx: -1,
-  lastActive: null  // element that had focus before lightbox opened
+  lastActive: null, // element that had focus before lightbox opened
 };
 
 // Zoom & pan state
@@ -72,7 +72,7 @@ export const zoomState = {
   panStartY: 0,
   lastPanX: 0,
   lastPanY: 0,
-  hasDragged: false
+  hasDragged: false,
 };
 
 // Touch gesture state
@@ -86,10 +86,10 @@ export const touchState = {
   lastTouchPanX: 0,
   lastTouchPanY: 0,
   lastTouchDistance: null,
-  lastTouchZoom: 1
+  lastTouchZoom: 1,
 };
 
 // Data (populated by loadManifest in data.js)
 export const dataState = {
-  folderMetadata: new Map()
+  folderMetadata: new Map(),
 };

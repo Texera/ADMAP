@@ -9,16 +9,12 @@ export function formatFileSize(bytes) {
 
 /** Convert a 6-char hex string to [r, g, b]. */
 export function hexToRgb(hex) {
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16),
-  ];
+  return [parseInt(hex.substring(0, 2), 16), parseInt(hex.substring(2, 4), 16), parseInt(hex.substring(4, 6), 16)];
 }
 
 /** Yield to the browser via requestAnimationFrame (for chunked async work). */
 export function yieldToBrowser() {
-  return new Promise((resolve) => requestAnimationFrame(resolve));
+  return new Promise(resolve => requestAnimationFrame(resolve));
 }
 
 /** Encode a file path for use in URLs (also encodes #). */

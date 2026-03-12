@@ -3,8 +3,8 @@
 // This is NOT for the main lightbox images, which are 8-bit and can be loaded directly into Image objects.
 // Hand-rolled decoder for 16-bit PNGs (not natively supported by Canvas API).
 
-import { DEBUG } from './config.js';
-import { yieldToBrowser } from './utils.js';
+import { DEBUG } from "./config.js";
+import { yieldToBrowser } from "./utils.js";
 
 // Paeth predictor for PNG filtering
 export function paethPredictor(a, b, c) {
@@ -32,25 +32,24 @@ export async function parse16bitGrayscalePNG(url) {
   }
 
   let offset = 8;
-  let width = 0, height = 0, bitDepth = 0, colorType = 0;
+  let width = 0,
+    height = 0,
+    bitDepth = 0,
+    colorType = 0;
   const idatChunks = [];
 
   // Parse chunks
   while (offset < data.length) {
-    const length = (data[offset] << 24) | (data[offset + 1] << 16) |
-                   (data[offset + 2] << 8) | data[offset + 3];
+    const length = (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3];
     offset += 4;
 
-    const type = String.fromCharCode(data[offset], data[offset + 1],
-                                      data[offset + 2], data[offset + 3]);
+    const type = String.fromCharCode(data[offset], data[offset + 1], data[offset + 2], data[offset + 3]);
     offset += 4;
 
     if (type === "IHDR") {
-      width  = (data[offset] << 24) | (data[offset + 1] << 16) |
-               (data[offset + 2] << 8) | data[offset + 3];
-      height = (data[offset + 4] << 24) | (data[offset + 5] << 16) |
-               (data[offset + 6] << 8) | data[offset + 7];
-      bitDepth  = data[offset + 8];
+      width = (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3];
+      height = (data[offset + 4] << 24) | (data[offset + 5] << 16) | (data[offset + 6] << 8) | data[offset + 7];
+      bitDepth = data[offset + 8];
       colorType = data[offset + 9];
       DEBUG && console.log(`PNG: ${width}x${height}, ${bitDepth}-bit, colorType=${colorType}`);
     } else if (type === "IDAT") {
@@ -63,7 +62,9 @@ export async function parse16bitGrayscalePNG(url) {
   }
 
   if (bitDepth !== 16 || colorType !== 0) {
-    console.warn(`Expected 16-bit grayscale (bitDepth=16, colorType=0), got bitDepth=${bitDepth}, colorType=${colorType}`);
+    console.warn(
+      `Expected 16-bit grayscale (bitDepth=16, colorType=0), got bitDepth=${bitDepth}, colorType=${colorType}`
+    );
   }
 
   // Concatenate IDAT chunks
@@ -130,21 +131,31 @@ export async function parse16bitGrayscalePNG(url) {
         let bByte = 0;
         if (y > 0) {
           const prevPixel = pixels[(y - 1) * width + Math.floor(i / bytesPerPixel)];
-          bByte = (i % 2 === 0) ? (prevPixel >> 8) : (prevPixel & 0xFF);
+          bByte = i % 2 === 0 ? prevPixel >> 8 : prevPixel & 0xff;
         }
         let c = 0;
         if (y > 0 && i >= bytesPerPixel) {
           const prevPixel = pixels[(y - 1) * width + Math.floor((i - bytesPerPixel) / bytesPerPixel)];
-          c = (i % 2 === 0) ? (prevPixel >> 8) : (prevPixel & 0xFF);
+          c = i % 2 === 0 ? prevPixel >> 8 : prevPixel & 0xff;
         }
 
         const val = row[i];
         switch (filterType) {
-          case 0: unfilteredRow[i] = val; break;
-          case 1: unfilteredRow[i] = (val + a) & 0xFF; break;
-          case 2: unfilteredRow[i] = (val + bByte) & 0xFF; break;
-          case 3: unfilteredRow[i] = (val + Math.floor((a + bByte) / 2)) & 0xFF; break;
-          case 4: unfilteredRow[i] = (val + paethPredictor(a, bByte, c)) & 0xFF; break;
+          case 0:
+            unfilteredRow[i] = val;
+            break;
+          case 1:
+            unfilteredRow[i] = (val + a) & 0xff;
+            break;
+          case 2:
+            unfilteredRow[i] = (val + bByte) & 0xff;
+            break;
+          case 3:
+            unfilteredRow[i] = (val + Math.floor((a + bByte) / 2)) & 0xff;
+            break;
+          case 4:
+            unfilteredRow[i] = (val + paethPredictor(a, bByte, c)) & 0xff;
+            break;
         }
       }
 

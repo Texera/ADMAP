@@ -1,13 +1,13 @@
 // ── Entry Point ──
 // Top-level module: loads data, initializes sub-systems, performs initial routing.
 
-import { ASSETS_BASE_URL } from './config.js';
-import { atlasBrainImage, pageSwapBtn } from './dom.js';
-import { loadBrainRegionMapping } from './atlas.js';
-import { loadManifest, byFolder, getChildFolders } from './data.js';
-import { currentFolderFromHash, showFolder, showFolders, updateSwapButtonState, initGallery } from './gallery.js';
-import { initChannels } from './channels.js';
-import { initLightbox } from './lightbox.js';
+import { ASSETS_BASE_URL } from "./config.js";
+import { atlasBrainImage, pageSwapBtn } from "./dom.js";
+import { loadBrainRegionMapping } from "./atlas.js";
+import { loadManifest, byFolder, getChildFolders } from "./data.js";
+import { currentFolderFromHash, showFolder, showFolders, updateSwapButtonState, initGallery } from "./gallery.js";
+import { initChannels } from "./channels.js";
+import { initLightbox } from "./lightbox.js";
 
 // ── Helpers ──
 

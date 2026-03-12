@@ -2,18 +2,23 @@
 // CCF atlas rendering, brain-region CSV loading, boundary extraction,
 // region hover interaction, and atlas panel management.
 
-import { ASSETS_BASE_URL, DEBUG, REGION_HOVER_PLACEHOLDER } from './config.js';
-import { parseCSVLine, hexToRgb, yieldToBrowser } from './utils.js';
+import { ASSETS_BASE_URL, DEBUG, REGION_HOVER_PLACEHOLDER } from "./config.js";
+import { parseCSVLine, hexToRgb, yieldToBrowser } from "./utils.js";
 import {
-  atlasCanvas, atlasBrainImage, ccfSliceImage,
-  atlasRegionInfo, atlasPanelTitle, brainPositionDisplay,
-  regionsOverlayCanvas, atlasBackBtn
-} from './dom.js';
-import { atlasState, regionsOverlayState } from './state.js';
-import { parse16bitGrayscalePNG } from './pngParser.js';
+  atlasCanvas,
+  atlasBrainImage,
+  ccfSliceImage,
+  atlasRegionInfo,
+  atlasPanelTitle,
+  brainPositionDisplay,
+  regionsOverlayCanvas,
+  atlasBackBtn,
+} from "./dom.js";
+import { atlasState, regionsOverlayState } from "./state.js";
+import { parse16bitGrayscalePNG } from "./pngParser.js";
 
 // Circular: imported lazily at runtime
-import { redrawRegionsOverlay } from './regionsOverlay.js';
+import { redrawRegionsOverlay } from "./regionsOverlay.js";
 
 // ─── CSV Region Mapping ────────────────────────────────────────────
 
@@ -21,37 +26,41 @@ export async function loadBrainRegionMapping() {
   try {
     const response = await fetch(ASSETS_BASE_URL + "1_adult_mouse_brain_graph_mapping.csv");
     const csvText = await response.text();
-    const lines = csvText.trim().split('\n');
+    const lines = csvText.trim().split("\n");
     const headers = parseCSVLine(lines[0]);
 
-    const idIdx            = headers.indexOf('id');
-    const acronymIdx       = headers.indexOf('acronym');
-    const colorIdx         = headers.indexOf('color_hex_triplet');
-    const nameIdx          = headers.indexOf('name');
-    const parentIdx        = headers.indexOf('parent_structure_id');
-    const parcellationIdx  = headers.indexOf('parcellation_index');
+    const idIdx = headers.indexOf("id");
+    const acronymIdx = headers.indexOf("acronym");
+    const colorIdx = headers.indexOf("color_hex_triplet");
+    const nameIdx = headers.indexOf("name");
+    const parentIdx = headers.indexOf("parent_structure_id");
+    const parcellationIdx = headers.indexOf("parcellation_index");
 
-    const regionMap  = new Map();
+    const regionMap = new Map();
     const idToInfoMap = new Map();
 
     for (let i = 1; i < lines.length; i++) {
       const row = parseCSVLine(lines[i]);
       if (row.length >= 8) {
-        const id               = parseInt(row[idIdx]);
+        const id = parseInt(row[idIdx]);
         const parcellationIndex = parseInt(row[parcellationIdx]);
-        const parentId         = parseInt(row[parentIdx]) || -1;
+        const parentId = parseInt(row[parentIdx]) || -1;
 
         const info = {
-          id, acronym: row[acronymIdx], color: row[colorIdx],
-          name: row[nameIdx], parentId, parcellationIndex
+          id,
+          acronym: row[acronymIdx],
+          color: row[colorIdx],
+          name: row[nameIdx],
+          parentId,
+          parcellationIndex,
         };
 
         if (!isNaN(parcellationIndex)) regionMap.set(parcellationIndex, info);
-        if (!isNaN(id))               idToInfoMap.set(id, info);
+        if (!isNaN(id)) idToInfoMap.set(id, info);
       }
     }
 
-    atlasState.brainRegionMap   = regionMap;
+    atlasState.brainRegionMap = regionMap;
     atlasState.brainRegionIdMap = idToInfoMap;
   } catch (error) {
     console.error("Failed to load brain region mapping:", error);
@@ -71,14 +80,23 @@ export function extractBoundaryPixels16bit(pixels, annWidth, annHeight, canvasWi
       if (currentLabel === 0) continue;
 
       let isBoundary = false;
-      const neighbors = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+      const neighbors = [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1],
+      ];
       for (const [dx, dy] of neighbors) {
         const nx = x + dx;
         const ny = y + dy;
         if (nx >= 0 && nx < annWidth && ny >= 0 && ny < annHeight) {
-          if (pixels[ny * annWidth + nx] !== currentLabel) { isBoundary = true; break; }
+          if (pixels[ny * annWidth + nx] !== currentLabel) {
+            isBoundary = true;
+            break;
+          }
         } else {
-          isBoundary = true; break;
+          isBoundary = true;
+          break;
         }
       }
 
@@ -100,16 +118,24 @@ export function drawBoundaries(ctx, boundaryPixels, color = "rgba(0, 255, 255, 0
 // ─── Boundary Extraction (optimised single-pass for overlay) ───────
 
 export async function extractBoundaryAndDownsampleCombined(
-  pixels, annWidth, annHeight, canvasWidth, canvasHeight, onProgress
+  pixels,
+  annWidth,
+  annHeight,
+  canvasWidth,
+  canvasHeight,
+  onProgress
 ) {
   const scaleX = annWidth / canvasWidth;
   const scaleY = annHeight / canvasHeight;
 
-  const imageData   = new ImageData(canvasWidth, canvasHeight);
-  const data        = imageData.data;
+  const imageData = new ImageData(canvasWidth, canvasHeight);
+  const data = imageData.data;
   const downsampled = new Uint16Array(canvasWidth * canvasHeight);
 
-  const r = 0, g = 255, b = 255, a = 180;
+  const r = 0,
+    g = 255,
+    b = 255,
+    a = 180;
   const CHUNK_SIZE = 50;
 
   for (let startRow = 0; startRow < canvasHeight; startRow += CHUNK_SIZE) {
@@ -128,28 +154,35 @@ export async function extractBoundaryAndDownsampleCombined(
         let isBoundary = false;
 
         const nx1 = annX + Math.max(1, Math.floor(scaleX));
-        if (nx1 < annWidth) { if (pixels[annY * annWidth + nx1] !== currentLabel) isBoundary = true; }
-        else isBoundary = true;
+        if (nx1 < annWidth) {
+          if (pixels[annY * annWidth + nx1] !== currentLabel) isBoundary = true;
+        } else isBoundary = true;
 
         if (!isBoundary) {
           const ny1 = annY + Math.max(1, Math.floor(scaleY));
-          if (ny1 < annHeight) { if (pixels[ny1 * annWidth + annX] !== currentLabel) isBoundary = true; }
-          else isBoundary = true;
+          if (ny1 < annHeight) {
+            if (pixels[ny1 * annWidth + annX] !== currentLabel) isBoundary = true;
+          } else isBoundary = true;
         }
         if (!isBoundary) {
           const nx2 = annX - Math.max(1, Math.floor(scaleX));
-          if (nx2 >= 0) { if (pixels[annY * annWidth + nx2] !== currentLabel) isBoundary = true; }
-          else isBoundary = true;
+          if (nx2 >= 0) {
+            if (pixels[annY * annWidth + nx2] !== currentLabel) isBoundary = true;
+          } else isBoundary = true;
         }
         if (!isBoundary) {
           const ny2 = annY - Math.max(1, Math.floor(scaleY));
-          if (ny2 >= 0) { if (pixels[ny2 * annWidth + annX] !== currentLabel) isBoundary = true; }
-          else isBoundary = true;
+          if (ny2 >= 0) {
+            if (pixels[ny2 * annWidth + annX] !== currentLabel) isBoundary = true;
+          } else isBoundary = true;
         }
 
         if (isBoundary) {
           const idx = (rowOffset + cx) * 4;
-          data[idx] = r; data[idx + 1] = g; data[idx + 2] = b; data[idx + 3] = a;
+          data[idx] = r;
+          data[idx + 1] = g;
+          data[idx + 2] = b;
+          data[idx + 3] = a;
         }
       }
     }
@@ -178,8 +211,7 @@ export function getRegionAtPosition(canvasX, canvasY) {
   const annX = Math.floor(canvasX * scaleX);
   const annY = Math.floor(canvasY * scaleY);
 
-  if (annX < 0 || annX >= atlasState.annotationWidth ||
-      annY < 0 || annY >= atlasState.annotationHeight) return null;
+  if (annX < 0 || annX >= atlasState.annotationWidth || annY < 0 || annY >= atlasState.annotationHeight) return null;
 
   const label = atlasState.annotation16bit[annY * atlasState.annotationWidth + annX];
   return label === 0 ? null : label;
@@ -188,7 +220,7 @@ export function getRegionAtPosition(canvasX, canvasY) {
 export function getRegionPixels(regionLabel) {
   if (!atlasState.annotation16bit) return [];
 
-  const annWidth  = atlasState.annotationWidth;
+  const annWidth = atlasState.annotationWidth;
   const annHeight = atlasState.annotationHeight;
   const scaleX = atlasState.canvasWidth / annWidth;
   const scaleY = atlasState.canvasHeight / annHeight;
@@ -236,13 +268,11 @@ export function updateRegionInfo(regionLabel, canvasX, canvasY) {
   }
 
   const regionPixels = getRegionPixels(regionLabel);
-  const pixelCount   = regionPixels.length;
+  const pixelCount = regionPixels.length;
   const CCF_PIXEL_SIZE_UM = 25;
   const areaUm2 = pixelCount * CCF_PIXEL_SIZE_UM * CCF_PIXEL_SIZE_UM;
   const areaMm2 = areaUm2 / 1_000_000;
-  const areaStr = areaMm2 >= 0.01
-    ? areaMm2.toFixed(3) + ' mm²'
-    : areaUm2.toLocaleString() + ' µm²';
+  const areaStr = areaMm2 >= 0.01 ? areaMm2.toFixed(3) + " mm²" : areaUm2.toLocaleString() + " µm²";
 
   const scaleX = atlasState.annotationWidth / atlasState.canvasWidth;
   const scaleY = atlasState.annotationHeight / atlasState.canvasHeight;
@@ -253,12 +283,12 @@ export function updateRegionInfo(regionLabel, canvasX, canvasY) {
 
   if (regionInfo) {
     const parentInfo = atlasState.brainRegionIdMap?.get(regionInfo.parentId);
-    const parentName = parentInfo ? parentInfo.name : '';
+    const parentName = parentInfo ? parentInfo.name : "";
     atlasRegionInfo.innerHTML = `
       <div style="color: #4dabf7; font-weight: 600; margin-bottom: 4px;">${regionInfo.name}</div>
       <div style="color: #ccc; font-size: 10px;">
         <div><strong>Acronym:</strong> ${regionInfo.acronym}</div>
-        ${parentName ? `<div><strong>Parent:</strong> ${parentName}</div>` : ''}
+        ${parentName ? `<div><strong>Parent:</strong> ${parentName}</div>` : ""}
         <div style="display: flex; align-items: center; gap: 6px;">
           <strong>Color:</strong>
           <span style="display: inline-block; width: 12px; height: 12px; background: #${regionInfo.color}; border: 1px solid #666; border-radius: 2px;"></span>
@@ -282,12 +312,18 @@ export function updateRegionInfo(regionLabel, canvasX, canvasY) {
 // ─── Atlas Panel Management ────────────────────────────────────────
 
 export async function renderAtlasWithBoundaries() {
-  if (!atlasCanvas) { DEBUG && console.log("Atlas canvas not found"); return; }
+  if (!atlasCanvas) {
+    DEBUG && console.log("Atlas canvas not found");
+    return;
+  }
 
   const regData = atlasState.currentRegisteredData;
   if (!regData?.forward_image || !regData?.forward_annotation) {
     DEBUG && console.log("No registered data available for this image");
-    if (atlasBrainImage) { atlasCanvas.style.display = "none"; atlasBrainImage.style.display = "block"; }
+    if (atlasBrainImage) {
+      atlasCanvas.style.display = "none";
+      atlasBrainImage.style.display = "block";
+    }
     return;
   }
 
@@ -314,21 +350,25 @@ export async function renderAtlasWithBoundaries() {
 
     DEBUG && console.log("Both images loaded. Annotation dimensions:", annWidth, "x", annHeight);
 
-    atlasCanvas.width  = registeredImg.width;
+    atlasCanvas.width = registeredImg.width;
     atlasCanvas.height = registeredImg.height;
     DEBUG && console.log("Canvas dimensions set to:", atlasCanvas.width, "x", atlasCanvas.height);
 
-    atlasState.registeredImg    = registeredImg;
-    atlasState.canvasWidth      = atlasCanvas.width;
-    atlasState.canvasHeight     = atlasCanvas.height;
-    atlasState.annotation16bit  = annotation16bit;
-    atlasState.annotationWidth  = annWidth;
+    atlasState.registeredImg = registeredImg;
+    atlasState.canvasWidth = atlasCanvas.width;
+    atlasState.canvasHeight = atlasCanvas.height;
+    atlasState.annotation16bit = annotation16bit;
+    atlasState.annotationWidth = annWidth;
     atlasState.annotationHeight = annHeight;
 
     ctx.drawImage(registeredImg, 0, 0);
 
     atlasState.boundaryPixels = extractBoundaryPixels16bit(
-      annotation16bit, annWidth, annHeight, atlasCanvas.width, atlasCanvas.height
+      annotation16bit,
+      annWidth,
+      annHeight,
+      atlasCanvas.width,
+      atlasCanvas.height
     );
     drawBoundaries(ctx, atlasState.boundaryPixels);
 
@@ -338,26 +378,34 @@ export async function renderAtlasWithBoundaries() {
     atlasState.interactiveMode = true;
   } catch (error) {
     console.error("Failed to load atlas images:", error);
-    if (atlasBrainImage) { atlasCanvas.style.display = "none"; atlasBrainImage.style.display = "block"; }
+    if (atlasBrainImage) {
+      atlasCanvas.style.display = "none";
+      atlasBrainImage.style.display = "block";
+    }
   }
 }
 
 export function updateAtlasPanel(ccfIndex, registeredData = null) {
-  DEBUG && console.log("Updating atlas panel with CCF index:", ccfIndex,
-    "registered data:", registeredData ? "available" : "none");
-  atlasState.currentCcfIndex        = ccfIndex;
-  atlasState.currentRegisteredData  = registeredData;
-  atlasState.interactiveMode        = false;
+  DEBUG &&
+    console.log(
+      "Updating atlas panel with CCF index:",
+      ccfIndex,
+      "registered data:",
+      registeredData ? "available" : "none"
+    );
+  atlasState.currentCcfIndex = ccfIndex;
+  atlasState.currentRegisteredData = registeredData;
+  atlasState.interactiveMode = false;
 
   if (atlasPanelTitle) atlasPanelTitle.textContent = "Location in Atlas";
-  if (atlasBackBtn)    atlasBackBtn.style.display = "none";
+  if (atlasBackBtn) atlasBackBtn.style.display = "none";
 
-  if (atlasCanvas)     atlasCanvas.style.display     = "none";
+  if (atlasCanvas) atlasCanvas.style.display = "none";
   if (atlasBrainImage) atlasBrainImage.style.display = "none";
-  if (ccfSliceImage)   ccfSliceImage.style.display   = "none";
+  if (ccfSliceImage) ccfSliceImage.style.display = "none";
 
   if (ccfIndex !== null && ccfIndex !== undefined) {
-    const paddedIndex = String(ccfIndex).padStart(3, '0');
+    const paddedIndex = String(ccfIndex).padStart(3, "0");
     const ccfImageUrl = ASSETS_BASE_URL + "ccf/" + paddedIndex + ".webp";
     DEBUG && console.log("Loading CCF slice:", ccfImageUrl);
 
@@ -403,10 +451,10 @@ export async function showInteractiveAtlas() {
 
   atlasState.interactiveMode = true;
 
-  if (ccfSliceImage)   ccfSliceImage.style.display   = "none";
+  if (ccfSliceImage) ccfSliceImage.style.display = "none";
   if (atlasBrainImage) atlasBrainImage.style.display = "none";
-  if (atlasPanelTitle) atlasPanelTitle.textContent   = "Registered Boundaries";
-  if (atlasBackBtn)    atlasBackBtn.style.display     = "flex";
+  if (atlasPanelTitle) atlasPanelTitle.textContent = "Registered Boundaries";
+  if (atlasBackBtn) atlasBackBtn.style.display = "flex";
 
   if (atlasCanvas) {
     atlasCanvas.style.display = "block";
@@ -424,7 +472,7 @@ export async function showInteractiveAtlas() {
 
 export function showCcfSliceView() {
   DEBUG && console.log("Going back to CCF slice view...");
-  if (brainPositionDisplay) brainPositionDisplay.innerHTML = '';
+  if (brainPositionDisplay) brainPositionDisplay.innerHTML = "";
   updateAtlasPanel(atlasState.currentCcfIndex, atlasState.currentRegisteredData);
 }
 
@@ -434,7 +482,7 @@ export function setupAtlasHoverInteraction() {
   if (!atlasCanvas) return;
   atlasCanvas.style.cursor = "crosshair";
 
-  atlasCanvas.addEventListener("mousemove", (e) => {
+  atlasCanvas.addEventListener("mousemove", e => {
     const rect = atlasCanvas.getBoundingClientRect();
     const scaleX = atlasCanvas.width / rect.width;
     const scaleY = atlasCanvas.height / rect.height;

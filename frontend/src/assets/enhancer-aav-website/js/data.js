@@ -2,16 +2,16 @@
 // Fetches the manifest, builds folder/image indices, and provides
 // metadata lookup and folder-level metadata panel rendering.
 
-import { ASSETS_BASE_URL } from './config.js';
-import { getFolderPath } from './utils.js';
-import { foldersView } from './dom.js';
-import { dataState } from './state.js';
+import { ASSETS_BASE_URL } from "./config.js";
+import { getFolderPath } from "./utils.js";
+import { foldersView } from "./dom.js";
+import { dataState } from "./state.js";
 
 // ─── Data Structures (populated by loadManifest) ───────────────────
 
-export const byFolder    = new Map();   // folderPath to image[]
-export const allFolders  = new Set();
-export const folderPaths = [];          // sorted unique folder paths
+export const byFolder = new Map(); // folderPath to image[]
+export const allFolders = new Set();
+export const folderPaths = []; // sorted unique folder paths
 
 // ─── Manifest Loading ──────────────────────────────────────────────
 
@@ -22,8 +22,7 @@ export async function loadManifest() {
     if (!res.ok) throw new Error(res.status + " " + res.statusText);
     data = await res.json();
   } catch (e) {
-    foldersView.innerHTML =
-      `<p style="color:#ffb3b3">Couldn't load <code>images.json</code>: ${e.message}</p>`;
+    foldersView.innerHTML = `<p style="color:#ffb3b3">Couldn't load <code>images.json</code>: ${e.message}</p>`;
     return;
   }
 
@@ -48,7 +47,7 @@ export async function loadManifest() {
             size_bytes: img.size,
             mtime: img.mtime,
             width: img.width || 0,
-            height: img.height || 0
+            height: img.height || 0,
           };
 
           if (img.metadata && Object.keys(img.metadata).length > 0) record.metadata = img.metadata;
@@ -72,9 +71,13 @@ export async function loadManifest() {
       <p><strong>Total folders:</strong> ${Object.keys(data.folders).length}</p>
       <p><strong>Folders with metadata:</strong> ${dataState.folderMetadata.size}</p>
       <p><strong>Sample folder paths:</strong><br>${Object.keys(data.folders).slice(0, 3).join("<br>")}</p>
-      ${dataState.folderMetadata.size > 0
-        ? `<p><strong>Sample metadata keys:</strong><br>${Object.keys([...dataState.folderMetadata.values()][0]).slice(0, 8).join(", ")}</p>`
-        : "<p>No metadata found!</p>"}`;
+      ${
+        dataState.folderMetadata.size > 0
+          ? `<p><strong>Sample metadata keys:</strong><br>${Object.keys([...dataState.folderMetadata.values()][0])
+              .slice(0, 8)
+              .join(", ")}</p>`
+          : "<p>No metadata found!</p>"
+      }`;
     document.body.appendChild(debugDiv);
   }
 
@@ -99,9 +102,7 @@ export async function loadManifest() {
     arr.sort((a, b) => a.src.localeCompare(b.src));
   }
 
-  folderPaths.push(
-    ...Array.from(allFolders).sort((a, b) => a.localeCompare(b))
-  );
+  folderPaths.push(...Array.from(allFolders).sort((a, b) => a.localeCompare(b)));
 }
 
 // ─── Folder Helpers ────────────────────────────────────────────────
@@ -162,21 +163,27 @@ export function addFolderMetadataPanel(folderPath) {
   function getValueType(key, value) {
     if (key.toLowerCase().includes("virus")) return "virus-name";
     if (key.toLowerCase().includes("date") || /\d{1,2}\/\d{1,2}\/\d{2,4}/.test(value)) return "date";
-    if (key.toLowerCase().includes("dose") || /^[\d.]+e[\+\-]?\d+$/i.test(value) ||
-        (!isNaN(value) && !isNaN(parseFloat(value)))) return "numeric";
+    if (
+      key.toLowerCase().includes("dose") ||
+      /^[\d.]+e[\+\-]?\d+$/i.test(value) ||
+      (!isNaN(value) && !isNaN(parseFloat(value)))
+    )
+      return "numeric";
     if (typeof value === "boolean" || /^(TRUE|FALSE|True|False)$/.test(value)) return "boolean";
     return "default";
   }
 
   function containsURL(str) {
-    if (!str || typeof str !== 'string') return false;
+    if (!str || typeof str !== "string") return false;
     return /(https?:\/\/[^\s]+)/gi.test(str);
   }
 
   function linkifyURLs(text) {
-    if (!text || typeof text !== 'string') return text;
-    return text.replace(/(https?:\/\/[^\s<]+[^<.,:;"'\)\]\s])/gi,
-      (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+    if (!text || typeof text !== "string") return text;
+    return text.replace(
+      /(https?:\/\/[^\s<]+[^<.,:;"'\)\]\s])/gi,
+      url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+    );
   }
 
   function formatValue(key, value) {
@@ -264,7 +271,7 @@ export function createMetadataDisplay(metadata, isCompact = false) {
     { key: "Secondary antibody \nstain date", label: "Secondary Ab Date" },
     { key: "Secondary Antibody", label: "Secondary Antibody" },
     { key: "DAPI?", label: "DAPI?" },
-    { key: "Image details", label: "Image Details" }
+    { key: "Image details", label: "Image Details" },
   ];
 
   let addedCount = 0;
@@ -286,7 +293,7 @@ export function createMetadataDisplay(metadata, isCompact = false) {
       valueSpan.className = "metadata-value";
 
       let displayValue = value.toString().trim();
-      if (field.key === "Dose" && !isNaN(value))       displayValue = Number(value).toExponential(1) + " vg";
+      if (field.key === "Dose" && !isNaN(value)) displayValue = Number(value).toExponential(1) + " vg";
       else if (field.key === "Age\n (Weeks)" && !isNaN(value)) displayValue = value + " wks";
       else if (field.key.includes("?")) {
         if (displayValue === "TRUE" || displayValue === "True") displayValue = "Yes";

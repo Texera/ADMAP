@@ -40,8 +40,6 @@ export const GAIN_SLIDER_MAX = 500;
 export const CHANNEL_DEFAULT = 100;
 export const MOBILE_BREAKPOINT = 768;
 export const SWIPE_MAX_MS = 300;
-export const REGION_HOVER_PLACEHOLDER =
-  '<div class="placeholder-text">Hover over a region to see details</div>';
+export const REGION_HOVER_PLACEHOLDER = '<div class="placeholder-text">Hover over a region to see details</div>';
 // Tutorial video for Dr. Xu's CNCM website and AAV gallery
-export const TUTORIAL_VIDEO_URL =
-  "https://www.youtube.com/embed/xOLBdSpSe20?autoplay=1";
+export const TUTORIAL_VIDEO_URL = "https://www.youtube.com/embed/xOLBdSpSe20?autoplay=1";
