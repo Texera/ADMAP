@@ -51,6 +51,13 @@ export const THROTTLE_TIME_MS = 1000;
 export const ABORT_RETRY_MAX_ATTEMPTS = 10;
 export const ABORT_RETRY_BACKOFF_BASE_MS = 100;
 
+type MerfisheyesMode = "single_cell" | "single_molecule";
+interface MerfisheyesLayout {
+  datasetRoot: string;
+  hasSingleCell: boolean;
+  hasSingleMolecule: boolean;
+}
+
 @UntilDestroy()
 @Component({
   templateUrl: "./dataset-detail.component.html",
@@ -91,6 +98,12 @@ export class DatasetDetailComponent implements OnInit {
 
   public datasetContributors: any[] = [];
   public aavGalleryUrl: string = "";
+  public autoVisualizationUrl: string = "";
+  public visualizationLaunchTooltip: string = "No compatible visualization layout found.";
+
+  public get hasAutoVisualizationTarget(): boolean {
+    return !!this.autoVisualizationUrl;
+  }
 
   userHasPendingChanges: boolean = false;
   pendingChangesCount: number = 0;
@@ -369,6 +382,7 @@ export class DatasetDetailComponent implements OnInit {
           }
           this.loadFileContent(currentNode);
           this.updateAavGalleryUrl();
+          this.refreshVisualizationAvailabilityAndSelection();
         });
   }
 
@@ -808,12 +822,71 @@ export class DatasetDetailComponent implements OnInit {
       });
   }
 
-  onClickOpenAavGallery(): void {
-    if (!this.aavGalleryUrl) {
-      this.notificationService.warning("AAV gallery is unavailable for this dataset version.");
+  onClickOpenAutoVisualization(): void {
+    if (!this.autoVisualizationUrl) {
+      this.notificationService.warning(this.visualizationLaunchTooltip);
       return;
     }
-    window.open(this.aavGalleryUrl, "_blank", "noopener,noreferrer");
+    window.open(this.autoVisualizationUrl, "_blank", "noopener,noreferrer");
+  }
+
+  private refreshVisualizationAvailabilityAndSelection(): void {
+    const layout = this.findMerfisheyesLayout(this.fileTreeNodeList);
+    if (layout?.hasSingleCell) {
+      this.autoVisualizationUrl = this.buildMerfisheyesUrl("single_cell", layout.datasetRoot);
+      this.visualizationLaunchTooltip = "Open MERFISHEYES Single Cell";
+    } else if (layout?.hasSingleMolecule) {
+      this.autoVisualizationUrl = this.buildMerfisheyesUrl("single_molecule", layout.datasetRoot);
+      this.visualizationLaunchTooltip = "Open MERFISHEYES Single Molecule";
+    } else if (this.aavGalleryUrl) {
+      this.autoVisualizationUrl = this.aavGalleryUrl;
+      this.visualizationLaunchTooltip = "Open AAV Gallery";
+    } else {
+      this.autoVisualizationUrl = "";
+      this.visualizationLaunchTooltip = "No compatible visualization layout found.";
+    }
+  }
+
+  private buildMerfisheyesUrl(mode: MerfisheyesMode, datasetRoot: string): string {
+    if (!this.ownerEmail || !this.datasetName || !this.selectedVersion?.name) {
+      return "";
+    }
+    const route = mode === "single_molecule" ? "/merfisheyes/sm-viewer/from-s3" : "/merfisheyes/viewer/from-s3";
+    const params = new URLSearchParams({
+      owner: this.ownerEmail,
+      dataset: this.datasetName,
+      version: this.selectedVersion.name,
+    });
+    if (datasetRoot) {
+      params.set("datasetRoot", datasetRoot);
+    }
+    return `${route}?${params.toString()}`;
+  }
+
+  private findMerfisheyesLayout(
+    nodes: ReadonlyArray<DatasetFileNode>,
+    datasetRoot: string = ""
+  ): MerfisheyesLayout | null {
+    const hasDir = (name: string) => nodes.some(n => n.type === "directory" && n.name === name);
+    const hasFile = (name: string) => nodes.some(n => n.type === "file" && n.name === name);
+    const hasManifest = hasFile("manifest.json") || hasFile("manifest.json.gz");
+    const hasSingleCell = hasManifest && hasDir("expr") && hasDir("obs") && hasDir("coords");
+    const hasSingleMolecule = hasManifest && hasDir("genes");
+
+    if (hasSingleCell || hasSingleMolecule) {
+      return { datasetRoot, hasSingleCell, hasSingleMolecule };
+    }
+
+    for (const node of nodes) {
+      if (node.type === "directory" && node.children?.length) {
+        const childRoot = datasetRoot ? `${datasetRoot}/${node.name}` : node.name;
+        const nested = this.findMerfisheyesLayout(node.children, childRoot);
+        if (nested) {
+          return nested;
+        }
+      }
+    }
+    return null;
   }
 
   private updateAavGalleryUrl(): void {

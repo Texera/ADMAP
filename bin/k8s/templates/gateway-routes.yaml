@@ -80,6 +80,15 @@ spec:
       backendRefs:
         - name: python-language-server-svc
           port: 3000
+    {{- if .Values.merfisheyes.enabled }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /merfisheyes
+      backendRefs:
+        - name: {{ .Values.merfisheyes.name }}-svc
+          port: {{ .Values.merfisheyes.service.port }}
+    {{- end }}
     - matches:
         - path:
             type: PathPrefix
