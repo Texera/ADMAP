@@ -311,17 +311,6 @@
               </nz-select>
               <button
                 nz-button
-                nz-tooltip="Open AAV Gallery"
-                (click)="onClickOpenAavGallery()"
-                *ngIf="selectedVersion && aavGalleryUrl"
-                class="spaced-button">
-                <i
-                  nz-icon
-                  nzType="export"
-                  nzTheme="outline"></i>
-              </button>
-              <button
-                nz-button
                 nz-tooltip="Download Dataset"
                 (click)="onClickDownloadVersionAsZip()"
                 *ngIf="selectedVersion"
@@ -330,6 +319,19 @@
                 <i
                   nz-icon
                   nzType="download"
+                  nzTheme="outline"></i>
+              </button>
+              <button
+                nz-button
+                nz-tooltip
+                [nzTooltipTitle]="visualizationLaunchTooltip"
+                (click)="onClickOpenAutoVisualization()"
+                *ngIf="selectedVersion"
+                [disabled]="!hasAutoVisualizationTarget"
+                class="spaced-button">
+                <i
+                  nz-icon
+                  nzType="dot-chart"
                   nzTheme="outline"></i>
               </button>
             </div>

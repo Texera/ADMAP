@@ -264,6 +264,17 @@ pythonLanguageServer:
       cpu: "100m"
       memory: "100Mi"
 
+merfisheyes:
+  enabled: false
+  name: merfisheyes
+  numOfPods: 1
+  image: appelpi/merfisheyes
+  imageTag: v0.1.0-microservice
+  imagePullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+
 # Metrics Server configuration
 metrics-server:
   enabled: true # set to false if metrics-server is already installed
