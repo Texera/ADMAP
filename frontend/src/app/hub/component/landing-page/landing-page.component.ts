@@ -31,6 +31,7 @@ import {
   DASHBOARD_ABOUT,
 } from "../../../app-routing.constant";
 import { UserService } from "../../../common/service/user/user.service";
+import { BrowseSectionComponent } from "../browse-section/browse-section.component";
 import { AdminSettingsService } from "../../../dashboard/service/admin/settings/admin-settings.service";
 
 @UntilDestroy()
@@ -38,6 +39,7 @@ import { AdminSettingsService } from "../../../dashboard/service/admin/settings/
   selector: "texera-landing-page",
   templateUrl: "./landing-page.component.html",
   styleUrls: ["./landing-page.component.scss"],
+  imports: [BrowseSectionComponent],
 })
 export class LandingPageComponent implements OnInit {
   public isLogin = this.userService.isLogin();
