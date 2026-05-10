@@ -29,12 +29,13 @@ import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
-import { NgIf, DecimalPipe } from "@angular/common";
+import { NgIf, NgFor, DecimalPipe } from "@angular/common";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzSwitchComponent } from "ng-zorro-antd/switch";
 import { FormsModule } from "@angular/forms";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { NzInputNumberComponent } from "ng-zorro-antd/input-number";
+import { NzSelectComponent, NzOptionComponent } from "ng-zorro-antd/select";
 import { DatasetService } from "../../../service/user/dataset/dataset.service";
 import { DashboardDataset } from "../../../type/dashboard-dataset.interface";
 
@@ -50,11 +51,14 @@ import { DashboardDataset } from "../../../type/dashboard-dataset.interface";
     NzWaveDirective,
     ɵNzTransitionPatchDirective,
     NgIf,
+    NgFor,
     NzIconDirective,
     NzSwitchComponent,
     FormsModule,
     NzTooltipDirective,
     NzInputNumberComponent,
+    NzSelectComponent,
+    NzOptionComponent,
     DecimalPipe,
   ],
 })
@@ -104,7 +108,7 @@ export class AdminSettingsComponent implements OnInit {
   constructor(
     private adminSettingsService: AdminSettingsService,
     private message: NzMessageService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
     private datasetService: DatasetService
   ) {}
   ngOnInit(): void {

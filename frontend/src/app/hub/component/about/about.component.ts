@@ -23,6 +23,8 @@ import { UserService } from "src/app/common/service/user/user.service";
 import { BehaviorSubject } from "rxjs";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { NzRowDirective, NzColDirective } from "ng-zorro-antd/grid";
+import { NzCardComponent } from "ng-zorro-antd/card";
+import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NgIf, AsyncPipe } from "@angular/common";
 import { LocalLoginComponent } from "./local-login/local-login.component";
 
@@ -31,7 +33,7 @@ import { LocalLoginComponent } from "./local-login/local-login.component";
   selector: "texera-about",
   templateUrl: "./about.component.html",
   styleUrls: ["./about.component.scss"],
-  imports: [NzRowDirective, NzColDirective, NgIf, LocalLoginComponent, AsyncPipe],
+  imports: [NzRowDirective, NzColDirective, NzCardComponent, NzIconDirective, NgIf, LocalLoginComponent, AsyncPipe],
 })
 export class AboutComponent implements OnInit {
   isLogin$ = new BehaviorSubject<boolean>(false); // control the visibility of the local login component
