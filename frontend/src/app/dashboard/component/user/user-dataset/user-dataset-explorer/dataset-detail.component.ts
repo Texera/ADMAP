@@ -97,7 +97,6 @@ export class DatasetDetailComponent implements OnInit {
   public displayPreciseViewCount = false;
 
   public datasetContributors: any[] = [];
-  public selectedContributor: any = null;
   public aavGalleryUrl: string = "";
   public autoVisualizationUrl: string = "";
   public visualizationLaunchTooltip: string = "No compatible visualization layout found.";
@@ -804,16 +803,11 @@ export class DatasetDetailComponent implements OnInit {
     });
     modal.afterClose.pipe(untilDestroyed(this)).subscribe(updated => {
       if (updated) {
-        // Match by reference: new contributors share `id === undefined`.
-        this.datasetContributors = this.datasetContributors.map(c => (c === contributor ? updated : c));
+        // replace the old contributor with updated
+        this.datasetContributors = this.datasetContributors.map(c => (c.id === updated.id ? updated : c));
         this.saveContributors();
       }
     });
-  }
-
-  onDeleteContributor(contributor: any): void {
-    this.datasetContributors = this.datasetContributors.filter(c => c !== contributor);
-    this.saveContributors();
   }
 
   /** Persist contributors to backend */
