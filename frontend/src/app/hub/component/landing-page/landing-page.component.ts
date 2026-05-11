@@ -31,13 +31,18 @@ import {
   DASHBOARD_ABOUT,
 } from "../../../app-routing.constant";
 import { UserService } from "../../../common/service/user/user.service";
+import { BrowseSectionComponent } from "../browse-section/browse-section.component";
 import { AdminSettingsService } from "../../../dashboard/service/admin/settings/admin-settings.service";
+import { NgIf } from "@angular/common";
+import { UserIconComponent } from "../../../dashboard/component/user/user-icon/user-icon.component";
+import { GoogleSigninButtonModule } from "@abacritt/angularx-social-login";
 
 @UntilDestroy()
 @Component({
   selector: "texera-landing-page",
   templateUrl: "./landing-page.component.html",
   styleUrls: ["./landing-page.component.scss"],
+  imports: [BrowseSectionComponent, NgIf, UserIconComponent, GoogleSigninButtonModule],
 })
 export class LandingPageComponent implements OnInit {
   public isLogin = this.userService.isLogin();

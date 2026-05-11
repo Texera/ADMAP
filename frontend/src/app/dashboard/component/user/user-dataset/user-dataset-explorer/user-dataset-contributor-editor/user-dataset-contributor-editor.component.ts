@@ -18,10 +18,13 @@
  */
 
 import { Component, EventEmitter, OnInit, Output, Inject } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { NZ_MODAL_DATA } from "ng-zorro-antd/modal";
 import { NzModalRef } from "ng-zorro-antd/modal";
-import { FormlyFieldConfig } from "@ngx-formly/core";
+import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
+import { NzButtonComponent } from "ng-zorro-antd/button";
+import { NzWaveDirective } from "ng-zorro-antd/core/wave";
+import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 
 export interface ContributorData {
   id?: number;
@@ -36,6 +39,7 @@ export interface ContributorData {
   selector: "texera-user-dataset-contributor-editor",
   templateUrl: "./user-dataset-contributor-editor.component.html",
   styleUrls: ["./user-dataset-contributor-editor.component.scss"],
+  imports: [ReactiveFormsModule, FormlyModule, NzButtonComponent, NzWaveDirective, ɵNzTransitionPatchDirective],
 })
 export class UserDatasetContributorEditorComponent implements OnInit {
   @Output() contributorChange = new EventEmitter<ContributorData>();
