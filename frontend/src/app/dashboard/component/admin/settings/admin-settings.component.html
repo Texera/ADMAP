@@ -393,11 +393,12 @@
       nzAllowClear
       nzPlaceHolder="Select datasets"
       [(ngModel)]="wholeBrainDatasetIds"
-      [nzMaxTagCount]="5">
+      [nzMaxTagCount]="4"
+      [nzFilterOption]="filterDatasetByIdOrName">
       <nz-option
         *ngFor="let dataset of availableDatasets"
         [nzValue]="dataset.dataset.did"
-        [nzLabel]="dataset.dataset.did ?? null"
+        [nzLabel]="dataset.dataset.did + ''"
         [nzCustomContent]="true">
         <div class="dataset-option">
           <div class="dataset-id-container">{{ dataset.dataset.did }}</div>
@@ -408,7 +409,7 @@
   </div>
   <div class="help-text-number">Whole-brain volumetric imaging datasets (Light-sheet and TissueCyte).</div>
 
-  <div class="settings-row landing-dataset-row">
+  <div class="settings-row">
     <span>U24 Microscopic Data</span>
     <nz-select
       class="dataset-select"
@@ -417,11 +418,12 @@
       nzAllowClear
       nzPlaceHolder="Select datasets"
       [(ngModel)]="u24DatasetIds"
-      [nzMaxTagCount]="5">
+      [nzMaxTagCount]="4"
+      [nzFilterOption]="filterDatasetByIdOrName">
       <nz-option
         *ngFor="let dataset of availableDatasets"
         [nzValue]="dataset.dataset.did"
-        [nzLabel]="dataset.dataset.did ?? null"
+        [nzLabel]="dataset.dataset.did + ''"
         [nzCustomContent]="true">
         <div class="dataset-option">
           <div class="dataset-id-container">{{ dataset.dataset.did }}</div>
@@ -432,7 +434,7 @@
   </div>
   <div class="help-text-number">Microscopic imaging data from U24 projects.</div>
 
-  <div class="settings-row landing-dataset-row">
+  <div class="settings-row">
     <span>MERFISH</span>
     <nz-select
       class="dataset-select"
@@ -441,11 +443,12 @@
       nzAllowClear
       nzPlaceHolder="Select datasets"
       [(ngModel)]="merfishDatasetIds"
-      [nzMaxTagCount]="5">
+      [nzMaxTagCount]="4"
+      [nzFilterOption]="filterDatasetByIdOrName">
       <nz-option
         *ngFor="let dataset of availableDatasets"
         [nzValue]="dataset.dataset.did"
-        [nzLabel]="dataset.dataset.did ?? null"
+        [nzLabel]="dataset.dataset.did + ''"
         [nzCustomContent]="true">
         <div class="dataset-option">
           <div class="dataset-id-container">{{ dataset.dataset.did }}</div>
@@ -465,11 +468,12 @@
       nzAllowClear
       nzPlaceHolder="Select datasets"
       [(ngModel)]="mriDatasetIds"
-      [nzMaxTagCount]="5">
+      [nzMaxTagCount]="4"
+      [nzFilterOption]="filterDatasetByIdOrName">
       <nz-option
         *ngFor="let dataset of availableDatasets"
         [nzValue]="dataset.dataset.did"
-        [nzLabel]="dataset.dataset.did ?? null"
+        [nzLabel]="dataset.dataset.did + ''"
         [nzCustomContent]="true">
         <div class="dataset-option">
           <div class="dataset-id-container">{{ dataset.dataset.did }}</div>
