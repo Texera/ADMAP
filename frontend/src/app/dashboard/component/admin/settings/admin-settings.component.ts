@@ -35,9 +35,10 @@ import { NzSwitchComponent } from "ng-zorro-antd/switch";
 import { FormsModule } from "@angular/forms";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { NzInputNumberComponent } from "ng-zorro-antd/input-number";
-import { NzSelectComponent, NzOptionComponent } from "ng-zorro-antd/select";
-import { DatasetService } from "../../../service/user/dataset/dataset.service";
+import { NzSelectComponent, NzOptionComponent, NzFilterOptionType } from "ng-zorro-antd/select";
 import { DashboardDataset } from "../../../type/dashboard-dataset.interface";
+import { SearchService } from "../../../service/user/search.service";
+import { SortMethod } from "../../../type/sort-method";
 
 @UntilDestroy()
 @Component({
@@ -100,6 +101,7 @@ export class AdminSettingsComponent implements OnInit {
   private readonly RELOAD_DELAY = 1000;
 
   availableDatasets: DashboardDataset[] = [];
+  private datasetNameByDid = new Map<number, string>();
   wholeBrainDatasetIds: number[] = [];
   u24DatasetIds: number[] = [];
   merfishDatasetIds: number[] = [];
@@ -109,7 +111,7 @@ export class AdminSettingsComponent implements OnInit {
     private adminSettingsService: AdminSettingsService,
     private message: NzMessageService,
     private notificationService: NotificationService,
-    private datasetService: DatasetService
+    private searchService: SearchService
   ) {}
   ngOnInit(): void {
     this.loadBranding();
@@ -182,11 +184,25 @@ export class AdminSettingsComponent implements OnInit {
   }
 
   private loadAvailableDatasets(): void {
-    this.datasetService
-      .retrieveAccessibleDatasets()
+    const emptyParams = {
+      createDateStart: null,
+      createDateEnd: null,
+      modifiedDateStart: null,
+      modifiedDateEnd: null,
+      owners: [],
+      ids: [],
+      operators: [],
+      projectIds: [],
+    };
+    this.searchService
+      .search([], emptyParams, 0, 10000, "dataset", SortMethod.NameAsc, false)
       .pipe(untilDestroyed(this))
-      .subscribe(datasets => {
+      .subscribe(result => {
+        const datasets = result.results.map(r => r.dataset).filter((d): d is DashboardDataset => d != null);
         this.availableDatasets = datasets;
+        this.datasetNameByDid = new Map(
+          datasets.filter(d => d.dataset.did != null).map(d => [d.dataset.did as number, d.dataset.name])
+        );
       });
   }
 
@@ -359,6 +375,14 @@ export class AdminSettingsComponent implements OnInit {
     this.notificationService.info("Resetting result panel settings...");
     setTimeout(() => window.location.reload(), this.RELOAD_DELAY);
   }
+
+  filterDatasetByIdOrName: NzFilterOptionType = (input: string, option) => {
+    const term = input.toLowerCase().trim();
+    if (!term) return true;
+    const did = option.nzValue as number;
+    const name = this.datasetNameByDid.get(did);
+    return String(did).includes(term) || (name?.toLowerCase().includes(term) ?? false);
+  };
 
   private parseIds(value: string | null): number[] {
     if (!value?.trim()) return [];
