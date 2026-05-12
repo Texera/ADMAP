@@ -46,7 +46,10 @@ import { HttpErrorResponse, HttpStatusCode } from "@angular/common/http";
 import { Subscription } from "rxjs";
 import { formatSpeed, formatTime } from "src/app/common/util/format.util";
 import { format } from "date-fns";
-import { NgIf, NgClass, NgFor } from "@angular/common";
+import { NgIf, NgClass, NgFor, TitleCasePipe } from "@angular/common";
+import { NzDropdownDirective, NzDropdownMenuComponent } from "ng-zorro-antd/dropdown";
+import { NzMenuDirective, NzMenuItemComponent } from "ng-zorro-antd/menu";
+import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
 import { NzCardComponent, NzCardMetaComponent } from "ng-zorro-antd/card";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { NzTagComponent } from "ng-zorro-antd/tag";
@@ -120,6 +123,12 @@ interface MerfisheyesLayout {
     NzProgressComponent,
     UserDatasetStagedObjectsListComponent,
     NzInputDirective,
+    TitleCasePipe,
+    NzDropdownDirective,
+    NzDropdownMenuComponent,
+    NzMenuDirective,
+    NzMenuItemComponent,
+    NzPopconfirmDirective,
   ],
 })
 export class DatasetDetailComponent implements OnInit {
@@ -156,6 +165,7 @@ export class DatasetDetailComponent implements OnInit {
   public displayPreciseViewCount = false;
 
   public datasetContributors: any[] = [];
+  public selectedContributor: any = null;
   public aavGalleryUrl: string = "";
   public autoVisualizationUrl: string = "";
   public visualizationLaunchTooltip: string = "No compatible visualization layout found.";
@@ -875,11 +885,16 @@ export class DatasetDetailComponent implements OnInit {
     });
     modal.afterClose.pipe(untilDestroyed(this)).subscribe(updated => {
       if (updated) {
-        // replace the old contributor with updated
-        this.datasetContributors = this.datasetContributors.map(c => (c.id === updated.id ? updated : c));
+        // Match by reference: new contributors share `id === undefined`.
+        this.datasetContributors = this.datasetContributors.map(c => (c === contributor ? updated : c));
         this.saveContributors();
       }
     });
+  }
+
+  onDeleteContributor(contributor: any): void {
+    this.datasetContributors = this.datasetContributors.filter(c => c !== contributor);
+    this.saveContributors();
   }
 
   /** Persist contributors to backend */

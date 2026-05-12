@@ -127,52 +127,80 @@
     <nz-divider></nz-divider>
 
     <!-- Contributor's section -->
-    <div>
-      <h3 style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center">
-        Contributors:
-        <button
-          *ngIf="userHasWriteAccess()"
-          nz-button
-          nzType="primary"
-          (click)="onAddContributor()">
-          <i
-            nz-icon
-            nzType="plus"></i>
-          Add
-        </button>
-      </h3>
-
-      <div style="display: flex; flex-direction: row; gap: 16px; overflow-x: auto">
-        <div
-          *ngFor="let contributor of datasetContributors"
-          style="
-            min-width: 200px;
-            padding: 12px 16px;
-            background-color: #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            position: relative;
-          ">
-          <button
+    <nz-collapse
+      nzGhost
+      nzExpandIconPosition="end"
+      class="contributors-collapse">
+      <nz-collapse-panel
+        nzHeader="Contributors"
+        [nzActive]="true">
+        <div class="contributor-list">
+          <div
+            *ngFor="let contributor of datasetContributors"
+            class="contributor-card">
+            <button
+              *ngIf="userHasWriteAccess() || isOwner"
+              nz-button
+              nzType="text"
+              nzSize="small"
+              class="contributor-actions"
+              nz-dropdown
+              nzTrigger="click"
+              nzPlacement="bottomRight"
+              [nzDropdownMenu]="contributorActionsMenu"
+              (click)="selectedContributor = contributor">
+              <i
+                nz-icon
+                nzType="more"></i>
+            </button>
+            <div><strong>Name:</strong> {{ contributor.name }}</div>
+            <div><strong>Creator:</strong> {{ contributor.creator ? 'Yes' : 'No' }}</div>
+            <div><strong>Role:</strong> {{ contributor.role | titlecase }}</div>
+            <div><strong>Email:</strong> {{ contributor.email }}</div>
+            <div><strong>Affiliation:</strong> {{ contributor.affiliation }}</div>
+          </div>
+          <div
             *ngIf="userHasWriteAccess()"
-            nz-button
-            nzType="default"
-            nzShape="circle"
-            class="edit-btn"
-            (click)="onEditContributor(contributor)">
+            class="contributor-card-add"
+            role="button"
+            tabindex="0"
+            (click)="onAddContributor()"
+            (keydown.enter)="onAddContributor()">
             <i
               nz-icon
-              nzType="edit"></i>
-          </button>
-          <div><strong>Name:</strong> {{ contributor.name }}</div>
-          <div><strong>Creator:</strong> {{ contributor.creator ? 'Yes' : 'No' }}</div>
-          <div><strong>Role:</strong> {{ contributor.role }}</div>
-          <div><strong>Email:</strong> {{ contributor.email }}</div>
-          <div><strong>Affiliation:</strong> {{ contributor.affiliation }}</div>
+              nzType="plus"
+              class="add-icon"></i>
+          </div>
         </div>
-      </div>
-    </div>
+        <nz-dropdown-menu #contributorActionsMenu="nzDropdownMenu">
+          <ul nz-menu>
+            <li
+              *ngIf="userHasWriteAccess()"
+              nz-menu-item
+              (click)="onEditContributor(selectedContributor)">
+              <i
+                nz-icon
+                nzType="edit"></i>
+              Edit
+            </li>
+            <li
+              *ngIf="isOwner"
+              nz-menu-item
+              nzDanger
+              nz-popconfirm
+              [nzPopconfirmTitle]="'Delete contributor &quot;' + selectedContributor?.name + '&quot;?'"
+              nzOkText="Delete"
+              nzOkDanger
+              (nzOnConfirm)="onDeleteContributor(selectedContributor)">
+              <i
+                nz-icon
+                nzType="delete"></i>
+              Delete
+            </li>
+          </ul>
+        </nz-dropdown-menu>
+      </nz-collapse-panel>
+    </nz-collapse>
   </nz-card>
 </div>
 <nz-layout>
