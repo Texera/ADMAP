@@ -317,6 +317,23 @@ nz-select {
   gap: 4px;
 }
 
+.dataset-header {
+  display: flex;
+  gap: 24px;
+}
+
+.dataset-header-meta {
+  flex: 1;
+}
+
+.dataset-cover-image {
+  width: 280px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 80px;
+}
+
 .contributors-collapse ::ng-deep {
   .ant-collapse-header {
     padding: 4px 0 !important;
