@@ -45,7 +45,6 @@ import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
-import { NzTagComponent } from "ng-zorro-antd/tag";
 
 @UntilDestroy()
 @Component({
@@ -71,7 +70,6 @@ import { NzTagComponent } from "ng-zorro-antd/tag";
     NzListItemActionComponent,
     NzWaveDirective,
     NzPopconfirmDirective,
-    NzTagComponent,
   ],
 })
 export class UserDatasetListItemComponent {
@@ -101,23 +99,6 @@ export class UserDatasetListItemComponent {
       );
     }
     return this.entry.dataset;
-  }
-
-  get hasVisualization(): boolean {
-    return !!this.dataset.visualizationType && this.dataset.visualizationType !== "none";
-  }
-
-  get visualizationTagLabel(): string {
-    switch (this.dataset.visualizationType) {
-      case "merfisheyes_single_cell":
-        return "MERFISHEYES Single Cell";
-      case "merfisheyes_single_molecule":
-        return "MERFISHEYES Single Molecule";
-      case "aav_gallery":
-        return "AAV Gallery";
-      default:
-        return "";
-    }
   }
 
   @Input() editable = false;
