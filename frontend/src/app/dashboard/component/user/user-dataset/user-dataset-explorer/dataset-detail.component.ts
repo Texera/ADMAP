@@ -27,7 +27,7 @@ import {
   getFullPathFromDatasetFileNode,
   getRelativePathFromDatasetFileNode,
 } from "../../../../../common/type/datasetVersionFileTree";
-import { DatasetVersion } from "../../../../../common/type/dataset";
+import { DatasetVersion, DatasetVisualizationType } from "../../../../../common/type/dataset";
 import { switchMap, throttleTime } from "rxjs/operators";
 import { NotificationService } from "../../../../../common/service/notification/notification.service";
 import { DownloadService } from "../../../../service/user/download/download.service";
@@ -171,10 +171,48 @@ export class DatasetDetailComponent implements OnInit {
   public selectedContributor: any = null;
   public aavGalleryUrl: string = "";
   public autoVisualizationUrl: string = "";
-  public visualizationLaunchTooltip: string = "No compatible visualization layout found.";
+  public visualizationLaunchTooltip: string = "";
+  public datasetVisualizationType: DatasetVisualizationType = "none";
+  public currentVersionDetectedType: DatasetVisualizationType = "none";
+  // NULL in DB → auto-detect eligible. Any persisted value (including 'none') flips this false so an explicit owner choice sticks.
+  private datasetHasNoStoredVisualizer: boolean = false;
+
+  public readonly visualizationTypeOptions: ReadonlyArray<{
+    value: DatasetVisualizationType;
+    label: string;
+  }> = [
+    { value: "none", label: "None" },
+    { value: "merfisheyes_single_cell", label: "MERFISHEYES Single Cell" },
+    { value: "merfisheyes_single_molecule", label: "MERFISHEYES Single Molecule" },
+    { value: "aav_gallery", label: "AAV Gallery" },
+  ];
+
+  private labelFor(type: DatasetVisualizationType): string {
+    return this.visualizationTypeOptions.find(o => o.value === type)?.label ?? "None";
+  }
 
   public get hasAutoVisualizationTarget(): boolean {
     return !!this.autoVisualizationUrl;
+  }
+
+  public get hasVisualization(): boolean {
+    return this.datasetVisualizationType !== "none";
+  }
+
+  public get visualizationMatchesCurrentVersion(): boolean {
+    return this.hasVisualization && this.datasetVisualizationType === this.currentVersionDetectedType;
+  }
+
+  public get visualizationTagLabel(): string {
+    if (!this.hasVisualization) {
+      return "No Visualizer";
+    }
+    const label = this.labelFor(this.datasetVisualizationType);
+    return this.visualizationMatchesCurrentVersion ? label : `${label} (unavailable)`;
+  }
+
+  private isViewingLatestVersion(): boolean {
+    return !!this.selectedVersion && this.versions.length > 0 && this.selectedVersion.dvid === this.versions[0].dvid;
   }
 
   userHasPendingChanges: boolean = false;
@@ -371,6 +409,8 @@ export class DatasetDetailComponent implements OnInit {
           this.userDatasetAccessLevel = dashboardDataset.accessPrivilege;
           this.datasetIsPublic = dataset.isPublic;
           this.datasetIsDownloadable = dataset.isDownloadable;
+          this.datasetHasNoStoredVisualizer = dataset.visualizationType == null;
+          this.datasetVisualizationType = dataset.visualizationType ?? "none";
           this.ownerEmail = dashboardDataset.ownerEmail;
           this.isOwner = dashboardDataset.isOwner;
           this.coverImageUrl = dataset.coverImage
@@ -918,28 +958,76 @@ export class DatasetDetailComponent implements OnInit {
   }
 
   onClickOpenAutoVisualization(): void {
-    if (!this.autoVisualizationUrl) {
-      this.notificationService.warning(this.visualizationLaunchTooltip);
-      return;
-    }
     window.open(this.autoVisualizationUrl, "_blank", "noopener,noreferrer");
   }
 
   private refreshVisualizationAvailabilityAndSelection(): void {
     const layout = this.findMerfisheyesLayout(this.fileTreeNodeList);
+    let detected: DatasetVisualizationType;
+    let detectedUrl = "";
     if (layout?.hasSingleCell) {
-      this.autoVisualizationUrl = this.buildMerfisheyesUrl("single_cell", layout.datasetRoot);
-      this.visualizationLaunchTooltip = "Open MERFISHEYES Single Cell";
+      detected = "merfisheyes_single_cell";
+      detectedUrl = this.buildMerfisheyesUrl("single_cell", layout.datasetRoot);
     } else if (layout?.hasSingleMolecule) {
-      this.autoVisualizationUrl = this.buildMerfisheyesUrl("single_molecule", layout.datasetRoot);
-      this.visualizationLaunchTooltip = "Open MERFISHEYES Single Molecule";
+      detected = "merfisheyes_single_molecule";
+      detectedUrl = this.buildMerfisheyesUrl("single_molecule", layout.datasetRoot);
     } else if (this.aavGalleryUrl) {
-      this.autoVisualizationUrl = this.aavGalleryUrl;
-      this.visualizationLaunchTooltip = "Open AAV Gallery";
+      detected = "aav_gallery";
+      detectedUrl = this.aavGalleryUrl;
+    } else {
+      detected = "none";
+    }
+    this.currentVersionDetectedType = detected;
+
+    if (
+      this.datasetHasNoStoredVisualizer &&
+      detected !== "none" &&
+      this.userDatasetAccessLevel === "WRITE" &&
+      this.isViewingLatestVersion() &&
+      this.did !== undefined
+    ) {
+      this.datasetHasNoStoredVisualizer = false;
+      this.datasetVisualizationType = detected;
+      this.datasetService
+        .updateDatasetVisualizationType(this.did, detected)
+        .pipe(untilDestroyed(this))
+        .subscribe({
+          error: () => {
+            this.datasetVisualizationType = "none";
+          },
+        });
+    }
+
+    if (this.datasetVisualizationType !== "none" && detected === this.datasetVisualizationType) {
+      this.autoVisualizationUrl = detectedUrl;
+      this.visualizationLaunchTooltip = `Open ${this.labelFor(this.datasetVisualizationType)}`;
     } else {
       this.autoVisualizationUrl = "";
-      this.visualizationLaunchTooltip = "No compatible visualization layout found.";
+      this.visualizationLaunchTooltip =
+        this.datasetVisualizationType === "none"
+          ? "No visualizer set."
+          : "This version does not contain compatible files.";
     }
+  }
+
+  onVisualizationTypeChange(value: DatasetVisualizationType): void {
+    if (this.did === undefined || value === this.datasetVisualizationType) {
+      return;
+    }
+    this.datasetHasNoStoredVisualizer = false;
+    const previous = this.datasetVisualizationType;
+    this.datasetVisualizationType = value;
+    this.refreshVisualizationAvailabilityAndSelection();
+    this.datasetService
+      .updateDatasetVisualizationType(this.did, value)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        error: () => {
+          this.datasetVisualizationType = previous;
+          this.refreshVisualizationAvailabilityAndSelection();
+          this.notificationService.error("Failed to update visualizer");
+        },
+      });
   }
 
   private buildMerfisheyesUrl(mode: MerfisheyesMode, datasetRoot: string): string {

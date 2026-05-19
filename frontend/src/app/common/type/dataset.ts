@@ -29,6 +29,12 @@ export interface DatasetVersion {
   fileNodes: DatasetFileNode[] | undefined;
 }
 
+export type DatasetVisualizationType =
+  | "none"
+  | "merfisheyes_single_cell"
+  | "merfisheyes_single_molecule"
+  | "aav_gallery";
+
 export interface Dataset {
   did: number | undefined;
   ownerUid: number | undefined;
@@ -39,6 +45,7 @@ export interface Dataset {
   description: string;
   creationTime: number | undefined;
   coverImage: string | undefined;
+  visualizationType?: DatasetVisualizationType;
   contributors?: {
     name: string;
     creator?: boolean;
