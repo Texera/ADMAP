@@ -234,6 +234,11 @@ object DatasetResource {
 
   case class CoverImageRequest(coverImage: String)
 
+  case class VisualizationTypeRequest(visualizationType: String)
+
+  private val ALLOWED_VISUALIZATION_TYPES: Set[String] =
+    Set("none", "merfisheyes_single_cell", "merfisheyes_single_molecule", "aav_gallery")
+
   case class Contributor(
       name: String,
       creator: Boolean,
@@ -1034,6 +1039,38 @@ class DatasetResource {
 
       existedDataset.setIsDownloadable(newDownloadableStatus)
 
+      datasetDao.update(existedDataset)
+      Response.ok().build()
+    }
+  }
+
+  @POST
+  @Consumes(Array(MediaType.APPLICATION_JSON))
+  @Produces(Array(MediaType.APPLICATION_JSON))
+  @RolesAllowed(Array("REGULAR", "ADMIN"))
+  @Path("/{did}/update/visualization-type")
+  def updateDatasetVisualizationType(
+      @PathParam("did") did: Integer,
+      request: VisualizationTypeRequest,
+      @Auth sessionUser: SessionUser
+  ): Response = {
+    if (
+      request == null || request.visualizationType == null ||
+      !ALLOWED_VISUALIZATION_TYPES.contains(request.visualizationType)
+    ) {
+      throw new BadRequestException("Invalid visualization type")
+    }
+
+    withTransaction(context) { ctx =>
+      val datasetDao = new DatasetDao(ctx.configuration())
+      val uid = sessionUser.getUid
+
+      if (!userHasWriteAccess(ctx, did, uid)) {
+        throw new ForbiddenException(ERR_USER_HAS_NO_ACCESS_TO_DATASET_MESSAGE)
+      }
+
+      val existedDataset = getDatasetByID(ctx, did)
+      existedDataset.setVisualizationType(request.visualizationType)
       datasetDao.update(existedDataset)
       Response.ok().build()
     }

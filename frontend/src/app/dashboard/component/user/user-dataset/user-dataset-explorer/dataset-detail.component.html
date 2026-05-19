@@ -73,6 +73,23 @@
         {{ formatCount(likeCount) }}
       </nz-tag>
 
+      <nz-tag
+        class="status-tag visualization-tag"
+        [ngClass]="{
+          'tag-visualization': visualizationMatchesCurrentVersion,
+          'visualization-unavailable': hasVisualization && !visualizationMatchesCurrentVersion,
+          'visualization-clickable': visualizationMatchesCurrentVersion && hasAutoVisualizationTarget
+        }"
+        nz-tooltip
+        [nzTooltipTitle]="visualizationLaunchTooltip"
+        (click)="visualizationMatchesCurrentVersion && hasAutoVisualizationTarget && onClickOpenAutoVisualization()">
+        <i
+          nz-icon
+          nzType="dot-chart"
+          nzTheme="outline"></i>
+        {{ visualizationTagLabel }}
+      </nz-tag>
+
       <button
         *ngIf="userHasWriteAccess()"
         nz-button
@@ -110,6 +127,19 @@
               [nzDisabled]="!isOwner"
               nzCheckedChildren="allowed"
               nzUnCheckedChildren="blocked"></nz-switch>
+          </div>
+          <div class="tag-settings-row">
+            <span>Visualizer:</span>
+            <nz-select
+              class="visualizer-select"
+              [ngModel]="datasetVisualizationType"
+              (ngModelChange)="onVisualizationTypeChange($event)"
+              [nzDisabled]="userDatasetAccessLevel !== 'WRITE'">
+              <nz-option
+                *ngFor="let opt of visualizationTypeOptions"
+                [nzValue]="opt.value"
+                [nzLabel]="opt.label"></nz-option>
+            </nz-select>
           </div>
         </div>
       </ng-template>
@@ -366,19 +396,6 @@
                 <i
                   nz-icon
                   nzType="download"
-                  nzTheme="outline"></i>
-              </button>
-              <button
-                nz-button
-                nz-tooltip
-                [nzTooltipTitle]="visualizationLaunchTooltip"
-                (click)="onClickOpenAutoVisualization()"
-                *ngIf="selectedVersion"
-                [disabled]="!hasAutoVisualizationTarget"
-                class="spaced-button">
-                <i
-                  nz-icon
-                  nzType="dot-chart"
                   nzTheme="outline"></i>
               </button>
             </div>

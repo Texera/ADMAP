@@ -2541,4 +2541,104 @@ class DatasetResourceSpec
     val commit = LakeFSStorageClient.withCreateVersion(repoName, "commit all files") {}
     LakeFSStorageClient.retrieveObjectsOfVersion(repoName, commit.getId).size shouldEqual totalFiles
   }
+
+  // ===========================================================================
+  // updateDatasetVisualizationType
+  // ===========================================================================
+
+  private def insertVizDataset(name: String, ownerUid: Integer): Dataset = {
+    val dataset = new Dataset
+    dataset.setName(name)
+    dataset.setRepositoryName(s"$name-repo")
+    dataset.setDescription("for visualization-type tests")
+    dataset.setOwnerUid(ownerUid)
+    dataset.setIsPublic(true)
+    dataset.setIsDownloadable(true)
+    datasetDao.insert(dataset)
+    dataset
+  }
+
+  "updateDatasetVisualizationType" should "persist a valid type for an owner with WRITE access" in {
+    val dataset = insertVizDataset("viz-happy", ownerUser.getUid)
+
+    val response = datasetResource.updateDatasetVisualizationType(
+      dataset.getDid,
+      DatasetResource.VisualizationTypeRequest("merfisheyes_single_cell"),
+      sessionUser
+    )
+
+    response.getStatus shouldEqual 200
+    datasetDao
+      .fetchOneByDid(dataset.getDid)
+      .getVisualizationType shouldEqual "merfisheyes_single_cell"
+  }
+
+  it should "accept every allowed enum value" in {
+    val dataset = insertVizDataset("viz-enum-roundtrip", ownerUser.getUid)
+    val allValues =
+      Seq("none", "merfisheyes_single_cell", "merfisheyes_single_molecule", "aav_gallery")
+
+    allValues.foreach { value =>
+      datasetResource.updateDatasetVisualizationType(
+        dataset.getDid,
+        DatasetResource.VisualizationTypeRequest(value),
+        sessionUser
+      )
+      datasetDao.fetchOneByDid(dataset.getDid).getVisualizationType shouldEqual value
+    }
+  }
+
+  it should "preserve an explicit 'none' (NULL is not written for owner-chosen None)" in {
+    val dataset = insertVizDataset("viz-none-sticky", ownerUser.getUid)
+
+    datasetResource.updateDatasetVisualizationType(
+      dataset.getDid,
+      DatasetResource.VisualizationTypeRequest("none"),
+      sessionUser
+    )
+
+    val stored = datasetDao.fetchOneByDid(dataset.getDid).getVisualizationType
+    stored shouldEqual "none"
+    stored should not be null
+  }
+
+  it should "reject an unknown visualizer string with BadRequestException" in {
+    val dataset = insertVizDataset("viz-bad-enum", ownerUser.getUid)
+
+    assertThrows[BadRequestException] {
+      datasetResource.updateDatasetVisualizationType(
+        dataset.getDid,
+        DatasetResource.VisualizationTypeRequest("definitely_not_a_visualizer"),
+        sessionUser
+      )
+    }
+  }
+
+  it should "reject a null visualizationType string with BadRequestException" in {
+    val dataset = insertVizDataset("viz-null", ownerUser.getUid)
+
+    assertThrows[BadRequestException] {
+      datasetResource.updateDatasetVisualizationType(
+        dataset.getDid,
+        DatasetResource.VisualizationTypeRequest(null),
+        sessionUser
+      )
+    }
+  }
+
+  it should "reject when caller lacks WRITE access" in {
+    val dataset = insertVizDataset("viz-forbidden", ownerUser.getUid)
+
+    assertThrows[ForbiddenException] {
+      datasetResource.updateDatasetVisualizationType(
+        dataset.getDid,
+        DatasetResource.VisualizationTypeRequest("aav_gallery"),
+        sessionUser2
+      )
+    }
+
+    // verify the row was not mutated by the rejected call
+    Option(datasetDao.fetchOneByDid(dataset.getDid).getVisualizationType)
+      .getOrElse("") should not equal "aav_gallery"
+  }
 }

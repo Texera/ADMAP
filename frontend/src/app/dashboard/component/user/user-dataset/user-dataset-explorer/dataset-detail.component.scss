@@ -243,6 +243,27 @@ nz-select {
   cursor: pointer;
 }
 
+.tag-visualization i {
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.visualization-unavailable {
+  color: #8c8c8c;
+}
+
+.visualization-clickable {
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0 0 0 1px #c4b5fd;
+  }
+}
+
+.visualizer-select {
+  min-width: 220px;
+}
+
 .like-tag.liked {
   i {
     color: #ef4444;

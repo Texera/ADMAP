@@ -20,7 +20,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { catchError, map, mergeMap, switchMap, tap, toArray } from "rxjs/operators";
-import { Dataset, DatasetVersion } from "../../../../common/type/dataset";
+import { Dataset, DatasetVersion, DatasetVisualizationType } from "../../../../common/type/dataset";
 import { AppSettings } from "../../../../common/app-setting";
 import { EMPTY, from, Observable, throwError } from "rxjs";
 import { DashboardDataset } from "../../../type/dashboard-dataset.interface";
@@ -36,6 +36,7 @@ export const DATASET_UPDATE_NAME_URL = DATASET_UPDATE_BASE_URL + "/name";
 export const DATASET_UPDATE_DESCRIPTION_URL = DATASET_UPDATE_BASE_URL + "/description";
 export const DATASET_UPDATE_PUBLICITY_URL = "update/publicity";
 export const DATASET_UPDATE_DOWNLOADABLE_URL = "update/downloadable";
+export const DATASET_UPDATE_VISUALIZATION_TYPE_URL = "update/visualization-type";
 export const DATASET_LIST_URL = DATASET_BASE_URL + "/list";
 export const DATASET_SEARCH_URL = DATASET_BASE_URL + "/search";
 export const DATASET_DELETE_URL = DATASET_BASE_URL + "/delete";
@@ -546,6 +547,16 @@ export class DatasetService {
     return this.http.post<Response>(
       `${AppSettings.getApiEndpoint()}/${DATASET_BASE_URL}/${did}/${DATASET_UPDATE_DOWNLOADABLE_URL}`,
       {}
+    );
+  }
+
+  public updateDatasetVisualizationType(
+    did: number,
+    visualizationType: DatasetVisualizationType
+  ): Observable<Response> {
+    return this.http.post<Response>(
+      `${AppSettings.getApiEndpoint()}/${DATASET_BASE_URL}/${did}/${DATASET_UPDATE_VISUALIZATION_TYPE_URL}`,
+      { visualizationType }
     );
   }
 

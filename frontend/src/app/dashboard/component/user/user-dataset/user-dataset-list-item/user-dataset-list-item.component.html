@@ -90,6 +90,15 @@
           nz-icon
           nzTheme="outline"
           nzType="team"></i>
+        <nz-tag
+          *ngIf="hasVisualization"
+          class="dataset-visualization-tag">
+          <i
+            nz-icon
+            nzType="dot-chart"
+            nzTheme="outline"></i>
+          {{ visualizationTagLabel }}
+        </nz-tag>
       </div>
     </nz-list-item-meta-title>
 
