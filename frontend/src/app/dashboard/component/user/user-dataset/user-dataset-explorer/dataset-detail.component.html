@@ -75,39 +75,23 @@
             {{ formatCount(likeCount) }}
           </nz-tag>
 
-      <nz-tag
-        class="status-tag visualization-tag"
-        [ngClass]="{
-          'tag-visualization': visualizationMatchesCurrentVersion,
-          'visualization-unavailable': hasVisualization && !visualizationMatchesCurrentVersion,
-          'visualization-clickable': visualizationMatchesCurrentVersion && hasAutoVisualizationTarget
-        }"
-        nz-tooltip
-        [nzTooltipTitle]="visualizationLaunchTooltip"
-        (click)="visualizationMatchesCurrentVersion && hasAutoVisualizationTarget && onClickOpenAutoVisualization()">
-        <i
-          nz-icon
-          nzType="dot-chart"
-          nzTheme="outline"></i>
-        {{ visualizationTagLabel }}
-      </nz-tag>
+          <nz-tag
+            class="status-tag visualization-tag"
+            [ngClass]="{
+              'tag-visualization': visualizationMatchesCurrentVersion,
+              'visualization-unavailable': hasVisualization && !visualizationMatchesCurrentVersion,
+              'visualization-clickable': visualizationMatchesCurrentVersion && hasAutoVisualizationTarget
+            }"
+            nz-tooltip
+            [nzTooltipTitle]="visualizationLaunchTooltip"
+            (click)="visualizationMatchesCurrentVersion && hasAutoVisualizationTarget && onClickOpenAutoVisualization()">
+            <i
+              nz-icon
+              nzType="dot-chart"
+              nzTheme="outline"></i>
+            {{ visualizationTagLabel }}
+          </nz-tag>
 
-      <button
-        *ngIf="userHasWriteAccess()"
-        nz-button
-        nzType="text"
-        class="tag-settings-btn"
-        nz-popover
-        nzPopoverTrigger="click"
-        nzPopoverPlacement="bottomRight"
-        [nzPopoverContent]="tagSettingsPopover"
-        nz-tooltip
-        nzTooltipTitle="Settings">
-        <i
-          nz-icon
-          nzType="setting"
-          nzTheme="outline"></i>
-      </button>
           <button
             *ngIf="userHasWriteAccess()"
             nz-button
@@ -125,40 +109,42 @@
               nzTheme="outline"></i>
           </button>
 
-      <ng-template #tagSettingsPopover>
-        <div>
-          <div class="tag-settings-title">Quick Settings</div>
-          <div class="tag-settings-row">
-            <span>Visibility:</span>
-            <nz-switch
-              [ngModel]="datasetIsPublic"
-              (ngModelChange)="onPublicStatusChange($event)"
-              [nzDisabled]="userDatasetAccessLevel !== 'WRITE'"
-              nzCheckedChildren="public"
-              nzUnCheckedChildren="private"></nz-switch>
-          </div>
-          <div class="tag-settings-row">
-            <span>Downloadable:</span>
-            <nz-switch
-              [ngModel]="datasetIsDownloadable"
-              (ngModelChange)="onDownloadableStatusChange($event)"
-              [nzDisabled]="!isOwner"
-              nzCheckedChildren="allowed"
-              nzUnCheckedChildren="blocked"></nz-switch>
-          </div>
-          <div class="tag-settings-row">
-            <span>Visualizer:</span>
-            <nz-select
-              class="visualizer-select"
-              [ngModel]="datasetVisualizationType"
-              (ngModelChange)="onVisualizationTypeChange($event)"
-              [nzDisabled]="userDatasetAccessLevel !== 'WRITE'">
-              <nz-option
-                *ngFor="let opt of visualizationTypeOptions"
-                [nzValue]="opt.value"
-                [nzLabel]="opt.label"></nz-option>
-            </nz-select>
-          </div>
+          <ng-template #tagSettingsPopover>
+            <div>
+              <div class="tag-settings-title">Quick Settings</div>
+              <div class="tag-settings-row">
+                <span>Visibility:</span>
+                <nz-switch
+                  [ngModel]="datasetIsPublic"
+                  (ngModelChange)="onPublicStatusChange($event)"
+                  [nzDisabled]="userDatasetAccessLevel !== 'WRITE'"
+                  nzCheckedChildren="public"
+                  nzUnCheckedChildren="private"></nz-switch>
+              </div>
+              <div class="tag-settings-row">
+                <span>Downloadable:</span>
+                <nz-switch
+                  [ngModel]="datasetIsDownloadable"
+                  (ngModelChange)="onDownloadableStatusChange($event)"
+                  [nzDisabled]="!isOwner"
+                  nzCheckedChildren="allowed"
+                  nzUnCheckedChildren="blocked"></nz-switch>
+              </div>
+              <div class="tag-settings-row">
+                <span>Visualizer:</span>
+                <nz-select
+                  class="visualizer-select"
+                  [ngModel]="datasetVisualizationType"
+                  (ngModelChange)="onVisualizationTypeChange($event)"
+                  [nzDisabled]="userDatasetAccessLevel !== 'WRITE'">
+                  <nz-option
+                    *ngFor="let opt of visualizationTypeOptions"
+                    [nzValue]="opt.value"
+                    [nzLabel]="opt.label"></nz-option>
+                </nz-select>
+              </div>
+            </div>
+          </ng-template>
         </div>
       </div>
       <img
