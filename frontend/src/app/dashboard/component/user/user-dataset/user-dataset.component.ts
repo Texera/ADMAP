@@ -35,14 +35,16 @@ import { DashboardDataset } from "../../../type/dashboard-dataset.interface";
 import { NzMessageService } from "ng-zorro-antd/message";
 import { map, tap } from "rxjs/operators";
 import { NzCardComponent } from "ng-zorro-antd/card";
-import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
+import { NzTooltipModule } from "ng-zorro-antd/tooltip";
 import { FiltersInstructionsComponent } from "../filters-instructions/filters-instructions.component";
 import { NzSelectComponent } from "ng-zorro-antd/select";
 import { FormsModule } from "@angular/forms";
+
+export const DATASET_VIEW_MODE_STORAGE_KEY = "texera.dataset.viewMode";
 
 @UntilDestroy()
 @Component({
@@ -51,11 +53,11 @@ import { FormsModule } from "@angular/forms";
   styleUrls: ["user-dataset.component.scss"],
   imports: [
     NzCardComponent,
-    NzSpaceCompactItemDirective,
     NzButtonComponent,
     NzWaveDirective,
     ɵNzTransitionPatchDirective,
     NzIconDirective,
+    NzTooltipModule,
     FiltersComponent,
     FiltersInstructionsComponent,
     NzSelectComponent,
@@ -69,6 +71,13 @@ export class UserDatasetComponent implements AfterViewInit {
   public isLogin = this.userService.isLogin();
   public currentUid = this.userService.getCurrentUser()?.uid;
   public hasMismatch = false; // Display warning when there are mismatched datasets
+  public viewMode: "list" | "card" = (localStorage.getItem(DATASET_VIEW_MODE_STORAGE_KEY) as "list" | "card") || "list";
+
+  setViewMode(mode: "list" | "card"): void {
+    if (this.viewMode === mode) return;
+    this.viewMode = mode;
+    localStorage.setItem(DATASET_VIEW_MODE_STORAGE_KEY, mode);
+  }
 
   private _searchResultsComponent?: SearchResultsComponent;
   @ViewChild(SearchResultsComponent) get searchResultsComponent(): SearchResultsComponent {
