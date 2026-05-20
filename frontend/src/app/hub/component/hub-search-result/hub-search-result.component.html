@@ -23,12 +23,41 @@
       <texera-sort-button (sortMethodChange)="sortMethod = $event; search()"></texera-sort-button>
       <texera-filters #filters></texera-filters>
     </div>
+    <div
+      *ngIf="searchType === 'dataset'"
+      class="view-toggle view-toggle--right">
+      <button
+        nz-button
+        nzType="text"
+        [class.active]="viewMode === 'list'"
+        (click)="setViewMode('list')"
+        nz-tooltip="List view"
+        title="List view">
+        <i
+          nz-icon
+          nzType="bars"
+          nzTheme="outline"></i>
+      </button>
+      <button
+        nz-button
+        nzType="text"
+        [class.active]="viewMode === 'card'"
+        (click)="setViewMode('card')"
+        nz-tooltip="Card view"
+        title="Card view">
+        <i
+          nz-icon
+          nzType="picture"
+          nzTheme="outline"></i>
+      </button>
+    </div>
   </div>
 
   <div class="search-result">
     <texera-search-results
       [showResourceTypes]="true"
       [searchKeywords]="searchKeywords"
+      [viewMode]="searchType === 'dataset' ? viewMode : 'list'"
       [currentUid]="this.currentUid">
     </texera-search-results>
   </div>

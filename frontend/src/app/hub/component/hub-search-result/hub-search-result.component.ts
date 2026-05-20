@@ -29,18 +29,41 @@ import { isDefined } from "../../../common/util/predicate";
 import { firstValueFrom } from "rxjs";
 import { map } from "rxjs/operators";
 import { SortButtonComponent } from "../../../dashboard/component/user/sort-button/sort-button.component";
+import { NgIf } from "@angular/common";
+import { NzButtonComponent } from "ng-zorro-antd/button";
+import { NzIconDirective } from "ng-zorro-antd/icon";
+import { NzTooltipModule } from "ng-zorro-antd/tooltip";
+import { NzWaveDirective } from "ng-zorro-antd/core/wave";
+import { DATASET_VIEW_MODE_STORAGE_KEY } from "../../../dashboard/component/user/user-dataset/user-dataset.component";
 
 @UntilDestroy()
 @Component({
   selector: "texera-hub-search",
   templateUrl: "./hub-search-result.component.html",
   styleUrls: ["./hub-search-result.component.scss"],
-  imports: [SortButtonComponent, FiltersComponent, SearchResultsComponent],
+  imports: [
+    SortButtonComponent,
+    FiltersComponent,
+    SearchResultsComponent,
+    NgIf,
+    NzButtonComponent,
+    NzIconDirective,
+    NzTooltipModule,
+    NzWaveDirective,
+  ],
 })
 export class HubSearchResultComponent implements OnInit, AfterViewInit {
   public searchType: "dataset" | "workflow" = "workflow";
   public searchKeywords: string[] = [];
   currentUid = this.userService.getCurrentUser()?.uid;
+
+  public viewMode: "list" | "card" = (localStorage.getItem(DATASET_VIEW_MODE_STORAGE_KEY) as "list" | "card") || "list";
+
+  setViewMode(mode: "list" | "card"): void {
+    if (this.viewMode === mode) return;
+    this.viewMode = mode;
+    localStorage.setItem(DATASET_VIEW_MODE_STORAGE_KEY, mode);
+  }
 
   private isLogin = false;
   private includePublic = true;
