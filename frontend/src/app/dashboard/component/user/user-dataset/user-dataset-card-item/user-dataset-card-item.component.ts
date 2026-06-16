@@ -46,10 +46,9 @@ import { DatasetService } from "../../../../service/user/dataset/dataset.service
 import { DownloadService } from "../../../../service/user/download/download.service";
 import { ActionType, HubService } from "../../../../../hub/service/hub.service";
 import { NzModalRef, NzModalService } from "ng-zorro-antd/modal";
-import { AppSettings } from "../../../../../common/app-setting";
 import { formatSize } from "../../../../../common/util/size-formatter.util";
 import { isDefined } from "../../../../../common/util/predicate";
-import { DASHBOARD_HUB_DATASET_RESULT_DETAIL, DASHBOARD_USER_DATASET } from "../../../../../app-routing.constant";
+import { HUB_DATASET_RESULT_DETAIL, USER_DATASET } from "../../../../../app-routing.constant";
 
 @UntilDestroy()
 @Component({
@@ -121,13 +120,27 @@ export class UserDatasetCardItemComponent implements OnChanges {
     }
     const owners = this.entry.accessibleUserIds;
     if (this.currentUid !== undefined && owners.includes(this.currentUid)) {
-      this.entryLink = [DASHBOARD_USER_DATASET, String(this.entry.id)];
+      this.entryLink = [USER_DATASET, String(this.entry.id)];
     } else {
-      this.entryLink = [DASHBOARD_HUB_DATASET_RESULT_DETAIL, String(this.entry.id)];
+      this.entryLink = [HUB_DATASET_RESULT_DETAIL, String(this.entry.id)];
     }
-    this.coverImageSrc = this.entry.coverImageUrl
-      ? `${AppSettings.getApiEndpoint()}/dataset/${this.entry.id}/cover`
-      : this.defaultCover;
+    const did = this.entry.id;
+    this.coverImageSrc = this.defaultCover;
+    if (this.entry.coverImageUrl) {
+      this.datasetService
+        .getDatasetCoverUrl(did)
+        .pipe(untilDestroyed(this))
+        .subscribe({
+          next: ({ url }) => {
+            this.coverImageSrc = url ?? this.defaultCover;
+            this.cdr.markForCheck();
+          },
+          error: () => {
+            this.coverImageSrc = this.defaultCover;
+            this.cdr.markForCheck();
+          },
+        });
+    }
   }
 
   onCoverError(event: Event): void {

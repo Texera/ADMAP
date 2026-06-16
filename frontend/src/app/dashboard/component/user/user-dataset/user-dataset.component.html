@@ -78,10 +78,23 @@
     </nz-select>
   </div>
 
+  <ng-template
+    #datasetCardTpl
+    let-entry>
+    <texera-dataset-card-item
+      [entry]="entry"
+      [editable]="true"
+      [currentUid]="currentUid"
+      (deleted)="deleteDataset(entry)"
+      (refresh)="ngAfterViewInit()">
+    </texera-dataset-card-item>
+  </ng-template>
+
   <texera-search-results
     [editable]="true"
     [isPrivateSearch]="true"
     [viewMode]="viewMode"
+    [cardTemplate]="datasetCardTpl"
     (deleted)="deleteDataset($event)"
     (refresh)="ngAfterViewInit()"
     [currentUid]="currentUid"></texera-search-results>

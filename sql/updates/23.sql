@@ -17,18 +17,35 @@
  * under the License.
  */
 
-\c texera_db
-
+-- ============================================
+-- 1. Connect to the texera_db database
+-- ============================================
 SET search_path TO texera_db;
+
+-- ============================================
+-- 2. Create the tables to store notebook and mapping
+-- ============================================
 
 BEGIN;
 
--- visualization_type: NULL = never set (auto-detect eligible); 'none' = owner opted out.
-ALTER TABLE dataset
-    ADD COLUMN IF NOT EXISTS visualization_type VARCHAR(40);
+CREATE TABLE IF NOT EXISTS notebook
+(
+    nid         SERIAL  NOT NULL PRIMARY KEY,
+    wid         INT     NOT NULL UNIQUE,
+    notebook    JSONB   NOT NULL,
+    UNIQUE (wid, nid),
+    FOREIGN KEY (wid) REFERENCES workflow(wid) ON DELETE CASCADE
+);
 
-ALTER TABLE dataset
-    ALTER COLUMN visualization_type DROP NOT NULL,
-    ALTER COLUMN visualization_type SET DEFAULT NULL;
+CREATE TABLE IF NOT EXISTS workflow_notebook_mapping
+(
+    wid         INT     NOT NULL,
+    vid         INT     NOT NULL,
+    nid         INT     NOT NULL,
+    mapping     JSONB   NOT NULL,
+    PRIMARY KEY (wid, vid, nid),
+    FOREIGN KEY (vid) REFERENCES workflow_version(vid) ON DELETE CASCADE,
+    FOREIGN KEY (wid, nid) REFERENCES notebook(wid, nid) ON DELETE CASCADE
+);
 
 COMMIT;

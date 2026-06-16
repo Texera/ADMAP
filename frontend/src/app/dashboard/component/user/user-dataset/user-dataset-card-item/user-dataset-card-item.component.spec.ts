@@ -34,7 +34,7 @@ import { ActionType, HubService } from "../../../../../hub/service/hub.service";
 import { UserService } from "../../../../../common/service/user/user.service";
 import { StubUserService } from "../../../../../common/service/user/stub-user.service";
 import { AppSettings } from "../../../../../common/app-setting";
-import { DASHBOARD_HUB_DATASET_RESULT_DETAIL, DASHBOARD_USER_DATASET } from "../../../../../app-routing.constant";
+import { HUB_DATASET_RESULT_DETAIL, USER_DATASET } from "../../../../../app-routing.constant";
 import { commonTestProviders } from "../../../../../common/testing/test-utils";
 
 function makeDatasetEntry(overrides: Partial<any> = {}): DashboardEntry {
@@ -157,21 +157,21 @@ describe("UserDatasetCardItemComponent", () => {
       component.currentUid = 1;
       component.entry = makeDatasetEntry({ id: 99, accessibleUserIds: [1, 2] });
       component.ngOnChanges({ entry: { currentValue: component.entry } } as any);
-      expect(component.entryLink).toEqual([DASHBOARD_USER_DATASET, "99"]);
+      expect(component.entryLink).toEqual([USER_DATASET, "99"]);
     });
 
     it("routes to hub detail page when currentUid is not in accessibleUserIds", () => {
       component.currentUid = 5;
       component.entry = makeDatasetEntry({ id: 99, accessibleUserIds: [1, 2] });
       component.ngOnChanges({ entry: { currentValue: component.entry } } as any);
-      expect(component.entryLink).toEqual([DASHBOARD_HUB_DATASET_RESULT_DETAIL, "99"]);
+      expect(component.entryLink).toEqual([HUB_DATASET_RESULT_DETAIL, "99"]);
     });
 
     it("routes to hub detail page when currentUid is undefined", () => {
       component.currentUid = undefined;
       component.entry = makeDatasetEntry({ id: 99, accessibleUserIds: [1, 2] });
       component.ngOnChanges({ entry: { currentValue: component.entry } } as any);
-      expect(component.entryLink).toEqual([DASHBOARD_HUB_DATASET_RESULT_DETAIL, "99"]);
+      expect(component.entryLink).toEqual([HUB_DATASET_RESULT_DETAIL, "99"]);
     });
   });
 
