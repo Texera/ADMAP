@@ -22,6 +22,10 @@
   [nzBodyStyle]="{ height: '100%'}">
   <!-- LIST VIEW -->
   <ng-container *ngIf="viewMode === 'list'">
+    <!-- itemSize: the height (px) of each list item,
+        this MUST be approximately the same as list item size set in CSS,
+        .workflow-list-item sets the item size to be 70px, with additional paddings/margins it's approximately 80px
+      -->
     <cdk-virtual-scroll-viewport
       itemSize="70"
       class="virtual-scroll-container">
@@ -52,18 +56,15 @@
     </cdk-virtual-scroll-viewport>
   </ng-container>
 
-  <!-- CARD VIEW (datasets only) -->
-  <ng-container *ngIf="viewMode === 'card'">
+  <!-- CARD VIEW -->
+  <ng-container *ngIf="viewMode === 'card' && cardTemplate">
     <div class="card-scroll-container">
       <div class="card-grid">
-        <texera-dataset-card-item
+        <ng-container
           *ngFor="let entry of entries; trackBy: trackByEntryId"
-          [entry]="entry"
-          [editable]="editable"
-          [currentUid]="currentUid"
-          (deleted)="deleted.emit(entry)"
-          (refresh)="refresh.emit()">
-        </texera-dataset-card-item>
+          [ngTemplateOutlet]="cardTemplate"
+          [ngTemplateOutletContext]="{ $implicit: entry }">
+        </ng-container>
       </div>
       <div class="load-more">
         <button

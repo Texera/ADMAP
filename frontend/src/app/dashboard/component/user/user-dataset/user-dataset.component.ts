@@ -26,9 +26,10 @@ import { DatasetService } from "../../../service/user/dataset/dataset.service";
 import { SortMethod } from "../../../type/sort-method";
 import { DashboardEntry } from "../../../type/dashboard-entry";
 import { SearchResultsComponent } from "../search-results/search-results.component";
+import { UserDatasetCardItemComponent } from "./user-dataset-card-item/user-dataset-card-item.component";
 import { FiltersComponent } from "../filters/filters.component";
 import { firstValueFrom } from "rxjs";
-import { DASHBOARD_USER_DATASET } from "../../../../app-routing.constant";
+import { USER_DATASET } from "../../../../app-routing.constant";
 import { NzModalService } from "ng-zorro-antd/modal";
 import { UserDatasetVersionCreatorComponent } from "./user-dataset-explorer/user-dataset-version-creator/user-dataset-version-creator.component";
 import { DashboardDataset } from "../../../type/dashboard-dataset.interface";
@@ -63,6 +64,7 @@ export const DATASET_VIEW_MODE_STORAGE_KEY = "texera.dataset.viewMode";
     NzSelectComponent,
     FormsModule,
     SearchResultsComponent,
+    UserDatasetCardItemComponent,
   ],
 })
 export class UserDatasetComponent implements AfterViewInit {
@@ -211,7 +213,7 @@ export class UserDatasetComponent implements AfterViewInit {
     modal.afterClose.pipe(untilDestroyed(this)).subscribe(result => {
       if (result != null) {
         const dashboardDataset: DashboardDataset = result as DashboardDataset;
-        this.router.navigate([`${DASHBOARD_USER_DATASET}/${dashboardDataset.dataset.did}`]);
+        this.router.navigate([`${USER_DATASET}/${dashboardDataset.dataset.did}`]);
       }
     });
   }
