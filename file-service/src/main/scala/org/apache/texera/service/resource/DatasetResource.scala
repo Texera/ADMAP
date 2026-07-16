@@ -2444,6 +2444,7 @@ class DatasetResource extends LazyLogging {
   }
 
   @GET
+  @PermitAll
   @Path("/public-file")
   def getPublicFileRedirect(
       @QueryParam("filePath") encodedUrl: String,

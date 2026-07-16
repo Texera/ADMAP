@@ -54,7 +54,8 @@ class DatasetResourcePermissionsSpec extends AnyFlatSpec with Matchers {
     "retrievePublicDatasetVersionRootFileNodes",
     "getPublicDataset",
     "getDatasetCover",
-    "getDatasetCoverUrl"
+    "getDatasetCoverUrl",
+    "getPublicFileRedirect"
   )
 
   "DatasetResource" should "expose HTTP endpoints (sanity check for the reflection scan)" in {
