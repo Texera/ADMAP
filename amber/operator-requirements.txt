@@ -29,3 +29,16 @@ torch==2.8.0 ; platform_system != "Linux" or platform_machine != "x86_64"
 scikit-learn==1.5.0
 transformers==5.0.0rc3
 scikit-image==0.25.2
+
+# Volumetric image reconstruction + cell detection operators.
+# opencv MUST be the -headless build (image has no display; the regular
+# opencv-python fails to import without libGL). zarr/ome-zarr/dask are
+# pinned as a mutually compatible group on the zarr 3.x line; versions
+# resolved against the pinned numpy==2.1.0 in requirements.txt.
+SimpleITK==2.4.0
+opencv-python-headless==4.10.0.84
+zarr==3.2.1
+dask==2026.7.1
+ome-zarr==0.18.0
+natsort==8.4.0
+six==1.17.0
