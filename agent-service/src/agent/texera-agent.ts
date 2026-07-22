@@ -539,10 +539,11 @@ export class TexeraAgent {
         stopWhen: stepCountIs(this.settings.maxSteps),
         prepareStep: async ({ stepNumber, messages: currentMessages }) => {
           let compilationResult: WorkflowCompilationResponse | null = null;
-          if (this.workflowState.getAllOperators().length > 0) {
+          const compileToken = this.delegateConfig?.userToken;
+          if (compileToken && this.workflowState.getAllOperators().length > 0) {
             try {
               const logicalPlan = this.workflowState.toLogicalPlan();
-              compilationResult = await compileWorkflowAsync(logicalPlan);
+              compilationResult = await compileWorkflowAsync(logicalPlan, compileToken);
             } catch (e: any) {
               this.log.warn({ err: e?.message || e }, "compilation failed; proceeding without schemas");
             }
