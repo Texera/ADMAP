@@ -48,7 +48,13 @@ COPY .git .git
 COPY LICENSE NOTICE DISCLAIMER ./
 COPY licenses/ licenses/
 
-RUN sbt clean ConfigService/dist
+ARG STORAGE_JDBC_URL="jdbc:postgresql://localhost:5432/texera_db?currentSchema=texera_db,public"
+ARG STORAGE_JDBC_USERNAME=postgres
+RUN --mount=type=secret,id=pgpw,required=false \
+    STORAGE_JDBC_URL="$STORAGE_JDBC_URL" \
+    STORAGE_JDBC_USERNAME="$STORAGE_JDBC_USERNAME" \
+    STORAGE_JDBC_PASSWORD="$(cat /run/secrets/pgpw 2>/dev/null || echo postgres)" \
+    sbt clean ConfigService/dist
 
 # Unzip the texera binary
 RUN unzip config-service/target/universal/config-service-*.zip -d target/

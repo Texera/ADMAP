@@ -92,7 +92,13 @@ COPY bin/licensing/ bin/licensing/
 # LICENSE merge below can union it with amber/LICENSE-binary-java.
 COPY --from=build-frontend /frontend/LICENSE-binary amber/LICENSE-binary-frontend
 
-RUN sbt clean WorkflowExecutionService/dist
+ARG STORAGE_JDBC_URL="jdbc:postgresql://localhost:5432/texera_db?currentSchema=texera_db,public"
+ARG STORAGE_JDBC_USERNAME=postgres
+RUN --mount=type=secret,id=pgpw,required=false \
+    STORAGE_JDBC_URL="$STORAGE_JDBC_URL" \
+    STORAGE_JDBC_USERNAME="$STORAGE_JDBC_USERNAME" \
+    STORAGE_JDBC_PASSWORD="$(cat /run/secrets/pgpw 2>/dev/null || echo postgres)" \
+    sbt clean WorkflowExecutionService/dist
 
 # Unzip the texera binary
 RUN unzip amber/target/universal/amber-*.zip -d amber/target/

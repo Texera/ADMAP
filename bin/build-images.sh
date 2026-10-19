@@ -18,7 +18,7 @@
 
 set -e
 
-SERVICES_INPUT="*"
+SERVICES_INPUT="${SERVICES_INPUT:-*}"
 
 # Convert the user input into an array for easy lookup
 IFS=',' read -ra SELECTED_SERVICES <<< "$SERVICES_INPUT"
@@ -41,11 +41,21 @@ should_build() {
 }
 
 PLATFORM="linux/amd64"
-FULL_TAG="admap-deployment-amd64"
+FULL_TAG="admap-amd64"
+REGISTRY="texera"
+
+# JOOQ codegen runs during `sbt` inside the build container and needs a
+# reachable Postgres. Override via env for other environments, e.g. a local
+# docker-compose-based build would set STORAGE_JDBC_URL=jdbc:postgresql://host.docker.internal:5432/...
+STORAGE_JDBC_URL="${STORAGE_JDBC_URL:-jdbc:postgresql://texera-postgresql.texera.svc.cluster.local:5432/texera_db?currentSchema=texera_db,public}"
+STORAGE_JDBC_USERNAME="${STORAGE_JDBC_USERNAME:-postgres}"
+# Postgres password is passed via a BuildKit secret mount (never lands in env
+# or argv). Point PGPW_FILE at a file containing just the password.
+PGPW_FILE="${PGPW_FILE:-}"
 
 # Ensure Buildx is ready
-# Define builder name
-BUILDER_NAME="texera-builder"
+# Define builder name (override via env var, e.g. BUILDER_NAME=texera-k8s-builder for in-cluster builds)
+BUILDER_NAME="${BUILDER_NAME:-texera-builder}"
 
 # Check if builder exists
 if ! docker buildx inspect "$BUILDER_NAME" > /dev/null 2>&1; then
@@ -82,14 +92,22 @@ for dockerfile in "${dockerfiles[@]}"; do
     continue
   fi
 
-  image="alirisheh876/$service_name:$FULL_TAG"
+  image="$REGISTRY/$service_name:$FULL_TAG"
 
   echo "👉 Building $image from $dockerfile"
+
+  secret_args=()
+  if [[ -n "$PGPW_FILE" && -s "$PGPW_FILE" ]]; then
+    secret_args=(--secret "id=pgpw,src=$PGPW_FILE")
+  fi
 
   docker buildx build \
     --platform "$PLATFORM" \
     -f "$dockerfile" \
     -t "$image" \
+    --build-arg "STORAGE_JDBC_URL=$STORAGE_JDBC_URL" \
+    --build-arg "STORAGE_JDBC_USERNAME=$STORAGE_JDBC_USERNAME" \
+    "${secret_args[@]}" \
     --push \
     ..
 done
