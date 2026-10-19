@@ -1,0 +1,61 @@
+## Namespace where the Texera application is deployed
+texeraNamespace: default
+
+## Loki configuration
+loki:
+  image:
+    repository: grafana/loki
+    tag: "3.4.2"
+  service:
+    type: ClusterIP
+    port: 3100
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: "local-path"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+  retention:
+    period: 168h  # 7 days
+
+## Promtail configuration (log collector agent)
+promtail:
+  image:
+    repository: grafana/promtail
+    tag: "3.4.2"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+## Grafana configuration
+grafana:
+  image:
+    repository: grafana/grafana
+    tag: "11.5.2"
+  service:
+    type: NodePort
+    port: 3000
+    nodePort: 30300
+  admin:
+    user: admin
+    password: admin
+  persistence:
+    enabled: true
+    size: 2Gi
+    storageClass: "local-path"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
